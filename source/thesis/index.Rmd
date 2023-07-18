@@ -1,0 +1,24 @@
+---
+documentclass: article
+fontsize: 12pt
+date: "`r Sys.Date()`"
+output: 
+  bookdown::pdf_document2: 
+    fig_caption: yes
+    toc: false
+    latex_engine: xelatex
+    includes:
+      in_header: preamble.sty
+      before_body: titlepage.sty
+      after_body: back_cover.sty
+bibliography: references.bib  
+editor_options: 
+  markdown: 
+    wrap: 72
+site: bookdown::bookdown_site
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+

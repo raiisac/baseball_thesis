@@ -1,0 +1,25 @@
+\RequirePackage{fix-cm}
+\usepackage{fontspec}
+\usepackage{float}
+\setmainfont{Times New Roman}
+\renewcommand{\baselinestretch}{1.2}
+\usepackage[a4paper, width=160truemm, top=20mm, bottom=20mm]{geometry}
+\pagestyle{plain}
+
+\usepackage{color}
+\usepackage{framed}
+\usepackage{graphicx,xcolor,textpos}
+\usepackage{helvet}
+\setlength{\fboxsep}{.8em}
+
+\newenvironment{greybox}{
+  \definecolor{shadecolor}{rgb}{0.9,0.9,0.9}  % light grey
+  \color{black}
+  \begin{shaded}}
+ {\end{shaded}}
+\definecolor{green}{RGB}{172,196,0}
+\definecolor{bluetitle}{RGB}{29,141,176}
+\definecolor{blueaff}{RGB}{0,0,128}
+\definecolor{blueline}{RGB}{82,189,236}
+\setlength{\TPHorizModule}{1mm}
+\setlength{\TPVertModule}{1mm}
