@@ -1,0 +1,223 @@
+---
+title: "Exploring ATOP in kids for French and Dutch questionnaires separately"
+author: "Raïsa Carmen"
+date: '`r Sys.Date()`'
+output: 
+  bookdown::html_document2: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(frictionless)
+library(nFactors)
+library(rprojroot)
+library(psych)
+source(find_root_file("source", "R", "fa_table.R",
+                       criterion = has_file("baseball_thesis.Rproj")))
+baseball_package <- read_package(
+  find_root_file(
+    "data", "processed", "datapackage_analysis",
+    "datapackage.json", 
+    criterion = has_file("baseball_thesis.Rproj")))
+atop_key <- read_resource(package = baseball_package,
+              resource_name = "wp5_atop_questions")
+atop_data <- read_resource(package = baseball_package,
+              resource_name = "wp5_atop_data")
+children <- read_resource(package = baseball_package,
+              resource_name = "wp2_participants_metadata") %>%
+  left_join(read_resource(package = baseball_package,
+                          resource_name = "wp2_school_data") %>%
+              dplyr::select(-n_students))
+data_cfa_atop <- atop_data %>%
+  dplyr::select(child_id, question_short, response_values) %>%
+  mutate(response_values = ifelse(response_values == -9,
+                                  NA,
+                                  response_values)) %>%
+  group_by(child_id, question_short) %>%
+  summarize(response_values = mean(response_values, na.rm = TRUE)) %>% #there are some children who filled it in more than once -> we take the average score for them
+  ungroup() %>%
+  left_join(children)
+```
+
+# Dutch version
+
+```{r analysis-nl, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+data_cfa_atop_nl <- data_cfa_atop %>% 
+  filter(str_detect(community, "Dutch speaking")) %>%
+  dplyr::select(child_id, question_short, response_values) %>%
+  pivot_wider(id_cols = child_id, names_from = question_short,
+              values_from = response_values) %>%
+  dplyr::select(child_id, atop_key$question_short)
+
+#first, we need to standardize our variables
+data_cfa_atop_nl[,-1] <- scale(data_cfa_atop_nl[,-1], center = TRUE,
+                               scale = FALSE)
+
+data_cfa_atop_nl <- data_cfa_atop_nl[complete.cases(data_cfa_atop_nl),]
+covmat <- cov(data_cfa_atop_nl[,-1])
+cormat <- cor(data_cfa_atop_nl[,-1])
+
+#exploratory factor analysis on correlation matrix with 3 factors and oblique rotation
+efa_obl3_nl <- fa(cormat, covar = FALSE, 3, rotate = "oblimin", fm = "ml",
+                  n.obs = nrow(data_cfa_atop_nl))
+efa_obl2_nl <- fa(cormat, covar = FALSE, 2, rotate = "oblimin", fm = "ml",
+                  n.obs = nrow(data_cfa_atop_nl))
+#list matrix of structure loadings
+print(efa_obl3_nl$Structure, cutoff = 0, digits = 3)
+#list matrix of residual correlations
+round(efa_obl3_nl$residual, 3)
+#compute factor scores after oblique rotation
+scores_efaobl3_nl <- factor.scores(data_cfa_atop_nl[,-1], efa_obl3_nl,
+                                   method = "tenberge")
+tables_nl_3 <- fa_table(efa_obl3_nl,
+                        title = "Factor analysis results for Dutch-speaking
+                        children (3 factors).",
+                        varlabels = atop_key$question_text_english)
+tables_nl_2 <- fa_table(efa_obl2_nl,
+                        title = "Factor analysis results for Dutch-speaking
+                        children (2 factors).",
+                        varlabels = atop_key$question_text_english)
+# apply PCA
+pca <- prcomp(data_cfa_atop_nl[,-1])
+scree_nl <- screeplot(pca, type = "lines")#3 factors is likely better
+ev <- eigen(cormat) # get eigenvalues
+ap <- parallel(subject = nrow(data_cfa_atop_nl),
+               var = ncol(data_cfa_atop_nl) - 1,
+  rep = 100, cent = .05)
+nS <- nScree(x = ev$values, aparallel = ap$eigen$qevpea)
+pdf(find_root_file(
+    "data", "figures",
+    "scree_atop_nl.pdf", 
+    criterion = has_file("baseball_thesis.Rproj")), width = 6.5, height = 4)
+plotnScree(nS)
+dev.off()
+```
+
+There are `r nrow(unique(data_cfa_atop[data_cfa_atop$community == "Dutch speaking", "child_id"]))` children in a Dutch-speaking school and `r nrow(unique(data_cfa_atop[data_cfa_atop$community == "Dutch speaking.French speaking", "child_id"]))` children in bilingual schools that filled in the ATOP scale questions.
+Among them, `r nrow(data_cfa_atop_nl)` children filled in all of the questions an can therefor be analyzed further.
+
+The scree plot indicates that two (according to optimal coordinates method) or three (according to the acceleration factor method) should be best (Figure \@ref(fig:atop-scree-nl)).
+
+```{r atop-scree-nl, warning=FALSE, message=FALSE, fig.cap="Analysis of the number of component or factors to retain in an exploratory principal component or factor analysis.", echo=FALSE, include=TRUE}
+knitr::include_graphics(find_root_file(
+    "data", "figures",
+    "scree_atop_nl.pdf", 
+    criterion = has_file("baseball_thesis.Rproj")))
+```
+
+## Two factors
+In an EFA with oblique rotation, the original two groups of scale items immediately emerge, as shown in the tables below.
+There is little correlation between the two factors but they can only explain `r 100*round(efa_obl2_nl$Vaccounted[3,2],3)`% of the total variance.
+
+```{r atop-2fact-nl-1, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+tables_nl_2$ind_table
+```
+
+```{r atop-2fact-nl-2, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+tables_nl_2$f_table
+```
+
+## Three factors
+In an EFA with oblique rotation and three factors, the original ATOP_fears group still remains but the ATOP_benefits group breaks down into two groups: one bigger group on more tangible benefits (thinking clearly, better health, exploring and learning) and a smaller group on benefits for the mood (feeling calm and free).
+There is quite some interfactor correlation between the two ATOP_benefits factors (`r round(efa_obl3_nl$Phi[1, 3],3)`).
+All three factors together now explain `r 100*round(efa_obl3_nl$Vaccounted[3,3],3)`% of the total variance.
+```{r atop-3fact-nl-1, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+tables_nl_3$ind_table
+```
+
+```{r atop3fact-nl-2, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+tables_nl_3$f_table
+```
+
+
+# French version
+
+```{r analysis-fr, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+data_cfa_atop_fr <- data_cfa_atop %>% 
+  filter(str_detect(community, "French speaking")) %>%
+  dplyr::select(child_id, question_short, response_values) %>%
+  pivot_wider(id_cols = child_id, names_from = question_short,
+              values_from = response_values) %>%
+  dplyr::select(child_id, atop_key$question_short)
+
+#first, we need to standardize our variables
+data_cfa_atop_fr[,-1] <- scale(data_cfa_atop_fr[,-1], center = TRUE,
+                               scale = FALSE)
+
+data_cfa_atop_fr <- data_cfa_atop_fr[complete.cases(data_cfa_atop_fr),]
+covmat <- cov(data_cfa_atop_fr[,-1])
+cormat <- cor(data_cfa_atop_fr[,-1])
+
+#exploratory factor analysis on correlation matrix with 3 factors and oblique rotation
+efa_obl3_fr <- fa(cormat, covar = FALSE, 3, rotate = "oblimin", fm = "ml",
+                  n.obs = nrow(data_cfa_atop_fr))
+efa_obl2_fr <- fa(cormat, covar = FALSE, 2, rotate = "oblimin", fm = "ml",
+                  n.obs = nrow(data_cfa_atop_fr))
+
+#list matrix of structure loadings
+print(efa_obl3_fr$Structure, cutoff = 0, digits = 3)
+#list matrix of residual correlations
+round(efa_obl3_fr$residual, 3)
+#compute factor scores after oblique rotation
+scores_efaobl3_fr <- factor.scores(data_cfa_atop_fr[,-1], efa_obl3_fr,
+                                   method = "tenberge")
+tables_fr_3 <- fa_table(efa_obl3_fr,
+                        title = "Factor analysis results for French-speaking
+                        children (3 factors).",
+                        varlabels = atop_key$question_text_english)
+tables_fr_2 <- fa_table(efa_obl2_fr,
+                        title = "Factor analysis results for French-speaking
+                        children (2 factors).",
+                        varlabels = atop_key$question_text_english)
+# apply PCA
+pca <- prcomp(data_cfa_atop_fr[,-1])
+scree_fr <- screeplot(pca, type = "lines")#3 factors is likely better
+ev <- eigen(cormat) # get eigenvalues
+ap <- parallel(subject = nrow(data_cfa_atop_fr), var = ncol(data_cfa_atop_fr)-1,
+  rep = 100, cent = .05)
+nS <- nScree(x = ev$values, aparallel = ap$eigen$qevpea)
+pdf(find_root_file(
+    "data", "figures",
+    "scree_atop_fr.pdf", 
+    criterion = has_file("baseball_thesis.Rproj")), width = 6.5, height = 4)
+plotnScree(nS)
+dev.off()
+```
+
+There are `r nrow(unique(data_cfa_atop[data_cfa_atop$community == "French speaking", "child_id"]))` children in a French-speaking school and `r nrow(unique(data_cfa_atop[data_cfa_atop$community == "Dutch speaking.French speaking", "child_id"]))` children in bilingual schools that filled in the ATOP scale questions.
+Among them, `r nrow(data_cfa_atop_fr)` children filled in all of the questions an can therefor be analyzed further.
+
+
+The scree plot indicates that two (according to optimal coordinates method) or three (according to the acceleration factor method) should be best (Figure \@ref(fig:atop-scree-fr)).
+
+```{r atop-scree-fr, warning=FALSE, message=FALSE, fig.cap="Analysis of the number of component or factors to retain in an exploratory principal component or factor analysis.", echo=FALSE, include=TRUE}
+knitr::include_graphics(find_root_file(
+    "data", "figures",
+    "scree_atop_fr.pdf", 
+    criterion = has_file("baseball_thesis.Rproj")))
+```
+
+## Two factors
+In an EFA with oblique rotation, the original two groups of scale items immediately emerge, as shown in the tables below.
+There is little correlation between the two factors but they can only explain `r 100*round(efa_obl2_fr$Vaccounted[3,2],3)`% of the total variance.
+
+```{r atop_2fact_fr_1, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+tables_fr_2$ind_table
+```
+
+```{r atop-2fact-fr-2, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+tables_fr_2$f_table
+```
+
+## Three factors
+In an EFA with oblique rotation and three factors, the original ATOP_fears group still remains but the ATOP_benefits group breaks down into two groups. A first, bigger group includes all ATOP_benefits items except imagination and learning new things. The second group separates out learning new things. 
+There is quite some interfactor correlation between the two ATOP_benefits factors (`r round(efa_obl3_fr$Phi[1, 3],3)`).
+All three factors together now explain `r 100*round(efa_obl3_fr$Vaccounted[3,3],3)`% of the total variance.
+```{r atop-3fact-fr-1, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+tables_fr_3$ind_table
+```
+
+```{r atop-3fact-fr-2, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+tables_fr_3$f_table
+```
