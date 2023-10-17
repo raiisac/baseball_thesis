@@ -1,4 +1,960 @@
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# a description of how to view and read the data from the data package
+baseball_package <- read_package(
+  find_root_file("data", "processed", "datapackage_analysis",
+    "datapackage.json", 
+    criterion = has_file("baseball_thesis.Rproj")))
+#overview of all resources (=datasets) in the data package
+resources(baseball_package)
+#Extract a single resource and assign it to a R object
+wp3_ua_sirm_data <- read_resource(package = baseball_package,
+                               resource_name = "wp3_ua_sirm_data")
+#inspect the description
+get_schema(package = baseball_package,
+           resource_name = "wp3_ua_sirm_data")$fields %>%
+  bind_rows() %>%
+  kable(booktabs = TRUE) %>%
+  kableExtra::kable_styling()
+
+#General data about the parents
+gen_data <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_general_questions_data")
+gen_key <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_general_questions_key")
+#socio-economic status
+ses_data <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_ses_questions_data")
+ses_key <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_ses_questions_key")
+```
+
 # Results
 
-## Data overview
+## Demographics
+
+## Scale questions
+
+### Attitude towards outdoor play (ATOP) in kids
+
+```{r read_atop, message=FALSE, warning=FALSE, include=FALSE}
+# a description of how to view and read the data from the data package
+atop_data <- read_resource(package = baseball_package,
+              resource_name = "wp5_atop_data")
+atop_key <- read_resource(package = baseball_package,
+              resource_name = "wp5_atop_questions")
+#inspect the description
+get_schema(package = baseball_package,
+           resource_name = "wp5_atop_data")$fields %>%
+  bind_rows() %>%
+  kable(booktabs = TRUE) %>%
+  kableExtra::kable_styling()
+```
+
+Among the `r nrow(children)` children that were selected for the study, `r length(unique(atop_data$child_id))` children filled in the ATOP questions. Table \@ref(tab:atopkids-descriptives) shows the descriptive statistics for ATOP scale items in all children.
+
+Figure \@ref(fig:atopkids-descriptives2) shows the descriptive statistics for Dutch-speaking and French-speaking children separately (there are children that are in a bilingual school; they are included in both). The results are similar though French-speaking children are markedly less afraid of getting lost in nature.
+
+```{r atopkids-descriptives, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
+nb <- length(unique(atop_data$child_id))
+tbl <- atop_data %>%
+  group_by(question_short, interpretation) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  mutate(summ = sprintf("%.0f (%.0f%%)", n, n/nb*100)) %>%
+  left_join(atop_key %>% dplyr::select(question_short, question_text_english)) %>%
+  dplyr::select(-n, -question_short) %>%
+  pivot_wider(names_from = interpretation,
+              values_from = summ)  %>% 
+  mutate_at(2:6, ~replace_na(.,"")) %>%
+  dplyr::select(question_text_english, Disagree, `Slightly disagree`,
+                `Moderately agree`, Agree, `No response`)
+tbl[order(match(tbl$question_text_english, atop_key$question_text_english)),] %>%
+  kable(booktabs = TRUE,
+        caption = "Descriptive statistics for Attitude Towards Outdoor Play
+        scale items in children.",
+        col.names = c("Item", "Disagree", "Slightly disagree",
+                     "Moderately agree", "Agree", "No response")) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::column_spec(1, width = "2in") %>%
+  kableExtra::column_spec(2:6, width = "0.6in")
+```
+
+```{r atopkids-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the ATOP scale items.", fig.width = 6.5, fig.height = 6.5}
+likert_data_atop <- atop_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "Dutch speaking")) %>%
+  mutate(interpretation = factor(as.factor(interpretation),
+                                 levels = c("Disagree", "Slightly disagree",
+                                            "No response",
+                                            "Moderately agree", "Agree"))) %>%
+  dplyr::select(question_short, interpretation) %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop <- likert_data_atop2 %>%
+  mutate(across(think_clearly:getting_hurt, function(x) factor(as.factor(x),
+                                      levels = 1:5,                      
+                                      labels = c("Disagree",
+                                                 "Slightly disagree",
+                                                 "No response",
+                                                 "Moderately agree",
+                                                 "Agree"))))
+names(likert_data_atop) <- atop_key$question_text_english
+p_nl <- gglikert(likert_data_atop, sort = "none", y_label_wrap = 20,
+                 labels_size = 2)
+ 
+
+likert_data_atop <- atop_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French speaking")) %>%
+  mutate(interpretation = factor(as.factor(interpretation),
+                                 levels = c("Disagree", "Slightly disagree",
+                                            "No response",
+                                            "Moderately agree", "Agree"))) %>%
+  dplyr::select(question_short, interpretation) %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop <- likert_data_atop2 %>%
+  mutate(across(think_clearly:getting_hurt, function(x) factor(as.factor(x),
+                                      levels = 1:5,                      
+                                      labels = c("Disagree",
+                                                 "Slightly disagree",
+                                                 "No response",
+                                                 "Moderately agree",
+                                                 "Agree"))))
+names(likert_data_atop) <- atop_key$question_text_english
+
+p_fr <- gglikert(likert_data_atop, sort = "none", y_label_wrap = 20,
+                 labels_size = 2) +
+  theme(axis.text.y = element_blank())
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+@beyer2015development prescribes that the ATOP scale for children had two sub-scales: ATOP-benefits and ATOP-fears (see Table \@ref(tab:atop-translation-kids) in the appendix). We first execute an exploratory factor analysis and we hypothesize that the `r length(unique(atop_data$question_code))` test scores can be explained by these two common factors. We will use oblique rotation to allow for correlation between the factors.
+Figure \@ref(fig:atopkids-scree) shows that two (according to optimal coordinates method) or three (according to the acceleration factor method) factors should fit best.
+
+```{r atopkids-cfa, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+#there are some children who filled it in more than once -> we take the average score for them
+atop_data %>% group_by(child_id, question_short) %>%
+  summarise(n = dplyr::n(), .groups = "drop") %>%
+  dplyr::filter(n > 1L)
+data_cfa_atop <- atop_data %>%
+  dplyr::select(child_id, question_short, response_values) %>%
+  mutate(response_values = ifelse(response_values == -9,
+                                  NA,
+                                  response_values)) %>%
+  group_by(child_id, question_short) %>%
+  summarize(response_values = mean(response_values, na.rm = TRUE)) %>%
+  ungroup() %>%
+  pivot_wider(id_cols = child_id, names_from = question_short,
+              values_from = response_values) %>%
+  dplyr::select(child_id, atop_key$question_short)
+
+#first, we need to standardize our variables
+data_cfa_atop_unscaled <- data_cfa_atop
+data_cfa_atop[,-1] <- scale(data_cfa_atop[,-1], center = TRUE, scale = FALSE)
+
+data_cfa_atop <- data_cfa_atop[complete.cases(data_cfa_atop),]
+covmat <- cov(data_cfa_atop[,-1])
+cormat <- cor(data_cfa_atop[,-1])
+
+#exploratory factor analysis on correlation matrix with 3 factors and oblique rotation
+efa_obl2 <- fa(cormat, covar = FALSE, 2, rotate = "oblimin", fm = "ml", n.obs = nrow(data_cfa_atop))
+#list matrix of structure loadings
+print(efa_obl2$Structure, cutoff = 0, digits = 3)
+#list matrix of residual correlations
+round(efa_obl2$residual, 3)
+#compute factor scores after oblique rotation
+scores_efaobl2 <- factor.scores(data_cfa_atop[,-1], efa_obl2,
+method = "tenberge")
+tables_atop <- fa_table(efa_obl2,
+                        title = "Factor analysis results with oblique rotation
+                        and two factors.",
+                        varlabels = str_wrap(atop_key$question_text_english, 15),
+                        fnames = c("ATOP_benefits", "ATOP_fears"))
+# apply PCA
+pca <- prcomp(data_cfa_atop[,-1])
+scree1 <- screeplot(pca, type = "lines")#3 factors is likely better
+ev <- eigen(cormat) # get eigenvalues
+ap <- parallel(subject = nrow(data_cfa_atop), var = ncol(data_cfa_atop)-1,
+  rep = 100, cent = .05)
+nS <- nScree(x = ev$values, aparallel = ap$eigen$qevpea)
+pdf(find_root_file(
+    "data", "figures",
+    "scree_atop.pdf", 
+    criterion = has_file("baseball_thesis.Rproj")), width = 6.5, height = 4)
+plotnScree(nS)
+dev.off()
+
+resid <- cormat -
+   (crossprod(t(efa_obl2$loadings)) + diag(efa_obl2$uniquenesses))
+n <- sum(ifelse(abs(resid) > 0.05, 1, 0)) / 2
+non_redundant_factors <- n / (11*12/2)
+
+#cronbach alpha
+alpha_ATOP_benefits <- alpha(data_cfa_atop_unscaled %>% dplyr::select(2:8))
+alpha_ATOP_benefits_nl <- alpha(data_cfa_atop_unscaled %>%
+                               left_join(children %>%
+                                           dplyr::select(child_id,
+                                                         community)) %>%
+                               dplyr::filter(str_detect(community, "Dutch")) %>%
+                               dplyr::select(2:8))
+alpha_ATOP_benefits_fr <- alpha(data_cfa_atop_unscaled %>%
+                               left_join(children %>%
+                                           dplyr::select(child_id,
+                                                         community)) %>%
+                               dplyr::filter(str_detect(community, "French")) %>%
+                               dplyr::select(2:8))
+alpha_ATOP_fears <- alpha(data_cfa_atop_unscaled %>% dplyr::select(9:12))
+alpha_ATOP_fears_nl <- alpha(data_cfa_atop_unscaled %>%
+                            left_join(children %>%
+                                        dplyr::select(child_id,
+                                                      community)) %>%
+                            dplyr::filter(str_detect(community, "Dutch")) %>%
+                            dplyr::select(9:12))
+alpha_ATOP_fears_fr <- alpha(data_cfa_atop_unscaled %>%
+                            left_join(children %>%
+                                        dplyr::select(child_id,
+                                                      community)) %>%
+                            dplyr::filter(str_detect(community, "French")) %>%
+                            dplyr::select(9:12))
+
+```
+
+
+In total, `r nrow(data_cfa_atop)` out of the `r nrow(children)` children filled in all of the ATOP questions and can therefor be analyzed further.
+
+```{r atopkids-scree, warning=FALSE, message=FALSE, fig.cap="Analysis of the number of component or factors to retain in an exploratory principal component or factor analysis.", echo=FALSE, include=TRUE}
+knitr::include_graphics(find_root_file(
+    "data", "figures",
+    "scree_atop.pdf", 
+    criterion = has_file("baseball_thesis.Rproj")))
+```
+
+Exploring the factor analysis with two factors, we can see that the two original factors ATOP_benefits and ATOP_fears re-emerge as shown in the Tables \@ref(tab:atop-2fact-1) and \@ref(tab:atop-2fact-2). Figure \@ref(fig:atop-kids-loadings) shows the factor loadings graphically.
+
+Both factors together explain `r 100*round(efa_obl2$Vaccounted[3,2],3)`% of the total variance and uniqueness is pretty high for many items meaning a large part of the variance is not explained. Indeed, `r round(100*non_redundant_factors,2)` percent of the correlations are non-redundant (i.e. the absolute value of the residual > 0.05).
+
+```{r atop-2fact-1, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+tables_atop$ind_table
+```
+
+```{r atop-2fact-2, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+tables_atop$f_table
+```
+
+```{r atop-kids-loadings, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE, fig.cap = "Graphical representation of the factor loadings.", fig.width = 4.5, fig.height = 3}
+data.frame(ATOP_benefits = efa_obl2$loadings[, 1],
+           ATOP_fears = efa_obl2$loadings[, 2]) %>%
+  ggplot(aes(x = ATOP_benefits, y = ATOP_fears)) +
+  geom_point() +
+  geom_vline(aes(xintercept = 0)) +
+  geom_hline(aes(yintercept = 0)) +
+  xlim(-0.5, 1) + ylim(-0.5, 1) +
+  ggrepel::geom_text_repel(aes(label = names(efa_obl2$loadings[, 1]))) + 
+  theme_bw()
+```
+
+We further analyse this two-factor model by calculating Chronbach alpha for the ATOP_benefits and ATOP_fears scale items separately.
+The raw alpha value for ATOP_benefits is `r round(unlist(unname(alpha_ATOP_benefits$total["raw_alpha"])), 2)` (`r round(unlist(unname(alpha_ATOP_benefits_nl$total["raw_alpha"])), 2)` in the Dutch and `r round(unlist(unname(alpha_ATOP_benefits_fr$total["raw_alpha"])), 2) ` in the French questionnaire separately) and `r round(unlist(unname(alpha_ATOP_fears$total["raw_alpha"])), 2)` for ATOP_fears (`r round(unlist(unname(alpha_ATOP_fears_nl$total["raw_alpha"])), 2)` in the Dutch and `r round(unlist(unname(alpha_ATOP_fears_fr$total["raw_alpha"])), 2)` in the French questionnaire separately) respectively which is slightly worse than the original scale items (0.79 for both subscales in @beyer2015development).
+
+While the ATOP_benefits scale is just higher then the threshold for good reliability (0.7), the ATOP_fears scale is not.
+This might be due to the fact that one question from the original ATOP_fears scale was left out (about people with drugs in nature).
+
+The first column in Table \@ref(tab:atop-kids-alpha) shows the overall $\alpha$ when each statement is dropped from the scale.
+It can be seen that the statement "I like to make up my own games when I am outdoors in nature." might have very little value since $\alpha$ barely decreases if it is dropped. 
+The items with the highest item-scale correlation in both the ATOP_benefits and ATOP_fears scale also lower $\alpha$ the most if they are dropped.
+Note that the second column shows correlations when the item itself is removed from the scale.
+The last two columns in  Table \@ref(tab:atop-kids-alpha) show the mean and standard deviation for the statement's answers.
+
+
+```{r atop-kids-alpha, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+alpha_ATOP_benefits$alpha.drop["raw_alpha"] %>%
+  cbind(alpha_ATOP_benefits$item.stats[c("r.drop", "mean", "sd")]) %>%
+  rbind(alpha_ATOP_fears$alpha.drop["raw_alpha"] %>%
+          cbind(alpha_ATOP_fears$item.stats[c("r.drop",
+                                              "mean", "sd")])) %>%
+  mutate(question_short = row.names(.)) %>%
+  left_join(atop_key %>% dplyr::select(question_short, question_text_english),
+            by = ) %>%
+  dplyr::select(question_text_english, raw_alpha, r.drop, mean, sd) %>%
+  kable(booktabs = TRUE,
+        escape = FALSE,
+        caption = "Reliability if an item is dropped and item statistics.",
+        digits = 3,
+        col.names = c("item", "raw $\\alpha$", "item-scale corr.", "mean", "std. dev.")) %>%
+  kableExtra::group_rows(start_row = 1,
+                         end_row = nrow(alpha_ATOP_benefits$alpha.drop),
+                         group_label = "ATOP_benefits") %>%
+  kableExtra::group_rows(start_row = 1 + nrow(alpha_ATOP_benefits$alpha.drop),
+                         end_row = nrow(alpha_ATOP_benefits$alpha.drop) +
+                           nrow(alpha_ATOP_fears$alpha.drop),
+                         group_label = "ATOP_fears") %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::column_spec(1, width = "3in") %>%
+  kableExtra::column_spec(3, width = "0.7in")
+```
+
+
+\clearpage
+
+### Nature connectedness in kids
+
+```{r read_nc, message=FALSE, warning=FALSE, include=FALSE}
+# a description of how to view and read the data from the data package
+nc_data <- read_resource(package = baseball_package,
+              resource_name = "wp5_nc_data")
+nc_key <- read_resource(package = baseball_package,
+              resource_name = "wp5_nc_key")
+#inspect the description
+get_schema(package = baseball_package,
+           resource_name = "wp5_nc_data")$fields %>%
+  bind_rows() %>%
+  kable(booktabs = TRUE) %>%
+  kableExtra::kable_styling()
+```
+
+Among the `r nrow(children)` children that were selected for the study, `r length(unique(nc_data$child_id))` children filled in the Nature connectedness questions. Table \@ref(tab:nc-descriptives) shows the descriptive statistics for NC scale items in all children. While the original article suggested to use a 7-point likert scale, a 5-point likert scale was used for brevity. 
+
+In preliminary tests of the survey with a few children, some questions were not clear enough. They were then clarified with some more detail between brackets (see Table \@ref(tab:nc-translation) in the Appendix)
+
+Figure \@ref(fig:nc-descriptives2) shows the descriptive statistics for Dutch-speaking and French-speaking children separately (there are children that are in a bilingual school; they are included in both). The results are quite similar though Dutch-speaking children were more outspoken (they tend to choose the "I don't know" option less). Dutch children also agree more with the statement that nature is very beautiful and less with the statement on feeling part of nature.
+
+```{r nc-descriptives, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
+nb <- length(unique(nc_data$child_id))
+tbl <- nc_data %>%
+  group_by(question_short, interpretation) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  mutate(summ = sprintf("%.0f (%.0f%%)", n, n/nb*100)) %>%
+  left_join(nc_key %>% dplyr::select(question_short, question_text_english)) %>%
+  dplyr::select(-n, -question_short) %>%
+  pivot_wider(names_from = interpretation,
+              values_from = summ)  %>% 
+  mutate_at(2:6, ~replace_na(.,"")) %>%
+  dplyr::select(question_text_english, Disagree, `Slightly disagree`,
+                `Don't know`, `Moderately agree`, Agree, `No response`)
+tbl[order(match(tbl$question_text_english, nc_key$question_text_english)),] %>%
+  kable(booktabs = TRUE,
+        caption = "Descriptive statistics for Nature Connectedness
+        scale items in children.",
+        col.names = c("Item", "Disagree", "Slightly disagree", "Don't know",
+                     "Moderately agree", "Agree", "No response")) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::column_spec(1, width = "2in") %>%
+  kableExtra::column_spec(2:6, width = "0.6in")
+```
+
+```{r nc-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the Nature connectedness scale items. Non-responses are not shown but taken into account when calculating the percentages.", fig.width = 6.5, fig.height = 6.5}
+likert_data_nc <- nc_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "Dutch speaking")) %>%
+  mutate(interpretation = factor(as.factor(interpretation),
+                                 levels = c("Disagree", "Slightly disagree",
+                                            "No response", "Don't know",
+                                            "Moderately agree", "Agree"))) %>%
+  dplyr::select(question_short, interpretation) %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              values_fn = list)
+likert_data_nc2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_nc),
+                                                 FUN = function(x) {
+                                                   likert_data_nc[[x]]
+                                          })))
+colnames(likert_data_nc2) <- names(likert_data_nc)
+likert_data_nc <- likert_data_nc2 %>%
+  mutate(across(beauty:part_of, function(x) factor(as.factor(x),
+                                      levels = 1:6,                      
+                                      labels = c("Disagree",
+                                                 "Slightly disagree",
+                                                 "No response", "Don't know",
+                                                 "Moderately agree", "Agree"))))
+names(likert_data_nc) <- nc_key$question_text_english
+p_nl <- gglikert(likert_data_nc,
+                 exclude_fill_values = "No response",
+                 sort = "none", y_label_wrap = 20,
+                 labels_size = 2)
+ 
+
+likert_data_nc <- nc_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French speaking")) %>%
+  mutate(interpretation = factor(as.factor(interpretation),
+                                 levels = c("Disagree", "Slightly disagree",
+                                            "No response", "Don't know",
+                                            "Moderately agree", "Agree"))) %>%
+  dplyr::select(question_short, interpretation) %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              values_fn = list)
+likert_data_nc2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_nc),
+                                                 FUN = function(x) {
+                                                   likert_data_nc[[x]]
+                                          })))
+colnames(likert_data_nc2) <- names(likert_data_nc)
+likert_data_nc <- likert_data_nc2 %>%
+  mutate(across(beauty:part_of, function(x) factor(as.factor(x),
+                                      levels = 1:6,                      
+                                      labels = c("Disagree",
+                                                 "Slightly disagree",
+                                                 "No response", "Don't know",
+                                                 "Moderately agree", "Agree"))))
+names(likert_data_nc) <- nc_key$question_text_english
+
+p_fr <- gglikert(likert_data_nc, sort = "none",
+                 exclude_fill_values = "No response", y_label_wrap = 20,
+                 labels_size = 2) +
+  theme(axis.text.y = element_blank())
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+<!-- @beyer2015development prescribes that the ATOP scale for children had two sub-scales: ATOP-benefits and ATOP-fears (see Table \@ref(tab:atop-translation-kids) in the appendix). We first execute an exploratory factor analysis and we hypothesize that the `r length(unique(atop_data$question_code))` test scores can be explained by these two common factors. We will use oblique rotation to allow for correlation between the factors. -->
+<!-- Figure \@ref(fig:atopkids-scree) shows that two (according to optimal coordinates method) or three (according to the acceleration factor method) factors should fit best. -->
+
+```{r nc-cfa, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+#there are some children who filled it in more than once -> we take the average score for them
+nc_data %>% group_by(child_id, question_short) %>%
+  summarise(n = dplyr::n(), .groups = "drop") %>%
+  dplyr::filter(n > 1L)
+data_cfa_nc <- nc_data %>%
+  dplyr::select(child_id, question_short, response_values) %>%
+  mutate(response_values = ifelse(response_values == -9,
+                                  NA,
+                                  response_values)) %>%
+  group_by(child_id, question_short) %>%
+  summarize(response_values = mean(response_values, na.rm = TRUE)) %>%
+  ungroup() %>%
+  pivot_wider(id_cols = child_id, names_from = question_short,
+              values_from = response_values) %>%
+  dplyr::select(child_id, nc_key$question_short)
+
+#first, we need to standardize our variables
+data_cfa_nc_unscaled <- data_cfa_nc
+data_cfa_nc[,-1] <- scale(data_cfa_nc[,-1], center = TRUE, scale = FALSE)
+
+data_cfa_nc <- data_cfa_nc[complete.cases(data_cfa_nc),]
+covmat <- cov(data_cfa_nc[,-1])
+cormat <- cor(data_cfa_nc[,-1])
+
+#exploratory factor analysis on correlation matrix with 3 factors and oblique rotation
+efa_obl2 <- fa(cormat, covar = FALSE, 2, rotate = "oblimin", fm = "ml", n.obs = nrow(data_cfa_nc))
+#list matrix of structure loadings
+print(efa_obl2$Structure, cutoff = 0, digits = 3)
+#list matrix of residual correlations
+round(efa_obl2$residual, 3)
+#compute factor scores after oblique rotation
+scores_efaobl3 <- factor.scores(data_cfa_nc[,-1], efa_obl2,
+method = "tenberge")
+tables_nc <- fa_table(efa_obl2,
+                        title = "Factor analysis results with oblique rotation
+                        and two factors.",
+                        varlabels = str_wrap(nc_key$question_text_english, 15))
+# apply PCA
+pca <- prcomp(data_cfa_nc[,-1])
+scree1 <- screeplot(pca, type = "lines")#3 factors is likely better
+ev <- eigen(cormat) # get eigenvalues
+ap <- parallel(subject = nrow(data_cfa_nc), var = ncol(data_cfa_nc)-1,
+  rep = 100, cent = .05)
+nS <- nScree(x = ev$values, aparallel = ap$eigen$qevpea)
+pdf(find_root_file(
+    "data", "figures",
+    "scree_nc.pdf", 
+    criterion = has_file("baseball_thesis.Rproj")), width = 6.5, height = 4)
+plotnScree(nS)
+dev.off()
+
+resid <- cormat -
+   (crossprod(t(efa_obl2$loadings)) + diag(efa_obl2$uniquenesses))
+n <- sum(ifelse(abs(resid) > 0.05, 1, 0)) / 2
+non_redundant_factors <- n / (5*6/2)
+
+#cronbach alpha
+alpha_nc <- alpha(data_cfa_nc_unscaled %>%
+                       dplyr::select(-child_id))
+alpha_nc_nl <- alpha(data_cfa_nc_unscaled %>%
+                       left_join(children %>%
+                                   dplyr::select(child_id,
+                                                 community)) %>%
+                       dplyr::filter(str_detect(community, "Dutch")) %>%
+                       dplyr::select(-child_id, -community))
+alpha_nc_fr <- alpha(data_cfa_nc_unscaled %>%
+                       left_join(children %>%
+                                   dplyr::select(child_id,
+                                                 community)) %>%
+                       dplyr::filter(str_detect(community, "French")) %>%
+                       dplyr::select(-child_id, -community))
+```
+
+
+In total, `r nrow(data_cfa_nc)` out of the `r nrow(children)` children filled in all of the Nature Connectedness questions and can therefor be analyzed further.
+The scree plot in Figure \@ref(fig:nc-scree) shows that, according to the optimal coordinates method, one factor is best (as in the original scale). According to the acceleration factor method, two factors may be better. Explorative analysis showed that allowing for two factors resulted in one statement ("I always find nature very beautiful") being split off and "I always treat nature with respect" does not fit well in either factor. 
+We therefor only explore the one-factor model further in this research.
+
+```{r nc-scree, warning=FALSE, message=FALSE, fig.cap="Analysis of the number of component or factors to retain in an exploratory principal component or factor analysis.", echo=FALSE, include=TRUE}
+knitr::include_graphics(find_root_file(
+    "data", "figures",
+    "scree_nc.pdf", 
+    criterion = has_file("baseball_thesis.Rproj")))
+```
+
+
+We further analyse the Nature Connectedness scale by calculating Chronbach alpha.
+The raw alpha value is `r round(unlist(unname(alpha_nc$total["raw_alpha"])), 2)` (`r round(unlist(unname(alpha_nc_nl$total["raw_alpha"])), 2)` in the Dutch and `r round(unlist(unname(alpha_nc_fr$total["raw_alpha"])), 2)` in the French questionnaire separately) which is slightly less than the original scale's chronbach alpha (0.899 in children, @hunt2017monitor) but still quite good.
+
+Table \@ref(tab:nc-alpha) shows that Chronbach alpha can actually be increased if the statement "I always treat nature with respect." is removed (see first column in the table). As expected, this item also has the lowest item-scale correlation. In contrast, the original study reported that "I feel part of nature" was the statement that was least correlated with all other statements.
+
+```{r nc-alpha, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+alpha_nc$alpha.drop["raw_alpha"] %>%
+  cbind(alpha_nc$item.stats[c("r.drop", "mean", "sd")]) %>%
+  mutate(question_short = row.names(.)) %>%
+  left_join(nc_key %>% dplyr::select(question_short, question_text_english)) %>%
+  dplyr::select(question_text_english, raw_alpha, r.drop, mean, sd) %>%
+  kable(booktabs = TRUE,
+        escape = FALSE,
+        caption = "Reliability if an item is dropped and item statistics.",
+        digits = 3,
+        col.names = c("item", "raw $\\alpha$", "item-scale corr.", "mean",
+                      "std. dev.")) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::column_spec(1, width = "3in") %>%
+  kableExtra::column_spec(3, width = "0.7in")
+```
+
+\clearpage
+
+### Outdoor play questionnaire in parents
+
+```{r read_atop_p, message=FALSE, warning=FALSE, include=FALSE}
+atop_data_p1 <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_outdoor_play_data_part1")
+atop_data_p2 <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_outdoor_play_data_part2")
+atop_data_p3 <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_outdoor_play_data_part3")
+atop_data_p4 <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_outdoor_play_data_part4")
+atop_key_p <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_outdoor_play_key")
+```
+
+The parents were asked about how often their children play and what type of activities (both indoor and outdoor) they typically engage in. Since the response was disappointing at first, some questions were left out in a shortened version of the questionnaire to hopefully motivate parents to fill it in (see also Table \@ref(tab:atop-translation) in the Appendix).
+
+Table \@ref(tab:atop-p-descriptives) shows the descriptives for each of the questions. Figures \@ref(fig:opp1) to \@ref(fig:opp4) show the same data visually for both languages separately.
+
+
+```{r atop-p-descriptives, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
+nb <- length(unique(c(atop_data_p1$child_id, atop_data_p2$child_id,
+                      atop_data_p2$child_id, atop_data_p4$child_id)))
+tbl1 <- atop_data_p1 %>%
+  group_by(question_short) %>%
+  summarize(unit = str_remove(unique(unit), "number of "),
+            s = sprintf("mean %.2f, (sd %.2f) %s", mean(response), sd(response), unit),
+            n = n_distinct(child_id)) %>%
+  ungroup() %>%
+  dplyr::select(-unit, -n)
+tbl2 <- atop_data_p2 %>%
+  mutate(response = ifelse(response == "association", "yes",
+                           ifelse(response == "no association",
+                                  "no",
+                                  "maybe"))) %>%
+  group_by(question_short, response) %>%
+  summarize(n = n_distinct(child_id)) %>%
+  mutate(s = sprintf("%s: %d", response, n)) %>%
+  arrange(question_short, desc(s)) %>%
+  summarize(s = str_c(s, collapse = ", ")) %>%
+  dplyr::filter(question_short != "other_outdoor_play")
+tbl3 <- atop_data_p3 %>%
+  dplyr::filter(str_length(response) < 5) %>% #only keep cases with 1 response or where both responses agree
+  mutate(response = factor(as.factor(response),
+                           levels = c("0", "< 1", "1-2", "2-3", "3-4", "> 4"))
+         ) %>%
+  group_by(question_short, unit, response) %>%
+  summarize(n = n_distinct(child_id)) %>%
+  mutate(s = sprintf("%s: %d", response, n)) %>%
+  arrange(question_short, response) %>%
+  summarize(s = str_c(s, collapse = ", ")) %>%
+  mutate(s = str_c(unit, ":", s)) %>%
+  dplyr::select(-unit) %>%
+  ungroup()
+tbl4 <- atop_data_p4 %>%
+  dplyr::filter(!str_detect(response, "-")) %>% #only keep cases with 1 response or where both responses agree
+  group_by(question_short, response) %>%
+  summarize(n = n_distinct(child_id)) %>%
+  mutate(s = sprintf("%s: %d", response, n)) %>%
+  arrange(question_short, response) %>%
+  summarize(s = str_c(s, collapse = ", "))
+
+tbl1 %>%
+  rbind(tbl2) %>%
+  rbind(tbl3) %>%
+  rbind(tbl4) %>%
+  left_join(atop_key_p %>%
+              dplyr::select(question_short, question_text_english)) %>%
+  mutate(question_text_english =
+           ifelse(startsWith(question_text_english, "How often"),
+                             str_split_i(question_text_english,
+                                         pattern = "/", i = 2),
+                  question_text_english)) %>%
+  dplyr::select(question_text_english, s) %>%
+  kable(booktabs = TRUE,
+        caption = "Descriptive statistics for outdoor play activities
+        according to the parents.",
+        col.names = c("Question", "Summary")) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::column_spec(1, width = "3in") %>%
+  kableExtra::column_spec(2, width = "3in")
+```
+
+```{r atop-p-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the ATOP scale items.", fig.width = 6.5, fig.height = 6.5}
+likert_data_atop <- atop_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "Dutch speaking")) %>%
+  mutate(interpretation = factor(as.factor(interpretation),
+                                 levels = c("Disagree", "Slightly disagree",
+                                            "No response",
+                                            "Moderately agree", "Agree"))) %>%
+  dplyr::select(question_short, interpretation) %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop <- likert_data_atop2 %>%
+  mutate(across(think_clearly:getting_hurt, function(x) factor(as.factor(x),
+                                      levels = 1:5,                      
+                                      labels = c("Disagree",
+                                                 "Slightly disagree",
+                                                 "No response",
+                                                 "Moderately agree",
+                                                 "Agree"))))
+names(likert_data_atop) <- atop_key$question_text_english
+p_nl <- gglikert(likert_data_atop, sort = "none", y_label_wrap = 20,
+                 labels_size = 2)
+ 
+
+likert_data_atop <- atop_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French speaking")) %>%
+  mutate(interpretation = factor(as.factor(interpretation),
+                                 levels = c("Disagree", "Slightly disagree",
+                                            "No response",
+                                            "Moderately agree", "Agree"))) %>%
+  dplyr::select(question_short, interpretation) %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop <- likert_data_atop2 %>%
+  mutate(across(think_clearly:getting_hurt, function(x) factor(as.factor(x),
+                                      levels = 1:5,                      
+                                      labels = c("Disagree",
+                                                 "Slightly disagree",
+                                                 "No response",
+                                                 "Moderately agree",
+                                                 "Agree"))))
+names(likert_data_atop) <- atop_key$question_text_english
+
+p_fr <- gglikert(likert_data_atop, sort = "none", y_label_wrap = 20,
+                 labels_size = 2) +
+  theme(axis.text.y = element_blank())
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+These answers can be used to validate the answered that were received from the children wrt their attitude towards outdoor play. To do so, we first check whether there is a big difference in the children whose parents answered (`r nb` in total of which `r nb-length(unique(atop_data_p4$child_id))` answered the full (not shortened) questionnaire) and the children whose parents did not answer the questionnaire (`r nrow(children) - nb`). \@ref(tab:atop-p-response-difference) shows that relatively less Dutch-speaking parents answered the long questionnaire and they were more likely not to respond at all. We can see that the response was especially low in the Flemish (Dutch speaking) provinces of West-Vlaanderen, Vlaams-Brabant, Oost-Vlaanderen, and Antwerp.
+
+```{r atop-p-response-difference, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+children %>%
+  mutate(response = ifelse(child_id %in% atop_data_p2$child_id &
+                             !(child_id %in% atop_data_p4$child_id),
+                           "long",
+                           ifelse(child_id %in% atop_data_p4$child_id,
+                                  "short", "none")),
+         response = factor(as.factor(response),
+                                     levels = c("long", "short", "none"))) %>%
+  group_by(response) %>%
+  summarize(Number = n(),
+            #age = mean(age_202205),#age is not known if the parents did not fill in the survey
+            Dutch = sum(community == "Dutch speaking"),
+            French = sum(community == "French speaking"),
+            Bilingual = sum(community == "Dutch speaking.French speaking"),
+            `West-Vlaanderen` = sum(province_name == "West-Vlaanderen"),
+            `Vlaams-Brabant` = sum(province_name == "Vlaams-Brabant"),
+            `Oost-Vlaanderen` = sum(province_name == "Oost-Vlaanderen"),
+            Antwerpen = sum(province_name == "Antwerpen"),
+            Brussels = sum(province_name == "Brussels Capital Region"),
+            Hainaut = sum(province_name == "Hainaut"),
+            Liege = sum(province_name == "Liège"),
+            Namur = sum(province_name == "Namur"),
+            Luxembourg = sum(province_name == "Luxembourg")) %>%
+  ungroup() %>%
+  # mutate(across(Dutch : Luxembourg, ~ sprintf("%d, (%.2f%%)", .x, 100*.x / nb)),
+  #        Number = as.character(Number)) %>%
+  pivot_longer(
+    cols = !response,
+    names_to = "variable",
+    values_to = "nb_perc") %>%
+  pivot_wider(names_from = response,
+              values_from = `nb_perc`) %>%
+  mutate(rowsum = rowSums(across(where(is.numeric)))) %>%
+  mutate(across(long:none, ~ sprintf("%d, (%.2f%%)", .x, 100*.x / rowsum))) %>%
+  dplyr::select(-rowsum) %>%
+  kable(booktabs = TRUE,
+        caption = "Demographics for children whose parents filled in the long
+        questionnaire, short questionnaire, or no questionnaire.",
+        col.names = c("", "Long questionnaire", "Short questionnaire",
+                      "No response")) %>%
+  kableExtra::group_rows(group_label = "Number of children",
+                        start_row = 1, end_row = 1) %>%
+  kableExtra::group_rows(group_label = "Community",
+                        start_row = 2, end_row = 4) %>%
+  kableExtra::group_rows(group_label = "Province",
+                        start_row = 5, end_row = 13)
+
+```
+
+
+ADD CORRELATIONS (+P_VALUES ZOALS IN BEYER 2015) BETWEEN EACH OF THE QUESTIONS AND THE FACTOR LOADINGS FOR ATOP_FEARS AND ATOP_BENEFITS HERE
+
+\clearpage
+### Risk engagement and protection survey in parents and guardians
+```{r read_reps, message=FALSE, warning=FALSE, include=FALSE}
+# a description of how to view and read the data from the data package
+reps_data1 <- read_resource(package = baseball_package,
+                            resource_name =
+                              "wp5_parents_risk_protection_data_part1") %>%
+  mutate(response = factor(as.factor(response),
+                           levels = c("Strongly disagree", "Disagree",
+                                      "Slightly disagree",
+                                      "Neigher agree nor disagree",
+                                      "Slightly agree", "Agree",
+                                      "Strongly agree")))
+  
+reps_data2 <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_risk_protection_data_part2") %>%
+  mutate(response = factor(as.factor(response),
+                           levels = c("Never", "Seldom", "Occassionally",
+                                     "Sometimes", "Regularly", "Often",
+                                     "Always")))
+reps_data <- reps_data1 %>%
+  mutate(response = as.numeric(response)) %>%
+  rbind(reps_data2 %>%
+          mutate(response = as.numeric(response)))
+nb_parents_reps <- length(
+  unique(c(
+    str_c(reps_data1$child_id, reps_data1$replicate_id),
+    str_c(reps_data2$child_id, reps_data2$replicate_id))))
+nb_children_reps <- length(
+  unique(c(reps_data1$child_id, reps_data2$child_id, reps_data2$replicate_id)))
+
+```
+
+
+The Risk Engagement and Protection Survey was based on @olsen2018risk. Since the scale included `r nrow(reps_key)` statements, it was removed from the shortened questionnaire to encourage overall response rate for the most important questions for the B@seball project's goals. All statements were answered on a 7-point likert scale. Finally, only `r nb_parents_reps` for `r nb_children_reps` children answered the REPS scale items. 
+
+It is hypothesized that there are two underlying factors: "Protection from injury" and "Engagement with risk". 
+
+```{r reps-descriptives, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
+nb <- length(unique(reps_data$child_id))
+reps_data %>%
+  group_by(question_short, response) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  mutate(summ = sprintf("%.0f (%.0f%%)", n, n/nb*100)) %>%
+  left_join(reps_key %>% dplyr::select(question_short, question_text_english)) %>%
+  dplyr::select(-n, -question_short) %>%
+  pivot_wider(names_from = response,
+              values_from = summ) %>% 
+  mutate_at(2:8, ~replace_na(.,"")) %>%
+  dplyr::select(question_text_english, `1`, `2`, `3`, `4`, `5`, `6`, `7`) %>%
+  kable(booktabs = TRUE,
+        caption = "Descriptive statistics for REPS in parents.") %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::column_spec(1, width = "2in") %>%
+  kableExtra::column_spec(2:8, width = "0.6in")
+```
+
+```{r reps-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the REPS scale items.", fig.width = 6.5, fig.height = 6.5, eval = FALSE}
+likert_data_reps <- reps_data %>%
+  as.data.frame() %>%
+  rbind(c("10-5X-03", "1", "Single response", "wash_hands", "x6_14", NA)) %>% #this line is missing from the data
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "Dutch speaking")) %>%
+  dplyr::select(question_short, response) %>%
+  pivot_wider(names_from = question_short, values_from = response,
+              values_fn = list)
+likert_data_reps2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_reps),
+                                                 FUN = function(x) {
+                                                   likert_data_reps[[x]]
+                                          })))
+colnames(likert_data_reps2) <- names(likert_data_reps)
+likert_data_reps <- likert_data_reps2 
+names(likert_data_reps) <- reps_key$question_text_english
+p_nl <- gglikert(likert_data_reps, sort = "none", y_label_wrap = 20,
+                 labels_size = 2)
+
+full_available <- reps_data %>%
+  group_by(child_id) %>%
+  summarize(n = n()) %>%
+  mutate(rest = n %% 16) %>%
+  left_join(children) %>% 
+  group_by(community) %>%
+  summarize(min = min(rest),
+            max = max(rest),
+            mean = mean(rest))
+  filter(n %% 16 == 0) %>%
+  dplyr::pull(child_id)
+  
+likert_data_reps <- reps_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French speaking") &
+                  child_id %in% full_available) %>%
+  dplyr::select(question_short, response) %>%
+  pivot_wider(names_from = question_short, values_from = response,
+              values_fn = list)
+likert_data_reps2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_reps),
+                                                 FUN = function(x) {
+                                                   likert_data_reps[[x]]
+                                          })))
+colnames(likert_data_reps2) <- names(likert_data_reps)
+likert_data_reps <- likert_data_reps2 
+names(likert_data_reps) <- reps_key$question_text_english
+p_fr <- gglikert(likert_data_reps, sort = "none", y_label_wrap = 20,
+                 labels_size = 2)
+
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+
+Figure \@ref(fig:reps-scree) shows that two (according to optimal coordinates method) or three (according to the acceleration factor method) factors should fit best.
+
+```{r reps-cfa, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+#there are no parents who filled it in more than once 
+# reps_data %>% group_by(child_id, replicate_id, question_short) %>%
+#   summarise(n = dplyr::n(), .groups = "drop") %>%
+#   dplyr::filter(n > 1L)
+# data_cfa_reps <- reps_data %>%
+#   dplyr::select(child_id, replicate_id, question_short, response) %>%
+#   pivot_wider(id_cols = c(child_id, replicate_id), names_from = question_short,
+#               values_from = response) %>%
+#   dplyr::select(child_id, replicate_id, reps_key$question_short)
+# 
+# #first, we need to standardize our variables
+# data_cfa_reps_unscaled <- data_cfa_reps
+# data_cfa_reps[, -c(1, 2)] <- scale(data_cfa_reps[, -c(1, 2)],
+#                                    center = TRUE, scale = FALSE)
+# 
+# data_cfa_reps <- data_cfa_reps[complete.cases(data_cfa_reps), ]
+# covmat <- cov(data_cfa_reps[, -c(1, 2)])
+# cormat <- cor(data_cfa_reps[, -c(1, 2)])
+# 
+# #exploratory factor analysis on correlation matrix with 3 factors and oblique rotation
+# efa_obl2 <- fa(cormat, covar = FALSE, 2, rotate = "oblimin", fm = "ml", n.obs = nrow(data_cfa_reps))
+# #list matrix of structure loadings
+# print(efa_obl2$Structure, cutoff = 0, digits = 3)
+# #list matrix of residual correlations
+# round(efa_obl2$residual, 3)
+# #compute factor scores after oblique rotation
+# scores_efaobl2 <- factor.scores(data_cfa_reps[, -c(1, 2)], efa_obl2,
+#                                 method = "tenberge")
+# tables_atop <- fa_table(efa_obl2,
+#                         title = "Factor analysis results with oblique rotation
+#                         and two factors.",
+#                         varlabels = str_wrap(reps_key$question_text_english, 15))
+# # apply PCA
+# pca <- prcomp(data_cfa_reps[,-1])
+# scree1 <- screeplot(pca, type = "lines")#3 factors is likely better
+# ev <- eigen(cormat) # get eigenvalues
+# ap <- parallel(subject = nrow(data_cfa_reps), var = ncol(data_cfa_reps)-1,
+#   rep = 100, cent = .05)
+# nS <- nScree(x = ev$values, aparallel = ap$eigen$qevpea)
+# pdf(find_root_file(
+#     "data", "figures",
+#     "scree_reps.pdf", 
+#     criterion = has_file("baseball_thesis.Rproj")), width = 6.5, height = 4)
+# plotnScree(nS)
+# dev.off()
+# 
+# resid <- cormat -
+#    (crossprod(t(efa_obl2$loadings)) + diag(efa_obl2$uniquenesses))
+# n <- sum(ifelse(abs(resid) > 0.05, 1, 0)) / 2
+# non_redundant_factors <- n / (11*12/2)
+
+#cronbach alpha
+# alpha_ATOP_benefits <- alpha(data_cfa_atop_unscaled %>% dplyr::select(2:8))
+# alpha_ATOP_benefits_nl <- alpha(data_cfa_atop_unscaled %>%
+#                                left_join(children %>%
+#                                            dplyr::select(child_id,
+#                                                          community)) %>%
+#                                dplyr::filter(str_detect(community, "Dutch")) %>%
+#                                dplyr::select(2:8))
+# alpha_ATOP_benefits_fr <- alpha(data_cfa_atop_unscaled %>%
+#                                left_join(children %>%
+#                                            dplyr::select(child_id,
+#                                                          community)) %>%
+#                                dplyr::filter(str_detect(community, "French")) %>%
+#                                dplyr::select(2:8))
+# alpha_ATOP_fears <- alpha(data_cfa_atop_unscaled %>% dplyr::select(9:12))
+# alpha_ATOP_fears_nl <- alpha(data_cfa_atop_unscaled %>%
+#                             left_join(children %>%
+#                                         dplyr::select(child_id,
+#                                                       community)) %>%
+#                             dplyr::filter(str_detect(community, "Dutch")) %>%
+#                             dplyr::select(9:12))
+# alpha_ATOP_fears_fr <- alpha(data_cfa_atop_unscaled %>%
+#                             left_join(children %>%
+#                                         dplyr::select(child_id,
+#                                                       community)) %>%
+#                             dplyr::filter(str_detect(community, "French")) %>%
+#                             dplyr::select(9:12))
+
+```
+
+
+
+
+
+\clearpage
+### Independent mobility in parents
+
+\clearpage
+### Conclusion on the scale questions
+
+\clearpage
+## Structural equation model (SEM)
 

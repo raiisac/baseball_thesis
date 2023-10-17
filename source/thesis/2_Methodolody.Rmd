@@ -1,1 +1,62 @@
 # Methodology
+
+## Creating the surveys
+
+In a first step, the surveys were created and implemented in the survey software Qualtrics. The main goal of the survey was to get a better picture of the typical life of the children such that researchers can, for instance, control for how often the child plays outside when analyzing the link between greenness of the school and the child's microbiome. 
+
+A literature search yielded several existing scales to measure Nature Connectedness (NC), Attitude Towards Outdoor Play (ATOP), Risk Engagement and Protection (REPS), and Independent Mobility (IM).
+Since the schools were located in Belgium, each of the scale questions was translated into Dutch and French from English.
+The translated questions were first tested on a small sample of children and parents who could provide feedback on whether the questions are clear and understandable for them.
+Once the survey was final, the survey was implemented in Qualtrics and sent to all parents and guardians.
+The children filled in their survey on paper (usually in school) and parents and guardians could also request a paper copy, if necessary. 
+
+The children's survey contained scale questions on NC and ATOP. 
+
+The survey for the parents contains the most information. It starts with some general questions about their relationship to the child and how long the child has been going to the school. Socio-economic status (SES), cultural background, and their living environment are also questioned. Next, the parents are questioned on possible allergies or chronic illnesses that the child might have. 
+
+
+Table \@ref(tab:atop-translation-kids), \@ref(tab:atop-translation),  \@ref(tab:reps-translation), and \@ref(tab:im-translation) in chapter \@ref(translate) in the appendix show the original English question and the translation in both Dutch and French. 
+
+
+The guardians' questionnaire contained only the REPS questions and some additional questions on their age, gender, and how often they supervise while the children are on a play break. 
+
+## Survey distribution and response
+
+The surveys were distributed in ???WHEN??? and filled in over several months time.
+It quickly became clear that, especially the parents' survey had a very low response rate.
+In an attempt to increase the response rate in parents, the parent's survey was shortened:
+
+- Parents were no longer asked for their age
+- Socio-economic questions were limited
+- Questions on the outside play areas in their home's surroundings were removed
+- 
+
+
+## Data Cleaning
+
+All data cleaning was performed in R. 
+
+The B@seball researchers published cleaned data packages that can be easily read by researchers, including the meta-data, using R's [**frictionless** package](https://cran.r-project.org/web/packages/frictionless/vignettes/frictionless.html).
+
+
+
+
+## Data analysis
+
+All data was analysed with R
+
+### Analysing the scale questions
+
+As described in the introduction, the survey included many different scale items.
+Each of these can be analyzed separately to determine the reliability and to confirm that the translation in Dutch and French works well. 
+Throughout the paper, we will use non-graphical solutions in addition to the traditional, often used scree test to determine an appropriate number of factors that can be distinguished in the data. @raicheNonGraphicalSolutionsCattell2013 describes the Optimal Coordinates (OC) test and the Acceleration Factor (AF) test which both have been implemented in the [**nFactor** R package](https://cran.r-project.org/web/packages/nFactors/index.html).
+For OC, one traces a line from the coordinates of the last eigenvalue through each of the preceding coordinates. Then, one can project each line to the preceding eigenvalue and verify whether the observed eigenvalue is superior than the estimated projected eigenvalue.
+The AF emphasizes the point on the coordinate where the slope of the curve of the scree plot changes abruptly.
+
+### Overarching models
+
+
+
+\newpage
+
+

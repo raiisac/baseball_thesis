@@ -1,1 +1,93 @@
 # Introduction
+
+## The B@seball project
+B@seball (Biodiversity at School Environments Benefits for ALL) is a [BELSPO project](http://www.belspo.be/belspo//brain2-be/projects/BatSEBALL_N.pdf) (BRAIN-be 2.0 call) that started in 2019 and has funding for almost 5 years. Project partners are the University of Antwerp,  Sciensano, Goodplanet, UC Louvain, [MOS](https://www.mosvlaanderen.be/), and INBO (the project website can be found [here](https://www.uantwerpen.be/nl/projecten/baseball/)). The main aim of the B@seball project is to investigate whether and how biodiversity at the school environment can influence the students' physical and mental health. 
+
+For this purpose, over 500 children between 10 and 12 years old from 36 different schools in Belgium were recruited. The schools were selected with statistical matching such that each school with lots of greenery always had a statistically close match (socio-economics, size, geographical location) with little greenery.
+
+The main data collection consisted of cheek swabs that were analysed to get each child's microbiota which, in turn, is a proxy for children's physical health. The main research question that will be investigated by the project's team of researchers is whether greenery in schools influences the children's' microbiota and, in turn, their health. 
+
+Additionally, parents, teachers, and children were asked to fill in questionnaires. These questionnaires are the main focus of this research.
+
+Both the microbiota data and the data from the questionnaires were cleaned and analyzed to investigate the main research questions. The project team aspires to publish the cleaned data as an open data set once the project ends. As such, the data can be freely used by others to test their own hypotheses.
+
+## Research questions
+
+### Children's questionnaire
+
+The children's questionnaire were filled in by approximately 500 children. It included questions on the children's **Attitude Towards Outdoor Play (ATOP)** [@beyer2015development]. The original standardized scale questions were translated in Dutch and French to accommodate the children's language. One scale item on people using drugs was removed from the scale since it was deemed irrelevant for children between 10 and 12 years old.
+
+:::: {.center data-latex=""}
+
+::: {.minipage data-latex="{.80\linewidth}"}
+RQ: Is the translated ATOP questionnaire still reliable and valid?
+:::
+
+::::
+
+A second set of scale questions was based on Nature England's monitor of engagement with the natural environment survey @hunt2017monitor. Six affective statements on **nature connectedness** were translated in Dutch and French. The original statements had a Cronbach alpha of 0.918 and 0.899 in adults and children respectively.
+
+:::: {.center data-latex=""}
+
+::: {.minipage data-latex="{.5\linewidth}"}
+RQ: Are the translated nature connectedness statements still reliable and valid?
+:::
+
+::::
+
+### Parents' questionnaire
+
+Around 300 parents filled in a questionnaire. They firstly answered questions on their children's environment and health, 
+their socio-economic status, and cultural background. 
+
+Based on @jelleyman2019cross, parents were also asked about their child's outdoor sports, outdoor activities, and participation in "risky play categories" such as climbing trees and push-and-pull games.
+
+**Risk Engagement and Protection Survey (REPS)** questions on injury prevention and risk engagement questions were translated in French and Dutch [@olsen2018risk, shaw2013children, jelleyman2019cross].
+
+:::: {.center data-latex=""}
+
+::: {.minipage data-latex="{.5\linewidth}"}
+RQ: Is the translated REPS questionnaire still reliable and valid?
+:::
+
+::::
+
+Finally, there were some questions on independent mobility of the child, based on [shaw2013children].
+
+:::: {.center data-latex=""}
+
+::: {.minipage data-latex="{.5\linewidth}"}
+RQ: How does the independent mobility of primary school children in Belgium differ from children in England and Germany [@shaw2013children]?
+:::
+
+::::
+
+### School guardians' questionnaire
+
+Around 60 school guardians filled in a small questionnaire. Next to some general demographic questions, they answered the same REPS questions as the parents.
+
+:::: {.center data-latex=""}
+
+::: {.minipage data-latex="{.5\linewidth}"}
+RQ: Is the translated REPS questionnaire still reliable and valid for school guardians?
+:::
+
+::::
+
+### Overarching research questions
+
+If all translated scale questions are deemed to be valid and reliable, we can investigate the following research questions.
+
+- Is ATOP in children related to their parents' REPS?
+- Is ATOP related to the child's independent mobility?
+- Is the childs's socio-economic status related to their nature connectedness, ATOP, or their parent's REPS score?
+- Are independent mobility and REPS related?
+- Is a child's nature connectedness related to the school's greenery or the school guardian's REPS?
+
+
+One might possibly also include the microbiota data and investigate:
+
+
+- whether the parent's REPS is related to the child's microbiota.
+- whether the child's socio-economic status is related to the child's microbiota.
+- whether the child's ATOP is related to the child's microbiota.

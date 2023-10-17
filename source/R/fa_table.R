@@ -1,12 +1,13 @@
 # https://www.franciscowilhelm.com/post/exploratory-factor-analysis-table/
 fa_table <- function(x, varlabels = NULL,
                       title = "Factor analysis results", diffuse = .10,
-                      small = .30, cross = .20, sort = TRUE) {
+                      small = .30, cross = .20, sort = TRUE,
+                     fnames = NULL) {
   #get sorted loadings
   require(dplyr)
   require(purrr)
   require(tibble)
-  require(gt)
+  require(kableExtra)
   if (sort == TRUE) {
     x <- psych::fa.sort(x)
   }
@@ -22,13 +23,18 @@ fa_table <- function(x, varlabels = NULL,
   if (is.null(varlabels)) {varlabels <- rownames(x$loadings)}
 
   loadings <- data.frame(unclass(x$loadings))
-
+  nfactors <- ncol(loadings)
   #make nice names
+  if (is.null(fnames)) {
   factornamer <- function(nfactors) {
     paste0("Factor_", 1:nfactors)}
-
-  nfactors <- ncol(loadings)
   fnames <- factornamer(nfactors)
+  }
+  if (length(fnames) != ncol(x$loadings)) {
+    warning("Number of factor labels and number of factors are unequal.
+              Check your input!",
+            call. = FALSE)
+    }
   names(loadings) <- fnames
 
   # prepare locations
@@ -83,31 +89,43 @@ fa_table <- function(x, varlabels = NULL,
 
 
   ind_table <- ind_table %>%
-    gt(rowname_col = "Indicator") %>%
-    tab_caption(caption = title) %>%
-    cols_width(Indicator ~ px(150))
-  # mark small loadiongs
+    kable(booktabs = TRUE,
+          caption = title) %>%
+    kableExtra::column_spec(1, "2in") %>%
+    kable_styling(font_size = 9)
+
+    # gt(rowname_col = "Indicator") %>%
+    # tab_caption(caption = title) %>%
+    # cols_width(Indicator ~ px(150))
+  # mark small loadings
   for (f in seq_along(fnames)) {
     ind_table <- ind_table %>%
-      tab_style(style = cell_text(color = "#D3D3D3", style = "italic"),
-                locations = cells_body(columns = fnames[f],
-                                       rows = small_loadings[[f]]))
+      kableExtra::column_spec(1 + f,
+                              color = ifelse(small_loadings[[f]], "#D3D3D3", "#000000"),
+                              italic = small_loadings[[f]])
+                # locations = cells_body(columns = fnames[f],
+                #                        rows = small_loadings[[f]]))
   }
   # mark cross loadings
 
   if (nfactors > 1) {
     for (f in seq_along(fnames)) {
-      ind_table <-
-        ind_table %>%  tab_style(
-          style = cell_text(style = "italic"),
-          locations = cells_body(columns = fnames[f],
-                                 rows = cross_loadings[[f]])
-        )
+      ind_table <- ind_table %>%
+        kableExtra::column_spec(1 + f,
+                                italic = small_loadings[[f]])
+        # ind_table %>%  tab_style(
+        #   style = cell_text(style = "italic"),
+        #   locations = cells_body(columns = fnames[f],
+        #                          rows = cross_loadings[[f]])
+        #)
     }
     # mark non-assignable indicators
     ind_table <-
-      ind_table %>% tab_style(style = cell_fill(color = "#D93B3B"),
-                              locations = cells_body(rows = removable))
+      ind_table %>%
+      kableExtra::column_spec(1 + f,
+                              background = ifelse(removable, "#D93B3B", "white"))
+    # tab_style(style = cell_fill(color = "#D93B3B"),
+    #                           locations = cells_body(rows = removable))
   }
 
   # adapted from https://www.anthonyschmidt.co/post/2020-09-27-efa-tables-in-r/
@@ -121,16 +139,21 @@ fa_table <- function(x, varlabels = NULL,
       as.data.frame() %>%
       rownames_to_column("Property") %>%
       mutate(across(where(is.numeric), round, 3)) %>%
-      gt(caption = "Eigenvalues, Variance Explained,
-                 and Factor Correlations for Rotated Factor Solution")
-  }
-  else if (nfactors == 1) {
+      kable(booktabs = TRUE,
+            caption = "Eigenvalues, Variance Explained,
+                  and Factor Correlations for Rotated Factor Solution") %>%
+      kable_styling(font_size = 9)
+      # gt(caption = "Eigenvalues, Variance Explained,
+      #            and Factor Correlations for Rotated Factor Solution")
+  } else if (nfactors == 1) {
     f_table <- rbind(Vaccounted) %>%
       as.data.frame() %>%
       rownames_to_column("Property") %>%
       mutate(across(where(is.numeric), round, 3)) %>%
-      gt(caption = "Eigenvalues, Variance Explained,
-                 and Factor Correlations for Rotated Factor Solution")
+      kable(booktabs = TRUE,
+            caption = "Eigenvalues, Variance Explained,
+                  and Factor Correlations for Rotated Factor Solution") %>%
+      kable_styling(font_size = 9)
   }
 
   return(list("ind_table" = ind_table, "f_table" = f_table))

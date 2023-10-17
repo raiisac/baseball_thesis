@@ -7,6 +7,7 @@ output:
     fig_caption: yes
     toc: false
     latex_engine: xelatex
+    keep_tex: yes
     includes:
       in_header: preamble.sty
       before_body: titlepage.sty
@@ -19,6 +20,39 @@ site: bookdown::bookdown_site
 ---
 
 ```{r setup, include=FALSE}
+library(frictionless)
+library(ggstats)#for better likert plots
+library(here)
+library(kableExtra)
+library(likert)
+library(nFactors)
+library(patchwork)
+library(psych)
+library(rprojroot)
+library(tidyverse)
+source(find_root_file("source", "R", "fa_table.R",
+                       criterion = has_file("baseball_thesis.Rproj")))
 knitr::opts_chunk$set(echo = TRUE)
+
+baseball_package <- read_package(
+  find_root_file(
+    "data", "processed", "datapackage_analysis",
+    "datapackage.json", 
+    criterion = has_file("baseball_thesis.Rproj")))
+atop_key <- read_resource(package = baseball_package,
+              resource_name = "wp5_atop_questions")
+nc_key <- read_resource(package = baseball_package,
+              resource_name = "wp5_nc_key")
+atop_key_p <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_outdoor_play_key")
+reps_key <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_risk_protection_key")
+im_key <- read_resource(package = baseball_package,
+              resource_name = "wp5_parents_independent_mobility_key")
+children <- read_resource(package = baseball_package,
+              resource_name = "wp2_participants_metadata") %>%
+  left_join(read_resource(package = baseball_package,
+                          resource_name = "wp2_school_data") %>%
+              dplyr::select(-n_students))
 ```
 

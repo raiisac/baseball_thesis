@@ -51,6 +51,7 @@ data_cfa_atop_nl <- data_cfa_atop %>%
   dplyr::select(child_id, atop_key$question_short)
 
 #first, we need to standardize our variables
+data_cfa_atop_unscaled_nl <- data_cfa_atop_nl
 data_cfa_atop_nl[,-1] <- scale(data_cfa_atop_nl[,-1], center = TRUE,
                                scale = FALSE)
 
@@ -92,6 +93,20 @@ pdf(find_root_file(
     criterion = has_file("baseball_thesis.Rproj")), width = 6.5, height = 4)
 plotnScree(nS)
 dev.off()
+
+
+alpha_ATOP_benefits_nl <- alpha(data_cfa_atop_unscaled_nl %>%
+                               left_join(children %>%
+                                           dplyr::select(child_id,
+                                                         community)) %>%
+                               dplyr::filter(str_detect(community, "Dutch")) %>%
+                               dplyr::select(2:8))
+alpha_ATOP_fears_nl <- alpha(data_cfa_atop_unscaled_nl %>%
+                            left_join(children %>%
+                                        dplyr::select(child_id,
+                                                      community)) %>%
+                            dplyr::filter(str_detect(community, "Dutch")) %>%
+                            dplyr::select(9:12))
 ```
 
 There are `r nrow(unique(data_cfa_atop[data_cfa_atop$community == "Dutch speaking", "child_id"]))` children in a Dutch-speaking school and `r nrow(unique(data_cfa_atop[data_cfa_atop$community == "Dutch speaking.French speaking", "child_id"]))` children in bilingual schools that filled in the ATOP scale questions.
@@ -118,8 +133,41 @@ tables_nl_2$ind_table
 tables_nl_2$f_table
 ```
 
+The raw Chronbach alpha for the ATOP_benefits scale is `r round(unlist(unname(alpha_ATOP_benefits_nl$total["raw_alpha"])), 2)`. The first column in Table \@ref(tab: atop-kids-alpha-nl) shows that this might be improved if the statement "I like to make up my own games when I am outdoors in nature." is removed from the scale. This statement also has a very low correlation with the scale. 
+
+The raw Chronbach alpha for the ATOP_benefits scale is `r round(unlist(unname(alpha_ATOP_fears_nl$total["raw_alpha"])), 2)`. The first column in Table \@ref(tab: atop-kids-alpha-nl) shows that this alpha value would always go down if any of the four items is removed.
+
+
+```{r atop-kids-alpha-nl, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+alpha_ATOP_benefits_nl$alpha.drop["raw_alpha"] %>%
+  cbind(alpha_ATOP_benefits_nl$item.stats[c("r.drop", "mean", "sd")]) %>%
+  rbind(alpha_ATOP_fears_nl$alpha.drop["raw_alpha"] %>%
+          cbind(alpha_ATOP_fears_nl$item.stats[c("r.drop",
+                                              "mean", "sd")])) %>%
+  mutate(question_short = row.names(.)) %>%
+  left_join(atop_key %>% dplyr::select(question_short, question_text_english),
+            by = ) %>%
+  dplyr::select(question_text_english, raw_alpha, r.drop, mean, sd) %>%
+  kable(booktabs = TRUE,
+        escape = FALSE,
+        caption = "Reliability if an item is dropped and item statistics.",
+        digits = 3,
+        col.names = c("item", "raw $\\alpha$", "item-scale corr.", "mean", "std. dev.")) %>%
+  kableExtra::group_rows(start_row = 1,
+                         end_row = nrow(alpha_ATOP_benefits_nl$alpha.drop),
+                         group_label = "ATOP_benefits") %>%
+  kableExtra::group_rows(start_row = 1 + nrow(alpha_ATOP_benefits_nl$alpha.drop),
+                         end_row = nrow(alpha_ATOP_benefits_nl$alpha.drop) +
+                           nrow(alpha_ATOP_fears_nl$alpha.drop),
+                         group_label = "ATOP_fears") %>%
+  kableExtra::kable_styling(font_size = 11) %>%
+  kableExtra::column_spec(1, width = "3in") %>%
+  kableExtra::column_spec(3, width = "0.7in")
+```
+
 ## Three factors
 In an EFA with oblique rotation and three factors, the original ATOP_fears group still remains but the ATOP_benefits group breaks down into two groups: one bigger group on more tangible benefits (thinking clearly, better health, exploring and learning) and a smaller group on benefits for the mood (feeling calm and free).
+
 There is quite some interfactor correlation between the two ATOP_benefits factors (`r round(efa_obl3_nl$Phi[1, 3],3)`).
 All three factors together now explain `r 100*round(efa_obl3_nl$Vaccounted[3,3],3)`% of the total variance.
 ```{r atop-3fact-nl-1, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
@@ -142,6 +190,7 @@ data_cfa_atop_fr <- data_cfa_atop %>%
   dplyr::select(child_id, atop_key$question_short)
 
 #first, we need to standardize our variables
+data_cfa_atop_unscaled_fr <- data_cfa_atop_fr
 data_cfa_atop_fr[,-1] <- scale(data_cfa_atop_fr[,-1], center = TRUE,
                                scale = FALSE)
 
@@ -183,6 +232,20 @@ pdf(find_root_file(
     criterion = has_file("baseball_thesis.Rproj")), width = 6.5, height = 4)
 plotnScree(nS)
 dev.off()
+
+alpha_ATOP_benefits_fr <- alpha(data_cfa_atop_unscaled_fr %>%
+                               left_join(children %>%
+                                           dplyr::select(child_id,
+                                                         community)) %>%
+                               dplyr::filter(str_detect(community, "French")) %>%
+                               dplyr::select(2:8))
+alpha_ATOP_fears_fr <- alpha(data_cfa_atop_unscaled_fr %>%
+                            left_join(children %>%
+                                        dplyr::select(child_id,
+                                                      community)) %>%
+                            dplyr::filter(str_detect(community, "French")) %>%
+                            dplyr::select(9:12))
+
 ```
 
 There are `r nrow(unique(data_cfa_atop[data_cfa_atop$community == "French speaking", "child_id"]))` children in a French-speaking school and `r nrow(unique(data_cfa_atop[data_cfa_atop$community == "Dutch speaking.French speaking", "child_id"]))` children in bilingual schools that filled in the ATOP scale questions.
@@ -210,7 +273,40 @@ tables_fr_2$ind_table
 tables_fr_2$f_table
 ```
 
+
+Both raw Chronbach alphas are slightly lower for the French version of the questionnaire then for the Dutch version: `r round(unlist(unname(alpha_ATOP_benefits_fr$total["raw_alpha"])), 2)` and `r round(unlist(unname(alpha_ATOP_fears_fr$total["raw_alpha"])), 2)` for the ATOP_benefits and ATOP_fears scale respectively.
+For the ATOP_benefits scale, there are no statements that would increase $\alpha$ when removed though the statement "I like to make up my own games when I am outdoors in nature." come close and has low correlation with the scale.
+
+
+```{r atop-kids-alpha-fr, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
+alpha_ATOP_benefits_fr$alpha.drop["raw_alpha"] %>%
+  cbind(alpha_ATOP_benefits_fr$item.stats[c("r.drop", "mean", "sd")]) %>%
+  rbind(alpha_ATOP_fears_fr$alpha.drop["raw_alpha"] %>%
+          cbind(alpha_ATOP_fears_fr$item.stats[c("r.drop",
+                                              "mean", "sd")])) %>%
+  mutate(question_short = row.names(.)) %>%
+  left_join(atop_key %>% dplyr::select(question_short, question_text_english),
+            by = ) %>%
+  dplyr::select(question_text_english, raw_alpha, r.drop, mean, sd) %>%
+  kable(booktabs = TRUE,
+        escape = FALSE,
+        caption = "Reliability if an item is dropped and item statistics.",
+        digits = 3,
+        col.names = c("item", "raw $\\alpha$", "item-scale corr.", "mean", "std. dev.")) %>%
+  kableExtra::group_rows(start_row = 1,
+                         end_row = nrow(alpha_ATOP_benefits_fr$alpha.drop),
+                         group_label = "ATOP_benefits") %>%
+  kableExtra::group_rows(start_row = 1 + nrow(alpha_ATOP_benefits_fr$alpha.drop),
+                         end_row = nrow(alpha_ATOP_benefits_fr$alpha.drop) +
+                           nrow(alpha_ATOP_fears_fr$alpha.drop),
+                         group_label = "ATOP_fears") %>%
+  kableExtra::kable_styling(font_size = 11) %>%
+  kableExtra::column_spec(1, width = "3in") %>%
+  kableExtra::column_spec(3, width = "0.7in")
+```
+
 ## Three factors
+
 In an EFA with oblique rotation and three factors, the original ATOP_fears group still remains but the ATOP_benefits group breaks down into two groups. A first, bigger group includes all ATOP_benefits items except imagination and learning new things. The second group separates out learning new things. 
 There is quite some interfactor correlation between the two ATOP_benefits factors (`r round(efa_obl3_fr$Phi[1, 3],3)`).
 All three factors together now explain `r 100*round(efa_obl3_fr$Vaccounted[3,3],3)`% of the total variance.
@@ -221,3 +317,5 @@ tables_fr_3$ind_table
 ```{r atop-3fact-fr-2, warning=FALSE, message=FALSE, echo=FALSE, include=TRUE}
 tables_fr_3$f_table
 ```
+
+
