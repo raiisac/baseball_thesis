@@ -20,8 +20,8 @@ site: bookdown::bookdown_site
 ---
 
 ```{r setup, include=FALSE}
-library(frictionless)
-library(ggstats)#for better likert plots
+library(frictionless) # to load data from the data package
+library(ggstats) # for better likert plots
 library(here)
 library(kableExtra)
 library(likert)
@@ -30,6 +30,7 @@ library(patchwork)
 library(psych)
 library(rprojroot)
 library(tidyverse)
+library(lavaan)
 source(find_root_file("source", "R", "fa_table.R",
                        criterion = has_file("baseball_thesis.Rproj")))
 knitr::opts_chunk$set(echo = TRUE)

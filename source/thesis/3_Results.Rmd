@@ -175,14 +175,15 @@ covmat <- cov(data_cfa_atop[,-1])
 cormat <- cor(data_cfa_atop[,-1])
 
 #exploratory factor analysis on correlation matrix with 3 factors and oblique rotation
-efa_obl2 <- fa(cormat, covar = FALSE, 2, rotate = "oblimin", fm = "ml", n.obs = nrow(data_cfa_atop))
+efa_obl2 <- fa(cormat, covar = FALSE, 2, rotate = "oblimin", fm = "ml",
+               n.obs = nrow(data_cfa_atop))
 #list matrix of structure loadings
 print(efa_obl2$Structure, cutoff = 0, digits = 3)
 #list matrix of residual correlations
 round(efa_obl2$residual, 3)
 #compute factor scores after oblique rotation
 scores_efaobl2 <- factor.scores(data_cfa_atop[,-1], efa_obl2,
-method = "tenberge")
+                                method = "tenberge")
 tables_atop <- fa_table(efa_obl2,
                         title = "Factor analysis results with oblique rotation
                         and two factors.",
@@ -464,7 +465,7 @@ print(efa_obl2$Structure, cutoff = 0, digits = 3)
 round(efa_obl2$residual, 3)
 #compute factor scores after oblique rotation
 scores_efaobl3 <- factor.scores(data_cfa_nc[,-1], efa_obl2,
-method = "tenberge")
+                                method = "tenberge")
 tables_nc <- fa_table(efa_obl2,
                         title = "Factor analysis results with oblique rotation
                         and two factors.",
@@ -747,6 +748,7 @@ children %>%
 ADD CORRELATIONS (+P_VALUES ZOALS IN BEYER 2015) BETWEEN EACH OF THE QUESTIONS AND THE FACTOR LOADINGS FOR ATOP_FEARS AND ATOP_BENEFITS HERE
 
 \clearpage
+
 ### Risk engagement and protection survey in parents and guardians
 ```{r read_reps, message=FALSE, warning=FALSE, include=FALSE}
 # a description of how to view and read the data from the data package
@@ -780,13 +782,17 @@ nb_children_reps <- length(
 ```
 
 
-The Risk Engagement and Protection Survey was based on @olsen2018risk. Since the scale included `r nrow(reps_key)` statements, it was removed from the shortened questionnaire to encourage overall response rate for the most important questions for the B@seball project's goals. All statements were answered on a 7-point likert scale. Finally, only `r nb_parents_reps` for `r nb_children_reps` children answered the REPS scale items. 
+The Risk Engagement and Protection Survey was based on @olsen2018risk. Since the scale included `r nrow(reps_key)` statements, it was removed from the shortened questionnaire to encourage overall response rate for the most important questions for the B@seball project's goals. All statements were answered on a 7-point likert scale. Finally, only `r nb_parents_reps` parents of `r nb_children_reps` children answered the REPS scale items (for some children, more than one parent answered the survey). 
 
-It is hypothesized that there are two underlying factors: "Protection from injury" and "Engagement with risk". 
+It is hypothesized that there are two underlying factors: "Protection from injury" and "Engagement with risk" [@@olsen2018risk].
+Due to a mistake, the question on washing hands ("Should your child wash his/her hands after outdoor play?) was not included in the french survey (last column and row in Table \@ref(tab:reps-descriptives)). 
 
 ```{r reps-descriptives, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
 nb <- length(unique(reps_data$child_id))
 reps_data %>%
+  full_join(expand_grid(
+    child_id = unique(reps_data$child_id),
+    question_short = unique(reps_data$question_short))) %>%
   group_by(question_short, response) %>%
   summarize(n = n()) %>%
   ungroup() %>%
@@ -796,15 +802,15 @@ reps_data %>%
   pivot_wider(names_from = response,
               values_from = summ) %>% 
   mutate_at(2:8, ~replace_na(.,"")) %>%
-  dplyr::select(question_text_english, `1`, `2`, `3`, `4`, `5`, `6`, `7`) %>%
   kable(booktabs = TRUE,
-        caption = "Descriptive statistics for REPS in parents.") %>%
+        caption = "Descriptive statistics for REPS in parents.",
+        col.names = c("Original statement", as.character(1:7), "Not answered")) %>%
   kableExtra::kable_styling(font_size = 9) %>%
   kableExtra::column_spec(1, width = "2in") %>%
-  kableExtra::column_spec(2:8, width = "0.6in")
+  kableExtra::column_spec(2:9, width = "0.6in")
 ```
 
-```{r reps-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the REPS scale items.", fig.width = 6.5, fig.height = 6.5, eval = FALSE}
+```{r reps-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the REPS scale items.", fig.width = 6.5, fig.height = 6.5, eval = TRUE}
 likert_data_reps <- reps_data %>%
   as.data.frame() %>%
   rbind(c("10-5X-03", "1", "Single response", "wash_hands", "x6_14", NA)) %>% #this line is missing from the data
@@ -824,18 +830,30 @@ names(likert_data_reps) <- reps_key$question_text_english
 p_nl <- gglikert(likert_data_reps, sort = "none", y_label_wrap = 20,
                  labels_size = 2)
 
+
+#How often is each question answered in each of the communities?
+reps_data %>%
+  left_join(children) %>% 
+  group_by(question_code, question_short, community) %>%
+  summarize(n = n_distinct(child_id)) %>%
+  ungroup() %>%
+  print(n=31)
+#wash_hands is never answered in the french community --> multiple imputation?
+  
+  
 full_available <- reps_data %>%
   group_by(child_id) %>%
   summarize(n = n()) %>%
-  mutate(rest = n %% 16) %>%
+  mutate(rest = (n %% 16)) %>%
   left_join(children) %>% 
-  group_by(community) %>%
-  summarize(min = min(rest),
-            max = max(rest),
-            mean = mean(rest))
-  filter(n %% 16 == 0) %>%
-  dplyr::pull(child_id)
-  
+  # group_by(community) %>%
+  # summarize(min = min(rest),
+  #          max = max(rest),
+  #          mean = mean(rest)) %>%
+  filter((community == "Dutch speaking" & n %% 16 == 0) | (community == "French speaking" & n %% 15 == 0)) %>%
+  dplyr::pull(child_id) #parents of these children filled in all questions
+
+
 likert_data_reps <- reps_data %>%
   as.data.frame() %>%
   left_join(children) %>%
@@ -845,15 +863,24 @@ likert_data_reps <- reps_data %>%
   pivot_wider(names_from = question_short, values_from = response,
               values_fn = list)
 likert_data_reps2 <- as.data.frame(do.call(cbind,
-                                          sapply(1:ncol(likert_data_reps),
+                                          sapply(1:(ncol(likert_data_reps)),
                                                  FUN = function(x) {
                                                    likert_data_reps[[x]]
                                           })))
 colnames(likert_data_reps2) <- names(likert_data_reps)
 likert_data_reps <- likert_data_reps2 
-names(likert_data_reps) <- reps_key$question_text_english
-p_fr <- gglikert(likert_data_reps, sort = "none", y_label_wrap = 20,
-                 labels_size = 2)
+names(likert_data_reps) <-
+  unname(unlist(reps_key[
+    match(names(likert_data_reps),reps_key$question_short),
+    "question_text_english"]))
+factorize <- function(x){
+  out <- factor(as.factor(x), levels = as.character(seq(1,7)))
+  return(out)
+}
+p_fr <- likert_data_reps %>%
+  mutate_at(1:15, factorize) %>%
+  gglikert(sort = "none", y_label_wrap = 20,
+           labels_size = 2)
 
 p_nl + p_fr + plot_layout(guides = "collect") &
   theme(legend.position = "bottom",
