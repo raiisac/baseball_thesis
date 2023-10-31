@@ -57,3 +57,22 @@ children <- read_resource(package = baseball_package,
               dplyr::select(-n_students))
 ```
 
+# Preface {-}
+
+Preface: The preface should summarise the general aim of the work. People, offices and companies should be thanked for their support.  
+
+
+\newpage
+# Summary {-}
+
+Add popularising summary here. (max. 2 pages for each language): The summary should present the most important aims and conclusions of the dissertation in a brief text of maximum two pages, written both in Dutch and in English for a Dutch Master programme, and only in English for an English Master programme.
+
+\newpage
+
+# List of abbreviations {-}
+
+\newpage
+```{=latex}
+% Trigger ToC creation in LaTeX
+\tableofcontents
+```
