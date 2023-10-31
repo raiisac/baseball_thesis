@@ -791,7 +791,7 @@ p_nl + p_fr + plot_layout(guides = "collect") &
 
 These answers can be used to validate the answered that were received from the children wrt their attitude towards outdoor play. To do so, we first check whether there is a big difference in the children whose parents answered (`r nb` in total of which `r nb-length(unique(atop_data_p4$child_id))` answered the full (not shortened) questionnaire) and the children whose parents did not answer the questionnaire (`r nrow(children) - nb`). \@ref(tab:atop-p-response-difference) shows that relatively less Dutch-speaking parents answered the long questionnaire and they were more likely not to respond at all. We can see that the response was especially low in the Flemish (Dutch speaking) provinces of West-Vlaanderen, Vlaams-Brabant, Oost-Vlaanderen, and Antwerp.
 
-```{r atop-p-response-difference, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+```{r atop-p-response-difference, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
 children %>%
   mutate(response = ifelse(child_id %in% atop_data_p2$child_id &
                              !(child_id %in% atop_data_p4$child_id),
@@ -828,6 +828,7 @@ children %>%
   mutate(across(long:none, ~ sprintf("%d (%.2f%%)", .x, 100*.x / rowsum))) %>%
   dplyr::select(-rowsum) %>%
   kable(booktabs = TRUE,
+        font_size = 9,
         caption = "Demographics for children whose parents filled in the long
         questionnaire, short questionnaire, or no questionnaire.",
         col.names = c("", "Long questionnaire", "Short questionnaire",
@@ -842,7 +843,7 @@ children %>%
 ```
 
 
-ADD CORRELATIONS (+P_VALUES ZOALS IN BEYER 2015) BETWEEN EACH OF THE QUESTIONS AND THE FACTOR LOADINGS FOR ATOP_FEARS AND ATOP_BENEFITS HERE
+ADD CORRELATIONS (+P_VALUES ZOALS IN BEYER 2015) BETWEEN EACH OF THE QUESTIONS AND THE FACTOR SCORE FOR ATOP_FEARS AND ATOP_BENEFITS HERE
 
 \clearpage
 
@@ -911,9 +912,9 @@ reps_data %>%
         caption = "Descriptive statistics for REPS in parents.",
         col.names = c("Original statement", as.character(1:7),
                       "Not answered")) %>%
-  kableExtra::kable_styling(font_size = 9) %>%
-  kableExtra::column_spec(1, width = "2in") %>%
-  kableExtra::column_spec(2:9, width = "0.5in")
+  kableExtra::kable_styling(font_size = 8) %>%
+  kableExtra::column_spec(1, width = "1.6in") %>%
+  kableExtra::column_spec(2:9, width = "0.45in")
 ```
 
 ```{r reps-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the REPS scale items.", fig.width = 6.5, fig.height = 6.5, eval = TRUE}
@@ -1000,9 +1001,10 @@ p_nl + p_fr + plot_layout(guides = "collect") &
 
 #------------------------Prepare REPS data for cfa-----------------------------#
 #there are no parents who filled it in more than once 
- reps_data %>% group_by(child_id, replicate_id, question_short) %>%
-   summarise(n = dplyr::n(), .groups = "drop") %>%
-   dplyr::filter(n > 1L)
+answer_more_than_once <- reps_data %>%
+  group_by(child_id, replicate_id, question_short) %>%
+  summarise(n = dplyr::n(), .groups = "drop") %>%
+  dplyr::filter(n > 1L)
 #reshape the data into the proper format
 data_cfa_reps <- reps_data %>%
   full_join(expand_grid(#add a row for the missing "wash hands" data
@@ -1156,6 +1158,46 @@ alpha_reps_re_nl <- alpha(data_cfa_reps_unscaled %>%
 
 \clearpage
 ### Independent mobility in parents
+
+Lastly, the parents some questions on independent mobility, inspired by @shaw2013children. 
+Since the original authors do not provide guidelines for any underlying latent factors, we perform an exploratory factor analysis first.
+
+To improve response rate, these questions were left out in a shortened version of the survey. 
+Therefor, the number of responses is greatly reduced.
+Table \@ref(tab:im-descriptives) shows the descriptives
+
+```{r read_im, message=FALSE, warning=FALSE, include=FALSE}
+# a description of how to view and read the data from the data package
+im_data <- read_resource(package = baseball_package,
+                            resource_name =
+                              "wp5_parents_independent_mobility_data") %>%
+  mutate(response = factor(as.factor(response),
+                           levels = c("No", "Yes - No", "Yes")))
+```
+
+```{r im-descriptives, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
+nb <- length(unique(paste0(im_data$child_id, im_data$replicate_id)))
+tbl <- im_data %>%
+  group_by(question_short, response) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  mutate(summ = sprintf("%.0f (%.0f%%)", n, n/nb*100)) %>%
+  left_join(im_key %>% dplyr::select(question_short, question_text_english)) %>%
+  dplyr::select(-n, -question_short) %>%
+  pivot_wider(names_from = response,
+              values_from = summ)  %>% 
+  mutate_at(2:4, ~replace_na(.,"")) %>%
+  dplyr::select(question_text_english, No, `Yes - No`, Yes)
+tbl[order(match(tbl$question_text_english, im_key$question_text_english)),] %>%
+  kable(booktabs = TRUE,
+        caption = "Descriptive statistics for Attitude Towards Outdoor Play
+        scale items in children.",
+        col.names = c("Item", "No", "Yes - No", "Yes")) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::column_spec(1, width = "2in") %>%
+  kableExtra::column_spec(2:4, width = "0.6in")
+```
+
 
 \clearpage
 ### Conclusion on the scale questions
