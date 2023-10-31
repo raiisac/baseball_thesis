@@ -560,7 +560,7 @@ atop_key_p <- read_resource(package = baseball_package,
 
 The parents were asked about how often their children play and what type of activities (both indoor and outdoor) they typically engage in. Since the response was disappointing at first, some questions were left out in a shortened version of the questionnaire to hopefully motivate parents to fill it in (see also Table \@ref(tab:atop-translation) in the Appendix).
 
-Table \@ref(tab:atop-p-descriptives) shows the descriptives for each of the questions. Figures \@ref(fig:opp1) to \@ref(fig:opp4) show the same data visually for both languages separately.
+Table \@ref(tab:atop-p-descriptives) shows the descriptives for each of the questions. Figures \@ref(fig:opp1) to \@ref(fig:opp3) show the same data visually for both languages separately.
 
 
 ```{r atop-p-descriptives, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
@@ -617,26 +617,24 @@ tbl1 %>%
                                          pattern = "/", i = 2),
                   question_text_english)) %>%
   dplyr::select(question_text_english, s) %>%
-  kable(booktabs = TRUE,
+  kable(booktabs = TRUE, longtable = TRUE, 
         caption = "Descriptive statistics for outdoor play activities
         according to the parents.",
         col.names = c("Question", "Summary")) %>%
-  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::kable_styling(latex_options = c("repeat_header"),
+                            font_size = 9) %>%
   kableExtra::column_spec(1, width = "3in") %>%
   kableExtra::column_spec(2, width = "3in")
 ```
 
-```{r atop-p-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the ATOP scale items.", fig.width = 6.5, fig.height = 6.5}
-likert_data_atop <- atop_data %>%
+```{r opp1, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the questions on how many days per week their child participate in...", fig.width = 6.5, fig.height = 4}
+likert_data_atop <- atop_data_p1 %>%
   as.data.frame() %>%
   left_join(children) %>%
-  dplyr::filter(str_detect(community, "Dutch speaking")) %>%
-  mutate(interpretation = factor(as.factor(interpretation),
-                                 levels = c("Disagree", "Slightly disagree",
-                                            "No response",
-                                            "Moderately agree", "Agree"))) %>%
-  dplyr::select(question_short, interpretation) %>%
-  pivot_wider(names_from = question_short, values_from = interpretation,
+  dplyr::filter(!str_detect(community, "French")) %>%
+  mutate(response = round(response)) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
               values_fn = list)
 likert_data_atop2 <- as.data.frame(do.call(cbind,
                                           sapply(1:ncol(likert_data_atop),
@@ -644,29 +642,19 @@ likert_data_atop2 <- as.data.frame(do.call(cbind,
                                                    likert_data_atop[[x]]
                                           })))
 colnames(likert_data_atop2) <- names(likert_data_atop)
-likert_data_atop <- likert_data_atop2 %>%
-  mutate(across(think_clearly:getting_hurt, function(x) factor(as.factor(x),
-                                      levels = 1:5,                      
-                                      labels = c("Disagree",
-                                                 "Slightly disagree",
-                                                 "No response",
-                                                 "Moderately agree",
-                                                 "Agree"))))
-names(likert_data_atop) <- atop_key$question_text_english
-p_nl <- gglikert(likert_data_atop, sort = "none", y_label_wrap = 20,
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x), levels = as.character(seq(0,7))))
+p_nl <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 20,
                  labels_size = 2)
  
 
-likert_data_atop <- atop_data %>%
+likert_data_atop <- atop_data_p1 %>%
   as.data.frame() %>%
   left_join(children) %>%
-  dplyr::filter(str_detect(community, "French speaking")) %>%
-  mutate(interpretation = factor(as.factor(interpretation),
-                                 levels = c("Disagree", "Slightly disagree",
-                                            "No response",
-                                            "Moderately agree", "Agree"))) %>%
-  dplyr::select(question_short, interpretation) %>%
-  pivot_wider(names_from = question_short, values_from = interpretation,
+  dplyr::filter(str_detect(community, "French")) %>%
+  mutate(response = round(response)) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
               values_fn = list)
 likert_data_atop2 <- as.data.frame(do.call(cbind,
                                           sapply(1:ncol(likert_data_atop),
@@ -674,19 +662,128 @@ likert_data_atop2 <- as.data.frame(do.call(cbind,
                                                    likert_data_atop[[x]]
                                           })))
 colnames(likert_data_atop2) <- names(likert_data_atop)
-likert_data_atop <- likert_data_atop2 %>%
-  mutate(across(think_clearly:getting_hurt, function(x) factor(as.factor(x),
-                                      levels = 1:5,                      
-                                      labels = c("Disagree",
-                                                 "Slightly disagree",
-                                                 "No response",
-                                                 "Moderately agree",
-                                                 "Agree"))))
-names(likert_data_atop) <- atop_key$question_text_english
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x), levels = as.character(seq(0,7))))
 
-p_fr <- gglikert(likert_data_atop, sort = "none", y_label_wrap = 20,
-                 labels_size = 2) +
-  theme(axis.text.y = element_blank())
+p_fr <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 20,
+                 labels_size = 2)
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+```{r opp2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the questions 'Do you associate the following activity as typical outdoor playing behavior of you child?'", fig.width = 6.5, fig.height = 6.5}
+likert_data_atop <- atop_data_p2 %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(!str_detect(community, "French")) %>%
+  mutate(response = ifelse(response == "association",
+                           "Yes", 
+                           ifelse(response == "no association",
+                                  "No", "Maybe"))) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x),
+                             levels = c("Yes", "Maybe", "No")))
+p_nl <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 25,
+                 labels_size = 2)
+ 
+
+likert_data_atop <- atop_data_p2 %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French")) %>%
+  mutate(response = ifelse(response == "association",
+                           "Yes", 
+                           ifelse(response == "no association",
+                                  "No", "Maybe"))) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x),
+                             levels = c("Yes", "Maybe", "No")))
+
+p_fr <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 25,
+                 labels_size = 2)
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+```{r opp3, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the questions 'How many hours does your child spend on ... on an average weekday/weekend day?'", fig.width = 6.5, fig.height = 4}
+likert_data_atop <- atop_data_p3 %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(!str_detect(community, "French")) %>%
+  mutate(
+    activity = paste0(activity, "_", during),
+    response = ifelse(response == "0 - < 1",
+                      "0", 
+                      ifelse(response == "< 1 - 1-2",
+                             "1-2", ifelse(response == "1-2 - 2-3",
+                                           "2-3",
+                                           ifelse(str_detect(response, "3-4"),
+                                                  "3-4", response))))) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x),
+                             levels = c("0", "< 1", "1-2", "2-3", "3-4",
+                                        "> 4")))
+p_nl <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 25,
+                 labels_size = 2)
+ 
+likert_data_atop <- atop_data_p3 %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French")) %>%
+  mutate(
+    activity = paste0(activity, "_", during),
+    response = ifelse(response == "0 - < 1",
+                      "0", 
+                      ifelse(response == "< 1 - 1-2",
+                             "1-2", ifelse(response == "1-2 - 2-3",
+                                           "2-3",
+                                           ifelse(str_detect(response, "3-4"),
+                                                  "3-4", response))))) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x),
+                             levels = c("0", "< 1", "1-2", "2-3", "3-4",
+                                        "> 4")))
+
+p_fr <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 25,
+                 labels_size = 2)
 p_nl + p_fr + plot_layout(guides = "collect") &
   theme(legend.position = "bottom",
         text = element_text(size = 9))
@@ -728,7 +825,7 @@ children %>%
   pivot_wider(names_from = response,
               values_from = `nb_perc`) %>%
   mutate(rowsum = rowSums(across(where(is.numeric)))) %>%
-  mutate(across(long:none, ~ sprintf("%d, (%.2f%%)", .x, 100*.x / rowsum))) %>%
+  mutate(across(long:none, ~ sprintf("%d (%.2f%%)", .x, 100*.x / rowsum))) %>%
   dplyr::select(-rowsum) %>%
   kable(booktabs = TRUE,
         caption = "Demographics for children whose parents filled in the long
@@ -816,7 +913,7 @@ reps_data %>%
                       "Not answered")) %>%
   kableExtra::kable_styling(font_size = 9) %>%
   kableExtra::column_spec(1, width = "2in") %>%
-  kableExtra::column_spec(2:9, width = "0.6in")
+  kableExtra::column_spec(2:9, width = "0.5in")
 ```
 
 ```{r reps-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the REPS scale items.", fig.width = 6.5, fig.height = 6.5, eval = TRUE}
@@ -843,7 +940,7 @@ names(likert_data_reps) <-
     match(names(likert_data_reps),reps_key$question_short),
     "question_text_english"]))
 p_nl <- gglikert(likert_data_reps, sort = "none", y_label_wrap = 25,
-                 labels_size = 2)
+                 labels_size = 1.5)
 
 
 #How often is each question answered in each of the communities?
@@ -851,8 +948,7 @@ nb_answered <- reps_data %>%
   left_join(children) %>% 
   group_by(question_code, question_short, community) %>%
   summarize(n = n_distinct(child_id)) %>%
-  ungroup() %>%
-  print(n = 31)
+  ungroup()
 #wash_hands is never answered in the french community 
   
   
@@ -896,11 +992,11 @@ factorize <- function(x){
 p_fr <- likert_data_reps %>%
   mutate_at(1:15, factorize) %>%
   gglikert(sort = "none", y_label_wrap = 25,
-           labels_size = 2)
+           labels_size = 1.5)
 
 p_nl + p_fr + plot_layout(guides = "collect") &
   theme(legend.position = "bottom",
-        text = element_text(size = 9))
+        text = element_text(size = 8))
 
 #------------------------Prepare REPS data for cfa-----------------------------#
 #there are no parents who filled it in more than once 
