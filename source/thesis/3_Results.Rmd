@@ -32,6 +32,69 @@ ses_key <- read_resource(package = baseball_package,
 # Results
 
 ## Demographics
+```{r}
+data_school <- read_resource(package = baseball_package,
+                             resource_name = "wp2_school_data")
+data_particip <- read_resource(package = baseball_package,
+                               resource_name = "wp2_participants_metadata")
+```
+
+While the initial goal was to get over 70 schools on board, only `r nrow(data_school)`.
+The Covid 19 epidemic might also have had an influence on this disappointing response.
+
+```{r schools_size, fig.cap = "Number of schools per province (number on the left) and school size."}
+ordered_provinces <- c(data_school %>%
+                     filter(province_name != "Brussels Capital Region") %>%
+                     arrange(community, province_name) %>%
+                     dplyr::pull(province_name) %>%
+                     unique(), "Brussels Capital Region")
+school_by_province <- data_school %>%
+  group_by(province_name) %>%
+  summarize(n = n())
+school_by_community <- data_school %>%
+  group_by(community) %>%
+  summarize(n = n())
+data_school %>%
+  mutate(province_name = factor(as.factor(province_name),
+                                levels = ordered_provinces,
+                                ordered = TRUE)) %>%
+  ggplot(aes(x = n_students, y = province_name)) +
+  geom_point(aes(color = community)) +
+  geom_text(data = school_by_province,
+            aes(x = min(data_school$n_students) - 20,
+                y = province_name,
+                label = n)) +
+  xlab("Number of students in the school") +
+  ylab("Province") +
+  theme_bw()
+```
+
+
+Figure \@ref(fig:schools_size) shows that there are `r unname(unlist(school_by_community[1,"n"]))` Dutch speaken, `r unname(unlist(school_by_community[3,"n"]))` French speaking and `r unname(unlist(school_by_community[2,"n"]))` bilingual schools.
+It is remarkable to see that there are no schools from the Limburg province and only one from Vlaams-Brabant.
+
+```{r paticip_age_sex, fig.cap = "Year of birth (if known) and sex of the participating child."}
+data_particip <- data_particip %>%
+  left_join(data_school) %>%
+  mutate(province_name = factor(as.factor(province_name),
+                                levels = ordered_provinces,
+                                ordered = TRUE))
+nb_child_by_province <- 
+  data_particip %>%
+  filter(!is.na(biological_sex)) %>%
+  group_by(biological_sex, province_name) %>%
+  summarize(n = n()) %>%
+  ungroup()
+data_particip %>% 
+  filter(!is.na(biological_sex)) %>%
+  mutate(birth_year = ifelse(is.na(birth_year), "Unknown",
+                             as.character(birth_year))) %>%
+  ggplot(aes(x = birth_year, fill = biological_sex), position = dodge) +
+  geom_bar() +
+  geom_text(data = nb_child_by_province, aes(x = "2010", label = n,  y=38)) +
+  facet_grid(rows = vars(province_name), cols = vars(biological_sex))
+
+```
 
 ## Scale questions
 
@@ -1159,7 +1222,7 @@ alpha_reps_re_nl <- alpha(data_cfa_reps_unscaled %>%
 \clearpage
 ### Independent mobility in parents
 
-Lastly, the parents some questions on independent mobility, inspired by @shaw2013children. 
+Lastly, the parents some questions on the independent mobility of their child, inspired by @shaw2013children. 
 Since the original authors do not provide guidelines for any underlying latent factors, we perform an exploratory factor analysis first.
 
 To improve response rate, these questions were left out in a shortened version of the survey. 
@@ -1190,8 +1253,7 @@ tbl <- im_data %>%
   dplyr::select(question_text_english, No, `Yes - No`, Yes)
 tbl[order(match(tbl$question_text_english, im_key$question_text_english)),] %>%
   kable(booktabs = TRUE,
-        caption = "Descriptive statistics for Attitude Towards Outdoor Play
-        scale items in children.",
+        caption = "Descriptive statistics for Independent Mobility.",
         col.names = c("Item", "No", "Yes - No", "Yes")) %>%
   kableExtra::kable_styling(font_size = 9) %>%
   kableExtra::column_spec(1, width = "2in") %>%

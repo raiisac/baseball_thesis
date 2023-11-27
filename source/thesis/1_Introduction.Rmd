@@ -5,17 +5,17 @@ B@seball (Biodiversity at School Environments Benefits for ALL) is a [BELSPO pro
 
 For this purpose, over 500 children between 10 and 12 years old from 36 different schools in Belgium were recruited. The schools were selected with statistical matching such that each school with lots of greenery always had a statistically close match (socio-economics, size, geographical location) with little greenery.
 
-The main data collection consisted of cheek swabs that were analysed to get each child's microbiota which, in turn, is a proxy for children's physical health. The main research question that will be investigated by the project's team of researchers is whether greenery in schools influences the children's' microbiota and, in turn, their health. 
+The main data collection consisted of cheek swabs that were analysed to get each child's microbiota which, in turn, is a proxy for the children's physical health. The main research question that will be investigated by the project's team of researchers is whether greenery in schools influences the children's microbiota and, in turn, their health. 
 
 Additionally, parents, teachers, and children were asked to fill in questionnaires. These questionnaires are the main focus of this research.
 
-Both the microbiota data and the data from the questionnaires were cleaned and analyzed to investigate the main research questions. The project team aspires to publish the cleaned data as an open data set once the project ends. As such, the data can be freely used by others to test their own hypotheses.
+Both the microbiota data and the data from the questionnaires were cleaned and analyzed to investigate the main research questions. The project team aspires to publish the cleaned data as an open, freely-accessible  data set once the project ends. As such, the data can be freely used by others to test their own hypotheses.
 
 ## Research questions
 
 ### Children's questionnaire
 
-The children's questionnaire were filled in by approximately 500 children. It included questions on the children's **Attitude Towards Outdoor Play (ATOP)** [@beyer2015development]. The original standardized scale questions were translated in Dutch and French to accommodate the children's language. One scale item on people using drugs was removed from the scale since it was deemed irrelevant for children between 10 and 12 years old.
+The children's questionnaire was filled in by approximately 500 children. It included questions on the children's **Attitude Towards Outdoor Play (ATOP)** [@beyer2015development]. The original standardized scale questions were translated in Dutch and French to accommodate the children's language. One scale item on people using drugs was removed from the scale since it was deemed irrelevant for children between 10 and 12 years old.
 
 :::: {.center data-latex=""}
 
@@ -37,8 +37,7 @@ RQ: Are the translated nature connectedness statements still reliable and valid?
 
 ### Parents' questionnaire
 
-Around 300 parents filled in a questionnaire. They firstly answered questions on their children's environment and health, 
-their socio-economic status, and cultural background. 
+Around 300 parents filled in a questionnaire. They firstly answered questions on their children's environment and health, their socio-economic status, and cultural background. 
 
 Based on @jelleyman2019cross, parents were also asked about their child's outdoor sports, outdoor activities, and participation in "risky play categories" such as climbing trees and push-and-pull games.
 

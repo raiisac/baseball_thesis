@@ -14,15 +14,14 @@ The children's survey contained scale questions on NC and ATOP.
 
 The survey for the parents contains the most information. It starts with some general questions about their relationship to the child and how long the child has been going to the school. Socio-economic status (SES), cultural background, and their living environment are also questioned. Next, the parents are questioned on possible allergies or chronic illnesses that the child might have. 
 
-
-Table \@ref(tab:atop-translation-kids), \@ref(tab:atop-translation),  \@ref(tab:reps-translation), and \@ref(tab:im-translation) in chapter \@ref(translate) in the appendix show the original English question and the translation in both Dutch and French. 
-
-
 The guardians' questionnaire contained only the REPS questions and some additional questions on their age, gender, and how often they supervise while the children are on a play break. 
+
+Table \@ref(tab:atop-translation-kids), \@ref(tab:atop-translation), \@ref(tab:reps-translation), and \@ref(tab:im-translation) in chapter \@ref(translate) in the appendix show the original English scale questions and the translation in both Dutch and French. 
+
 
 ## Survey distribution and response
 
-The surveys were distributed in ???WHEN??? and filled in over several months time.
+The surveys were distributed in May 2022 and filled in over several months time.
 It quickly became clear that, especially the parents' survey had a very low response rate.
 In an attempt to increase the response rate in parents, the parent's survey was shortened:
 
@@ -32,14 +31,13 @@ In an attempt to increase the response rate in parents, the parent's survey was 
 - 
 
 
-## Data Cleaning
+## Data Cleaning en reproducibility
 
-All data cleaning was performed in R. 
+All data cleaning was performed in R, mainly using the [**tidyverse** packages](https://www.tidyverse.org/packages/). 
 
-The B@seball researchers published cleaned data packages that can be easily read by researchers, including the meta-data, using R's [**frictionless** package](https://cran.r-project.org/web/packages/frictionless/vignettes/frictionless.html).
+The B@seball researchers published cleaned data packages that can be easily read by researchers, including the meta-data, using R's [**frictionless** package](https://cran.r-project.org/web/packages/frictionless/vignettes/frictionless.html). For now, this data is confidential but this should be openly and freely available for all researchers in the future.
 
-
-
+This report was written as an R bookdown document such that code and text is interwoven in RMarkDown files. Github is used for version control.   
 
 ## Data analysis
 
