@@ -4,7 +4,7 @@
 
 In a first step, the surveys were created and implemented in the survey software Qualtrics. The main goal of the survey was to get a better picture of the typical life of the children such that researchers can, for instance, control for how often the child plays outside when analyzing the link between greenness of the school and the child's microbiome. 
 
-A literature search yielded several existing scales to measure Nature Connectedness (NC), Attitude Towards Outdoor Play (ATOP), Risk Engagement and Protection (REPS), and Independent Mobility (IM).
+A literature search yielded several existing scales to measure Nature Connectedness (NC), Attitude Towards Outdoor Play (ATOP), and Risk Engagement and Protection (REPS).
 Since the schools were located in Belgium, each of the scale questions was translated into Dutch and French from English.
 The translated questions were first tested on a small sample of children and parents who could provide feedback on whether the questions are clear and understandable for them.
 Once the survey was final, the survey was implemented in Qualtrics and sent to all parents and guardians.
@@ -12,12 +12,11 @@ The children filled in their survey on paper (usually in school) and parents and
 
 The children's survey contained scale questions on NC and ATOP. 
 
-The survey for the parents contains the most information. It starts with some general questions about their relationship to the child and how long the child has been going to the school. Socio-economic status (SES), cultural background, and their living environment are also questioned. Next, the parents are questioned on possible allergies or chronic illnesses that the child might have. 
+The survey for the parents contains the most information. It starts with some general questions about their relationship to the child and how long the child has been going to the school. Socio-economic status (SES), cultural background, and their living environment are also questioned. Next, the parents are questioned on possible allergies or chronic illnesses that the child might have. The REPS questions are included in the parents' survey.
 
 The guardians' questionnaire contained only the REPS questions and some additional questions on their age, gender, and how often they supervise while the children are on a play break. 
 
-Table \@ref(tab:atop-translation-kids), \@ref(tab:atop-translation), \@ref(tab:reps-translation), and \@ref(tab:im-translation) in chapter \@ref(translate) in the appendix show the original English scale questions and the translation in both Dutch and French. 
-
+Table \@ref(tab:atop-translation-kids), \@ref(tab:atop-translation), and \@ref(tab:reps-translation) in chapter \@ref(translate) in the appendix show the original English scale questions and the translation in both Dutch and French. 
 
 ## Survey distribution and response
 
@@ -28,8 +27,6 @@ In an attempt to increase the response rate in parents, the parent's survey was 
 - Parents were no longer asked for their age
 - Socio-economic questions were limited
 - Questions on the outside play areas in their home's surroundings were removed
-- 
-
 
 ## Data Cleaning en reproducibility
 
@@ -41,15 +38,17 @@ This report was written as an R bookdown document such that code and text is int
 
 ## Data analysis
 
-All data was analysed with R
+All data was analysed with R.
 
 ### Analysing the scale questions
 
-As described in the introduction, the survey included many different scale items.
-Each of these can be analyzed separately to determine the reliability and to confirm that the translation in Dutch and French works well. 
-Throughout the paper, we will use non-graphical solutions in addition to the traditional, often used scree test to determine an appropriate number of factors that can be distinguished in the data. @raicheNonGraphicalSolutionsCattell2013 describes the Optimal Coordinates (OC) test and the Acceleration Factor (AF) test which both have been implemented in the [**nFactor** R package](https://cran.r-project.org/web/packages/nFactors/index.html).
-For OC, one traces a line from the coordinates of the last eigenvalue through each of the preceding coordinates. Then, one can project each line to the preceding eigenvalue and verify whether the observed eigenvalue is superior than the estimated projected eigenvalue.
-The AF emphasizes the point on the coordinate where the slope of the curve of the scree plot changes abruptly.
+As described in the introduction, the survey included three different scale items (ATOP, NC, and REPS).
+Each of these can be analyzed separately to determine the reliability and to check whether the translation in Dutch and French works well. 
+
+Using multi-group confirmatory factor analysis (CFA), composite reliability is checked using McDonald's $\omega$ [@bentler1968alpha; cho2021neither; mcdonald2013test]. The fit is assessed using the typical fit measures: Comparative Fit Index (CFI), Tucker-Lewis Index (TLI), Root Mean Square Error of Approximation (RMSEA), and Standardized Root Mean Square Residual (SRMR).
+
+In the multi-group CFA, one can define different groups of respondents and check whether the measurement model holds across groups i.e. whether there is measurement equivalence. In the most general model (also called the *configural model*), the proposed factor model is fit to each group without any constraints. *Metric measurement invariance* requires one additional constraint; that the loadings are equal across groups. *Strong measurement invariance¨* implies that both loadings and intercepts are equal across groups. One may also allow *some* loadings and intercepts to vary across groups and force others to be equal across groups to improve the fit. However, this may over-complicate the model and lead to overfitting.
+
 
 ### Overarching models
 

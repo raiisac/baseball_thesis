@@ -29,6 +29,8 @@ tbl
 ```
 
 
+
+
 ```{r nc-translation, message=FALSE, warning=FALSE, include=TRUE,  echo = FALSE}
 tbl <- nc_key %>%
   dplyr::select(question_text_english, question_text_french,
@@ -79,20 +81,608 @@ tbl <- reps_key %>%
 tbl
 ```
 
-```{r im-translation, message=FALSE, warning=FALSE, include=TRUE,  echo = FALSE}
-tbl <- im_key %>%
-  mutate(question_text_english = ifelse(
-    ommit_if_short_survey,
-    paste0(question_text_english, "*"),
-    question_text_english
-  )) %>%
-  dplyr::select(question_text_english, question_text_french,
-                question_text_dutch) %>%
-  kable("latex", longtable = TRUE, booktabs = TRUE,
-        caption = "The IM scale questions for parents and guardians. Questions with a * are omitted in the shortened survey.",
-        col.names = c("Original", "French", "Dutch")) %>%
-  kable_styling(latex_options = c("repeat_header"), font_size = 9) %>%
-  column_spec(1:3, width = "3in") %>%
-  landscape()
-tbl
+\clearpage
+
+# Detailed graphical representation of the answers for Dutch and French speaking children and parents seperately
+
+The figures in this sections graphically show the descriptive statistics for Dutch-speaking and French-speaking children or parents separately. Children / parents from the bilingual school are included in both since it was not recorded in which language they answered.
+
+In this section, we also show the coefficient estimates and standard errors for each of the final cfa models.
+
+\clearpage
+
+## Attitude towards outdoor play (ATOP)
+
+```{r atopkids-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap= "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the Nature connectedness scale items. Non-responses are not shown but taken into account when calculating the percentages.", fig.width = 6.5, fig.height = 6.5}
+likert_data_atop <- atop_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "Dutch speaking")) %>%
+  mutate(interpretation = factor(as.factor(interpretation),
+                                 levels = c("Disagree", "Slightly disagree",
+                                            "No response",
+                                            "Moderately agree", "Agree"))) %>%
+  dplyr::select(question_short, interpretation) %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop <- likert_data_atop2 %>%
+  mutate(across(think_clearly:getting_hurt, function(x) factor(as.factor(x),
+                                      levels = 1:5,                      
+                                      labels = c("Disagree",
+                                                 "Slightly disagree",
+                                                 "No response",
+                                                 "Moderately agree",
+                                                 "Agree"))))
+names(likert_data_atop) <- atop_key$question_text_english
+p_nl <- gglikert(likert_data_atop, sort = "none", y_label_wrap = 20,
+                 labels_size = 2)
+ 
+
+likert_data_atop <- atop_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French speaking")) %>%
+  mutate(interpretation = factor(as.factor(interpretation),
+                                 levels = c("Disagree", "Slightly disagree",
+                                            "No response",
+                                            "Moderately agree", "Agree"))) %>%
+  dplyr::select(question_short, interpretation) %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop <- likert_data_atop2 %>%
+  mutate(across(think_clearly:getting_hurt, function(x) factor(as.factor(x),
+                                      levels = 1:5,                      
+                                      labels = c("Disagree",
+                                                 "Slightly disagree",
+                                                 "No response",
+                                                 "Moderately agree",
+                                                 "Agree"))))
+names(likert_data_atop) <- atop_key$question_text_english
+
+p_fr <- gglikert(likert_data_atop, sort = "none", y_label_wrap = 20,
+                 labels_size = 2) +
+  theme(axis.text.y = element_blank())
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
 ```
+
+
+```{r atop-loadings}
+est <- parameterEstimates(fit_sameloadings_atop) %>%
+  mutate(type = ifelse(op == "=~",
+                       "loading",
+                       ifelse(op == "~1",
+                              "intercept",
+                              ifelse(lhs == rhs,
+                                     "variance",
+                                     "covariance"))),
+         estimate = sprintf("%.3f %s", est, gtools::stars.pval(pvalue))) %>%
+  mutate(link = ifelse(type %in% c("loading", "covariance"),
+                       sprintf("%s %s %s", lhs, op, rhs),
+                       lhs)) %>%
+  dplyr::select(type, link, estimate, se)
+t <- cbind(est[1:(nrow(est)/2),], est[(nrow(est)/2+1):nrow(est),-c(1,2)])
+t[, -1] %>%
+  kable(booktabs = TRUE,
+        caption = "Unstandardized coefficient estimates and standard errors for the metric measurement invariance model for ATOP to compare Dutch versus French-speaking respondents",
+        col.names = c("", "Estimate", "SE", "Estimate", "SE"),
+        digits = 3) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::add_header_above(c("", "Dutch speaking" = 2,
+                                 "French speaking" = 2)) %>%
+  kableExtra::group_rows(start_row = which(t$type == "loading")[1],
+                         end_row = max(which(t$type == "loading")),
+                         "Loadings") %>%
+  kableExtra::group_rows(start_row = which(t$type == "intercept")[1],
+                         end_row = max(which(t$type == "intercept")),
+                         "Intercept") %>%
+  kableExtra::group_rows(start_row = 14,
+                         end_row = 26,
+                         "Variance") %>%
+  kableExtra::group_rows(start_row = 12,
+                         end_row = 13,
+                         "Covariance") %>%
+  kableExtra::group_rows(start_row = 27,
+                         end_row = 27,
+                         "Covariance") %>%
+  kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
+#which(t$type == "covariance")
+#which(t$type == "variance")
+```
+\clearpage
+
+## Nature connectedness (NC)
+
+```{r nc-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the Nature connectedness scale items. Non-responses are not shown but taken into account when calculating the percentages.", fig.width = 6.5, fig.height = 5}
+likert_data_nc <- nc_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "Dutch speaking")) %>%
+  mutate(interpretation = factor(as.factor(interpretation),
+                                 levels = c("Disagree", "Slightly disagree",
+                                            "No response", "Don't know",
+                                            "Moderately agree", "Agree"))) %>%
+  dplyr::select(question_short, interpretation) %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              values_fn = list)
+likert_data_nc2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_nc),
+                                                 FUN = function(x) {
+                                                   likert_data_nc[[x]]
+                                          })))
+colnames(likert_data_nc2) <- names(likert_data_nc)
+likert_data_nc <- likert_data_nc2 %>%
+  mutate(across(beauty:part_of, function(x) factor(as.factor(x),
+                                      levels = 1:6,                      
+                                      labels = c("Disagree",
+                                                 "Slightly disagree",
+                                                 "No response", "Don't know",
+                                                 "Moderately agree", "Agree"))))
+names(likert_data_nc) <- nc_key$question_text_english
+p_nl <- gglikert(likert_data_nc,
+                 exclude_fill_values = "No response",
+                 sort = "none", y_label_wrap = 20,
+                 labels_size = 2)
+ 
+
+likert_data_nc <- nc_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French speaking")) %>%
+  mutate(interpretation = factor(as.factor(interpretation),
+                                 levels = c("Disagree", "Slightly disagree",
+                                            "No response", "Don't know",
+                                            "Moderately agree", "Agree"))) %>%
+  dplyr::select(question_short, interpretation) %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              values_fn = list)
+likert_data_nc2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_nc),
+                                                 FUN = function(x) {
+                                                   likert_data_nc[[x]]
+                                          })))
+colnames(likert_data_nc2) <- names(likert_data_nc)
+likert_data_nc <- likert_data_nc2 %>%
+  mutate(across(beauty:part_of, function(x) factor(as.factor(x),
+                                      levels = 1:6,                      
+                                      labels = c("Disagree",
+                                                 "Slightly disagree",
+                                                 "No response", "Don't know",
+                                                 "Moderately agree", "Agree"))))
+names(likert_data_nc) <- nc_key$question_text_english
+
+p_fr <- gglikert(likert_data_nc, sort = "none",
+                 exclude_fill_values = "No response", y_label_wrap = 20,
+                 labels_size = 2) +
+  theme(axis.text.y = element_blank())
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+```{r nc-loadings}
+est <- parameterEstimates(fit_sameloadings_nc) %>%
+  mutate(type = ifelse(op == "=~",
+                       "loading",
+                       ifelse(op == "~1",
+                              "intercept",
+                              ifelse(lhs == rhs,
+                                     "variance",
+                                     "covariance"))),
+         estimate = sprintf("%.3f %s", est, gtools::stars.pval(pvalue))) %>%
+  mutate(link = ifelse(type %in% c("loading", "covariance"),
+                       sprintf("%s %s %s", lhs, op, rhs),
+                       lhs)) %>%
+  dplyr::select(type, link, estimate, se)
+t <- cbind(est[1:(nrow(est)/2),], est[(nrow(est)/2+1):nrow(est),-c(1,2)])
+t[, -1] %>%
+  kable(booktabs = TRUE,
+        caption = "Unstandardized coefficient estimates and standard errors for the metric measurement invariance model for NC to compare Dutch versus French-speaking respondents",
+        col.names = c("", "Estimate", "SE", "Estimate", "SE"),
+        digits = 3) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::add_header_above(c("", "Dutch speaking" = 2,
+                                 "French speaking" = 2)) %>%
+  kableExtra::group_rows(start_row = which(t$type == "loading")[1],
+                         end_row = max(which(t$type == "loading")),
+                         "Loadings") %>%
+  kableExtra::group_rows(start_row = which(t$type == "intercept")[1],
+                         end_row = max(which(t$type == "intercept")),
+                         "Intercept") %>%
+  kableExtra::group_rows(start_row = 8,
+                         end_row = 14,
+                         "Variance") %>%
+  kableExtra::group_rows(start_row = 7,
+                         end_row = 7,
+                         "Covariance") %>%
+  kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
+#which(t$type == "covariance")
+#which(t$type == "variance")
+```
+
+\clearpage
+
+## Risk engagement and protection survey (REPS)
+
+```{r reps-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the REPS scale items.", fig.width = 6.5, fig.height = 9, eval = TRUE}
+likert_data_reps <- reps_data %>%
+  as.data.frame() %>%
+  rbind(c("10-5X-03", "1", "Single response", "wash_hands", "x6_14", NA)) %>% #this line is missing from the data
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "Dutch speaking")) %>%
+  dplyr::select(question_short, response) %>%
+  pivot_wider(names_from = question_short, values_from = response,
+              values_fn = list)
+likert_data_reps2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_reps),
+                                                 FUN = function(x) {
+                                                   likert_data_reps[[x]]
+                                          })))
+colnames(likert_data_reps2) <- names(likert_data_reps)
+likert_data_reps <- likert_data_reps2 %>%
+  dplyr::select(reps_key %>%
+                  arrange(factor) %>%
+                  dplyr::pull(question_short))#order according to the factor
+names(likert_data_reps) <-
+  unname(unlist(reps_key[
+    match(names(likert_data_reps),reps_key$question_short),
+    "question_text_english"]))
+p_nl <- gglikert(likert_data_reps, sort = "none", y_label_wrap = 25,
+                 labels_size = 1.5)
+
+
+#How often is each question answered in each of the communities?
+nb_answered <- reps_data %>%
+  left_join(children) %>% 
+  group_by(question_code, question_short, community) %>%
+  summarize(n = n_distinct(child_id)) %>%
+  ungroup()
+#wash_hands is never answered in the french community 
+  
+  
+full_available <- reps_data %>%
+  group_by(child_id) %>%
+  summarize(n = n()) %>%
+  mutate(rest = (n %% 16)) %>%
+  left_join(children) %>% 
+  filter((community == "Dutch speaking" & n %% 16 == 0) |
+           (community == "French speaking" & n %% 15 == 0)) %>%
+  dplyr::pull(child_id) #parents of these children filled in all questions
+
+
+likert_data_reps <- reps_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French speaking") &
+                  child_id %in% full_available) %>%
+  dplyr::select(question_short, response) %>%
+  pivot_wider(names_from = question_short, values_from = response,
+              values_fn = list)
+likert_data_reps2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:(ncol(likert_data_reps)),
+                                                 FUN = function(x) {
+                                                   likert_data_reps[[x]]
+                                          })))
+colnames(likert_data_reps2) <- names(likert_data_reps)
+likert_data_reps <- likert_data_reps2 %>%
+  dplyr::select(reps_key %>%
+                  dplyr::filter(reps_key$question_short != "wash_hands") %>%
+                  arrange(factor) %>%
+                  dplyr::pull(question_short))
+names(likert_data_reps) <-
+  unname(unlist(reps_key[
+    match(names(likert_data_reps),reps_key$question_short),
+    "question_text_english"]))
+factorize <- function(x){
+  out <- factor(as.factor(x), levels = as.character(seq(1,7)))
+  return(out)
+}
+p_fr <- likert_data_reps %>%
+  mutate_at(1:15, factorize) %>%
+  gglikert(sort = "none", y_label_wrap = 25,
+           labels_size = 1.5)
+
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 8))
+```
+
+```{r reps-loadings}
+est <- parameterEstimates(fit_free_reps) %>%
+  mutate(type = ifelse(op == "=~",
+                       "loading",
+                       ifelse(op == "~1",
+                              "intercept",
+                              ifelse(lhs == rhs,
+                                     "variance",
+                                     "covariance"))),
+         estimate = sprintf("%.3f %s", est, gtools::stars.pval(pvalue))) %>%
+  mutate(link = ifelse(type %in% c("loading", "covariance"),
+                       sprintf("%s %s %s", lhs, op, rhs),
+                       lhs)) %>%
+  dplyr::select(type, link, estimate, se)
+t <- cbind(est[1:(nrow(est)/2),], est[(nrow(est)/2+1):nrow(est),-c(1,2)])
+t[1:34, -1] %>%
+  kable(booktabs = TRUE,
+        caption = "Unstandardized coefficient estimates and standard errors for the metric measurement invariance model for REPS to compare Dutch versus French-speaking respondents",
+        col.names = c("", "Estimate", "SE", "Estimate", "SE"),
+        digits = 3) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::add_header_above(c("", "Dutch speaking" = 2,
+                                 "French speaking" = 2)) %>%
+  kableExtra::group_rows(start_row = which(t$type == "loading")[1],
+                         end_row = max(which(t$type == "loading")),
+                         "Loadings") %>%
+  kableExtra::group_rows(start_row = 19,
+                         end_row = 34,
+                         "Variance") %>%
+  kableExtra::group_rows(start_row = 15,
+                         end_row = 18,
+                         "Covariance") %>%
+  kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
+#which(t$type == "covariance")
+#which(t$type == "variance")
+```
+
+```{r reps-loadings2}
+t[35:51, -1] %>%
+  kable(booktabs = TRUE,
+        caption = "Unstandardized coefficient estimates and standard errors for the metric measurement invariance model for REPS to compare Dutch versus French-speaking respondents (continued)",
+        col.names = c("", "Estimate", "SE", "Estimate", "SE"),
+        digits = 3,
+        row.names = FALSE) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::add_header_above(c("", "Dutch speaking" = 2,
+                                 "French speaking" = 2)) %>%
+  kableExtra::group_rows(start_row = 2,
+                         end_row = 17,
+                         "Intercept") %>%
+  kableExtra::group_rows(start_row = 1,
+                         end_row = 1,
+                         "Covariance") %>%
+  kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
+#which(t$type == "covariance")
+#which(t$type == "variance")
+```
+
+\clearpage
+
+## Outdoor play frequency
+
+The parents' questionnaire included questions on how often their child actually plays outside or how much they spend indoors, doing homework or behind a (tv/tablet/computer) screen.
+
+```{r opp1, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the questions on how many days per week their child participate in...", fig.width = 6.5, fig.height = 4}
+likert_data_atop <- atop_data_p1 %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(!str_detect(community, "French")) %>%
+  mutate(response = round(response)) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x), levels = as.character(seq(0,7))))
+p_nl <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 20,
+                 labels_size = 2)
+ 
+
+likert_data_atop <- atop_data_p1 %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French")) %>%
+  mutate(response = round(response)) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x), levels = as.character(seq(0,7))))
+
+p_fr <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 20,
+                 labels_size = 2)
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+```{r opp2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the questions 'Do you associate the following activity as typical outdoor playing behavior of you child?'", fig.width = 6.5, fig.height = 6.5}
+likert_data_atop <- atop_data_p2 %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(!str_detect(community, "French")) %>%
+  mutate(response = ifelse(response == "association",
+                           "Yes", 
+                           ifelse(response == "no association",
+                                  "No", "Maybe"))) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x),
+                             levels = c("Yes", "Maybe", "No")))
+p_nl <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 25,
+                 labels_size = 2)
+ 
+
+likert_data_atop <- atop_data_p2 %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French")) %>%
+  mutate(response = ifelse(response == "association",
+                           "Yes", 
+                           ifelse(response == "no association",
+                                  "No", "Maybe"))) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x),
+                             levels = c("Yes", "Maybe", "No")))
+
+p_fr <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 25,
+                 labels_size = 2)
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+```{r opp3, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the questions 'How many hours does your child spend on ... on an average weekday/weekend day?'", fig.width = 6.5, fig.height = 4}
+likert_data_atop <- atop_data_p3 %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(!str_detect(community, "French")) %>%
+  mutate(
+    activity = paste0(activity, "_", during),
+    response = ifelse(response == "0 - < 1",
+                      "0", 
+                      ifelse(response == "< 1 - 1-2",
+                             "1-2", ifelse(response == "1-2 - 2-3",
+                                           "2-3",
+                                           ifelse(str_detect(response, "3-4"),
+                                                  "3-4", response))))) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x),
+                             levels = c("0", "< 1", "1-2", "2-3", "3-4",
+                                        "> 4")))
+p_nl <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 25,
+                 labels_size = 2)
+ 
+likert_data_atop <- atop_data_p3 %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(str_detect(community, "French")) %>%
+  mutate(
+    activity = paste0(activity, "_", during),
+    response = ifelse(response == "0 - < 1",
+                      "0", 
+                      ifelse(response == "< 1 - 1-2",
+                             "1-2", ifelse(response == "1-2 - 2-3",
+                                           "2-3",
+                                           ifelse(str_detect(response, "3-4"),
+                                                  "3-4", response))))) %>%
+  dplyr::select(activity, response) %>%
+  pivot_wider(names_from = activity, values_from = response,
+              values_fn = list)
+likert_data_atop2 <- as.data.frame(do.call(cbind,
+                                          sapply(1:ncol(likert_data_atop),
+                                                 FUN = function(x) {
+                                                   likert_data_atop[[x]]
+                                          })))
+colnames(likert_data_atop2) <- names(likert_data_atop)
+likert_data_atop2 <- likert_data_atop2 %>%
+  mutate_all(.funs = ~factor(as.factor(.x),
+                             levels = c("0", "< 1", "1-2", "2-3", "3-4",
+                                        "> 4")))
+
+p_fr <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 25,
+                 labels_size = 2)
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+\clearpage
+
+# Additional factor analysis information
+
+## Risk engagement and protection survey: exploratory factor analysis {#repsefa}
+
+Two additional statements were added to the REPS questions:
+
+- How often do you allow your child to play outside when it is raining?
+- Should your child wash his/her hands after outdoor play?
+
+We use exploratory factor analysis (EFA) to check whether these might fit any of the original REPS factors. EFA based on only the complete observations (Table \@ref(tab:reps-efa1)) or on the whole dataset, using multiple imputation (Table \@ref(tab:reps-efa2)) both show that the two additional statements do not fit well with the original REPS scales.
+
+```{r message=FALSE, warning=FALSE, include=FALSE, echo = FALSE, eval = TRUE}
+#-------------1. Analysing only complete data (no missing answers)-------------#
+df <- data_cfa_reps[complete.cases(data_cfa_reps[, -c(1, 2)]), -c(1, 2)]
+pca <- prcomp(df)
+scree1 <- screeplot(pca, type = "lines")#2 factors is best
+covmat <- cov(data_cfa_reps[complete.cases(data_cfa_reps), -c(1, 2)])
+cormat <- cor(data_cfa_reps[complete.cases(data_cfa_reps), -c(1, 2)])
+efa_complete <- fa(cormat,
+                   covar = FALSE,
+                   2, rotate = "oblimin",
+                   fm = "ml", n.obs = nrow(df))
+tables_efa_complete <- fa_table(efa_complete,
+                         title = "Results for the EFA and oblique rotation
+                         and two factors, based on complete observations only.",
+                         varlabels = str_wrap(reps_key$question_text_english,
+                                              15))
+tables_efa_complete$ind_table
+#the two additional statements do not fit in either of the factors.
+#the EFA further uncovers the original two factors although the statement "I encourage my child to do physical activity" is now part of the engagement with risk factor in stead of the protection factor.
+
+#--------------------------------2. EFA with MI--------------------------------#
+library(mifa)
+mi <- mifa(data = data_cfa_reps[,-c(1, 2)])
+fit <- fa(mi$cov_combined, n.obs = nrow(data_cfa_reps), nfactors = 2)
+fa.diagram(fit)
+tables_atop <- fa_table(fit,
+                         title = "Results for the EFA with multiple imputation and oblique rotation
+                         and two factors.",
+                         varlabels = str_wrap(reps_key$question_text_english,
+                                              15))
+tables_atop$ind_table
+#Again, the washing hands and playing in the rain statements don't fit with
+# either factor. "I encourage my child to do physical activity (with the least 
+# risk of injury)." also does not fit well with either.
+```
+
+```{r reps-efa1}
+tables_efa_complete$ind_table
+```
+
+
+```{r reps-efa2}
+tables_atop$ind_table
+```
+
+\clearpage
+# Bibliography

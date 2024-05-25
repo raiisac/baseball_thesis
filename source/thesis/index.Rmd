@@ -2,6 +2,8 @@
 documentclass: article
 fontsize: 12pt
 date: "`r Sys.Date()`"
+book_filename: "thesis_raisa_carmen"
+delete_merged_file: TRUE
 output: 
   bookdown::pdf_document2: 
     fig_caption: yes
@@ -31,9 +33,11 @@ library(psych)
 library(rprojroot)
 library(tidyverse)
 library(lavaan)
+library(effectsize) #to easily interpret SEM fit
+library(semTools)
 source(find_root_file("source", "R", "fa_table.R",
                        criterion = has_file("baseball_thesis.Rproj")))
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
 baseball_package <- read_package(
   find_root_file(
