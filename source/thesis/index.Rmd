@@ -75,6 +75,26 @@ Add popularising summary here. (max. 2 pages for each language): The summary sho
 
 # List of abbreviations {-}
 
+```{r abbreviations}
+data.frame(
+  Abbreviation = c("ATOP",
+                   "CFA",
+                   "EFA",
+                   "NC",
+                   "REPS",
+                   "SEM"),
+  explanation = c("Attitude towards outdoor play",
+                  "Confirmatory factor analysis",
+                  "Exploratory factor analysis",
+                  "Nature connectedness",
+                  "Risk engagement and protection survey",
+                  "Structural equation model"
+                  )
+  ) %>%
+  kable(booktabs = TRUE) %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
+```
+
 \newpage
 ```{=latex}
 % Trigger ToC creation in LaTeX
