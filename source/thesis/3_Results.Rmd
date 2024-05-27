@@ -167,9 +167,9 @@ However, there is quite some variation where some children have switched schools
 For the B@seball project's main research questions on the link between school environment and the children's microbiome, it is important to see that most children have spend quite some years at the same school already.
 
 
-### Socio-economic status (SES)
 
-```{r}
+
+```{r message=FALSE, warning=FALSE}
 #get schools data
 baseball_derived_package <- read_package(
   find_root_file(
@@ -178,7 +178,62 @@ baseball_derived_package <- read_package(
     criterion = has_file("baseball_thesis.Rproj")))
 schools <- read_resource(package = baseball_derived_package,
               resource_name = "wp1_school_level_key_variables")
+child_derived <- read_resource(package = baseball_derived_package,
+              resource_name = "wp1_child_level_key_variables")
 ```
+
+### School environment
+
+The school environment is of particular interest for the B@seball project. It is characterized at two levels; within the school and outside the school.
+
+Firstly, the playground biodiversity is assessed based on the amount of natural elements (water, vegetation, woodchips, gravel, etc.) and artificial elements (pavingstones, asphalt, etc.) in the playground. Based on the area of natural and artificial elements, and how often they are used by the children, the schools are divided into two groups. Those with a relatively green playground (high greenness) and those with a relatively grey playground (low greenness).
+
+Secondly, since schools do not operate in a vacuum, it is also important to look at the landscape around the school. The area and proportion of area that is covered by grassland, trees and shrubs is calculated:
+
+- Within the playground (in case of several playgrounds, the areas are summed).
+- Within the school limit, but excluding the playground(s).
+- Within 100m surrounding the school limit, but excluding the area within the school limit.
+- Within 300m surrounding the school limit, but excluding the area of the 100 m buffer.
+
+Using k-means clustering, the schools are divided into two groups; those within a relatively green environment (high naturalness) and those within a rural or grey environment (low naturalness).
+
+Figure \@ref(fig:eda-school-greenery) shows the number of schools and children in each quadrant. Overall, each quadrant is quite well represented. 
+
+```{r eda-school-greenery, fig.cap="Number of schools (left) and number of children with a high or low naturalness and greenness.", message=FALSE, warning=FALSE, fig.height = 4}
+p1 <- schools %>%
+  group_by(landscape_type, school_context) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  ggplot(aes(x = as.factor(school_context), y = as.factor(landscape_type))) +
+  geom_tile(aes(fill = n)
+            ) +
+  geom_text(aes(label = n), color = "white") +
+  theme_bw() +
+  xlab("school context (playground)") +
+  ylab("landscape type (school surroundings)") +
+  theme(legend.position = "none")
+p2 <- children %>%
+  left_join(schools %>% dplyr::select(school_id, landscape_type,
+                                      school_context)) %>%
+  group_by(landscape_type, school_context) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  ggplot(aes(x = as.factor(school_context), y = as.factor(landscape_type))) +
+  geom_tile(aes(fill = n)
+            ) +
+  geom_text(aes(label = n), color = "white") +
+  theme_bw() +
+  xlab("school context (playground)") +
+  ylab("landscape type (school surroundings)") +
+  theme(legend.position = "none",
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+p1 + p2 + 
+  plot_layout(widths = c(1, 1))
+```
+
+### Socio-economic status (SES)
 
 The socio-economic status (SES) is available at the school and child level. It is calculated based on the education level, employment, and the (combined) income of the parents [@reynders2005ses]:
 
@@ -187,26 +242,60 @@ The socio-economic status (SES) is available at the school and child level. It i
   - Secondary education: 1/3
   - Higher education: 2/3
   - University: 1
-- Employment score (for respondent + partner)
+- Employment score (for respondent, as well as partner):
   - unemployed: 0
   - labourer: 1/3
   - civil servant, servant and small entrepreneur: 2/3
   - executive: 1
 - (Combined) income score:
-  - < €1000: 0
+  - $<$ €1000: 0
   - Between €1000 and €2000: 1/5
   - Between €2000 and €3000: 2/5
   - Between €3000 and €4000: 3/5
   - Between €4000 and €5000: 4/5
-  - > €5000: 1
+  - $>$ €5000: 1
 
-These three scores (all with values between 0 and 1) were first averaged per child to get the child-level SES. Then, it is averaged over children per school to arrive at a school-level SES.
+These scores (all with values between 0 and 1) were first averaged per child to get the child-level SES. Then, it is averaged over children per school to arrive at a school-level SES. Questions on employment, education level, and income are all included in the parents' survey. Since there are far less parents who filled in the survey than there are children in the data, the school-level SES may serve as a proxy for the child's SES if their parents did not fill in the survey.
 
+Figure \@ref(fig:eda-ses) shows the schools, ordered by the school-level SES as shown by the red dots. The smaller dots represent the children and their color indicate the type of playground (greenness) and landscape (naturalness). The percentages on the right indicate the percentage of children in the school for which the SES could not be calculated.
 
+```{r eda-ses, fig.cap = "Socio-economic status distributions in each of the schools.", message=FALSE, warning=FALSE}
+no_ses <- 
+  child_derived %>%
+  group_by(school_id) %>%
+  summarize(n = n(),
+            nb_missing = sum(is.na(ses))) %>%
+  ungroup() %>%
+  mutate(perc_missing = sprintf("%.0f%%", nb_missing / n * 100))
+child_derived %>%
+  left_join(schools %>%
+              dplyr::select(school_id, landscape_type,
+                            school_context, ses) %>%
+              rename(ses_school = ses)) %>%
+  mutate(school_type = sprintf("%s - %s", school_context, landscape_type)) %>%
+  ggplot(aes(y = school_id, color = as.factor(school_type))) +
+  geom_point(aes(x = ses)) +
+  geom_text(data = no_ses, aes(label = perc_missing, x = 1.1), color = "black",
+            size = 2.5) +
+  geom_point(data = schools, aes(x = ses), color = "red", size = 2) +
+  scale_color_manual("",
+                       breaks = c("low greenness - low naturalness",
+                                  "low greenness - high naturalness",
+                                  "high greenness - low naturalness",
+                                  "high greenness - high naturalness"),
+                       values = c("gray73", "khaki3", "olivedrab3",
+                                  "darkgreen")) +
+  theme_bw() +
+  ylab("school") +
+  xlab("socio-economic status") +
+  scale_x_continuous(breaks = c(0, 0.25, .5, .75, 1)) +
+  scale_y_discrete(limits = schools %>% arrange(ses) %>%
+                     dplyr::pull(school_id)) +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(nrow = 2, byrow = TRUE)) 
+  
 
-### Cultural background
-
-### Living environment
+```
 
 ## Scale questions
 
