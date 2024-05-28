@@ -233,7 +233,7 @@ p1 + p2 +
   plot_layout(widths = c(1, 1))
 ```
 
-### Socio-economic status (SES)
+### Socio-economic status
 
 The socio-economic status (SES) is available at the school and child level. It is calculated based on the education level, employment, and the (combined) income of the parents [@reynders2005ses]:
 
@@ -411,7 +411,7 @@ cr_alpha_atop <- compRelSEM(fit_sameloadings_atop, tau.eq = T, obs.var = T)
 @beyer2015development prescribes that the ATOP scale for children has two sub-scales: ATOP-benefits and ATOP-fears (see Table \@ref(tab:atop-translation-kids) in the appendix). We apply multi-group confirmatory factor analysis (CFA) and we hypothesize that the `r length(unique(atop_data$question_code))` test scores can be explained by these two common factors. 
 As described in the methodology, we apply a grouping based on the language of the survey (French of Dutch).
 
-Correlations between the statements *calm_down* and *learn_new_things* and between *calm_down* and *feeling_free* were added to the model of @beyer2015development to improve the fit. Table \@ref(tab:atop-loadings) and \@ref(tab:atop-loadings2)  in the appendix show the raw and standardized model estimates.
+Covariances between the statements *calm_down* and *learn_new_things* and between *calm_down* and *feeling_free* were added to the model of @beyer2015development to improve the fit. Table \@ref(tab:atop-loadings) and \@ref(tab:atop-loadings2)  in the appendix show the raw and standardized model estimates.
 
 Table \@ref(tab:atop-cfa-fit) shows the fit for the configural model, a model that assumes metric measurement invariance (equal loadings across the groups), and a model that assumes strong measurement invariance (equal loadings and intercepts across groups).
 Measurement invariance analysis showed that a model that assumes metric measurement invariance cannot be rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_atop_metric[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_atop_metric[2,"Df diff"])`, $p=$ `r round(anov_atop_metric[2,"Pr(>Chisq)"], 3)`) while a model that assumes strong measurement invariance is rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_atop_strong[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_atop_strong[2,"Df diff"])`, $p=$ `r round(anov_atop_strong[2,"Pr(>Chisq)"], 3)`).
@@ -815,7 +815,7 @@ cr_omega_reps <- compRelSEM(fit_sameloadings_reps, tau.eq = F, obs.var = T)
 cr_alpha_reps <- compRelSEM(fit_sameloadings_reps, tau.eq = T, obs.var = T)
 ```
 
-A correlation between the following pairs of statements were added:
+A covariances between the following pairs of statements were added:
 
 - prevention_importance and chance_of_injury.
 - concerned_injury and concerned_hazards.
@@ -1366,7 +1366,187 @@ However, the standardized loadings and error variances (Table \@ref(tab:reps-loa
 Statements with low reliability definitely need to be revised in possible future iterations of these translations.
 The validation analysis (section \@ref(validaty-analysis)) does show some logical relations with related variables so there still might be some merit in the factor scores which is encouraging.
 
-
 \clearpage
+
 ## Structural equation model (SEM)
 
+To answer our overarching research questions 4, 5, and 6, we will use a structural equation model (SEM) and link the scales to other exogenous variables.
+
+As the translated REPS scale is currently deemed unreliable and the fit was not good,  we will not use it in the SEM. This means that we will not be able to answer research question 4 which aimed to analyse whether there is a connection between the parents' REPS and the children's ATOP. However, leaving REPS out of the model will allow us to work with much more data since the response rate for the REPS questions was very low (around 50%).
+
+We include the ATOP and NC scales with the following additional covariances between some of the statements as specified in section \@ref(scale-questions). Since we want to know how the three latent factors are relate to each other, we include covariances between the three factors. Lastly, we add a regression for each latent factor with the following exogenous variables as covariates:
+
+- the gender of the child.
+- the socio-economic status of the child (see section \@ref(socio-economic-status)). We include the child-level SES, if available. Otherwise, we use the school-level SES as a proxy to avoid too much missingness.
+- the school context / type of playground as a binary variable (low versus high greenness, see section \@ref(school-environment)).
+- the landscape type around the school as a binary variable (low versus high naturalness, see section \@ref(school-environment)).
+
+
+```{r fit-sem, warning = FALSE, message = FALSE, include = FALSE}
+landscape_data <- read_resource(
+  package = baseball_package,
+  resource_name = "wp1_landscape_level_data")
+sem_data <- likert_data_atop %>%
+  mutate(across(think_clearly:getting_hurt,
+                function(x) as.numeric(x))) %>%
+  left_join(likert_data_nc %>%
+              dplyr::select(child_id:spending_time)) %>%
+  left_join(child_derived %>%
+              dplyr::select(child_id, ses) %>%
+              rename(ses_child = ses)) %>%
+  dplyr::select(-class_id, -birth_year, -birth_month, -age_202205,
+                -province_name, -pm25, -sirm_mean, -starts_with("playground"),
+                -starts_with("extra"), -in_school_prop_green,
+                -out_school_prop_green, -natural_elements_score,
+                -artificial_elements_score, -tree_number, -allergenic_potential,
+                -case_control_id) %>%#remove redundant columns
+  mutate(sex_male = 1 * (biological_sex == "Male"),
+         landscape_type_high_naturalness =
+           1 * (landscape_type == "high naturalness"),
+         school_context_high_greenness =
+           1 * (school_context == "high greenness"),
+         interaction =
+           as.factor(ifelse(landscape_type == "high naturalness",
+                            ifelse(school_context == "high greenness",
+                                   "h-h", "h-l"),
+                            ifelse(school_context == "high greenness",
+                                   "l-h", "l-l")
+                     )),
+         interaction_h_h = 1 * (interaction == "h-h"),
+         interaction_h_l = 1 * (interaction == "h-l"),
+         interaction_l_h = 1 * (interaction == "l-h"),
+         interaction_l_l = 1 * (interaction == "l-l"),
+         ses_child = ifelse(is.na(ses_child), ses, ses_child),
+         French = str_detect(community, "French")) %>%
+  left_join(
+    landscape_data %>%
+      select(school_id, c(landscape_type, bc, no2, pm10_min_pm25, pm25))
+  )
+#define lavaan models
+model_sem <- "
+  #latent variable definitions
+  ATOP_benefits =~ 1*think_clearly + good_for_health + calm_down + learn_new_things +   feeling_free + imagination + explore 
+  ATOP_fears =~ 1*get_lost + unknown_persons + wild_animals + getting_hurt
+  calm_down ~~ learn_new_things
+  calm_down ~~ feeling_free
+  NC =~ 1*beauty + respect + happy + spending_time + enjoy + part_of
+  beauty ~~ respect
+  
+  #Add correlations of interest
+  ATOP_benefits ~~ NC
+  ATOP_fears ~~ NC
+  ATOP_benefits ~~ ATOP_fears
+
+  #regressions
+  ATOP_benefits ~ sex_male + landscape_type_high_naturalness + school_context_high_greenness + ses_child 
+  ATOP_fears ~  sex_male + landscape_type_high_naturalness + school_context_high_greenness + ses_child 
+  NC ~ sex_male + landscape_type_high_naturalness + school_context_high_greenness + ses_child 
+"
+#evaluate model
+sem_output <- sem(model = model_sem, data = sem_data)
+sem_sum <- summary(sem_output, fit.measures = FALSE, standardized = TRUE)
+sem_sum_std <- standardizedSolution(sem_output) %>%
+  rename(est = `est.std`)
+sem_fit <- fitmeasures(sem_output, c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr",
+                                "AIC", "BIC"))
+interpret(sem_output)
+cr_omega_sem <- compRelSEM(sem_output, tau.eq = F, obs.var = T)
+cr_alpha_sem <- compRelSEM(sem_output, tau.eq = T, obs.var = T)
+```
+
+A multi-group SEM with a grouping by language (Dutch versus French) was also tested but yielded worse fit and reliability. We therefore will stick to a "simple" SEM for the whole data set. In total, `r sem_sum$data$nobs` observations with complete data that were used in the SEM.
+
+Tables \@ref(tab:sem-results) and \@ref(tab:sem-results-std) in the appendix show the full model results, both standardized and unstandardized. Figure \@ref(fig:sem-viz) shows the model results visually, including the standardized parameter estimates. Table \@ref(tab:sem-fit) shows that the fit of the model is overall satisfactory though there is room for improvement since the p-value of the Chi-square test is significant and the Tucker-Lewis Index (TLI) could be better as well.
+
+
+```{r sem-fit}
+avoid_scientif_notation <- function(x){as.character(signif(x, 3))}
+ sem_fit %>%
+  as.data.frame() %>%
+  dplyr::mutate_if(is.numeric, avoid_scientif_notation) %>%
+  kable(booktabs = TRUE,
+        col.names = c(""),
+        caption = "Fit measures for the SEM.") %>%
+  kableExtra::kable_styling()
+```
+
+
+
+```{r sem-viz, fig.cap= "A graphical presentation of the SEM model, including standardized parameter estimates", warning = FALSE, message = FALSE, fig.width = 8}
+nodelabels <- c(think_clearly = "th_cl", good_for_health = "gd_hlth",
+                calm_down = "calm", learn_new_things = "lrn",
+                feeling_free = "free", imagination = "img", explore = "exp",
+                get_lost = "gt_l", unknown_persons = "unknwn",
+                wild_animals = "wld_an", getting_hurt = "gt_hrt", beauty = "bty",
+                respect = "rspc", happy = "hpp", spending_time = "sp_time",
+                enjoy = "enj", part_of = "partof", sex_male = "male",
+                landscape_type_high_naturalness = "hgh_natur",
+                school_context_high_greenness = "hgh_green", ses_child = "SES",
+                ATOP_benefits = "ATOP_b", ATOP_fears = "ATOP_f", NC = "NC")
+semPaths(sem_output, "Standardized", "Standardized",
+         style = "lisrel", layout = "tree", 
+         residuals = FALSE, groups = "latents", pastel = 1, rotation = 2,
+         fade = FALSE, optimizeLatRes = TRUE,
+         fade = TRUE, edge.label.bg = TRUE, #edgeLabels = edgelabels
+         nodeLabels = nodelabels)
+#p$graphAttributes$Nodes$labels
+```
+
+
+The composite reliability ($\omega$) is `r round(unname(cr_omega_sem[1]), 3)` for ATOP_benefits, `r round(unname(cr_omega_sem[2]), 3)` for ATOP_fears and `r round(unname(cr_omega_sem[3]), 3)` for NC. So, in line with the earlier reliability results in the CFA, the reliability of ATOP_fears is not satisfactory. We already concluded in section  \@ref(conclusion-on-the-scale-questions) that this latent factor may not be valid or reliable and that the statements should be reviewed.
+
+Looking at the SEM results, however, some interesting conclusions can be drawn. Firstly, the only statistically significant correlation between the three latent factors is a positive correlation between ATOP_benefits and NC (`r round(sem_sum_std %>% filter(lhs =="ATOP_benefits", rhs== "NC") %>% dplyr::pull(est), 2)`, p-value `r round(sem_sum_std %>% filter(lhs =="ATOP_benefits", rhs== "NC") %>% dplyr::pull(pvalue), 2)`). This indicates that children with a higher nature connectedness also tend to have a positive ATOP_benefits score. Secondly, we can assess each of the three regression models. The unstandardized  parameter estimates, standard deviations, and statistical significance are highlighted in Table \@ref(tab:sem-regression) (these can also be found in Table \@ref(tab:sem-results) in the appendix). It can be seen that boys tend to have higher NC and ATOP_benefits but higher ATOP-fears. A greener landscape around the school positively influences both NC and ATOP_benefits. The school context does not have much influence although a greener playground may impact ATOP_benefits slightly negatively. Finally, higher SES positively influences all of the latent factors.
+
+
+```{r sem-regression, warning = FALSE, message = FALSE}
+parameterEstimates(sem_output) %>%
+  dplyr::filter(op == "~") %>%
+  mutate(estimate = sprintf("%.3f (%.3f)%s",
+                            est, se, gtools::stars.pval(pvalue))) %>%
+  dplyr::select(lhs, rhs, estimate) %>%
+  pivot_wider(names_from = lhs,
+              values_from = estimate) %>%
+  kable(booktabs = TRUE,
+        caption = "Regression results from the SEM.",
+        col.names = c("covariate", "ATOP_benefits", "ATOP_fears", "NC")) %>%
+  kableExtra::kable_styling() %>%
+  add_header_above(c("", "Dependent variable" = 3)) %>%
+  kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
+```
+
+```{r eval = FALSE}
+sem_data <- sem_data %>%
+  filter(community != "Dutch speaking.French speaking")
+#---------------------evaluate a model grouped by language---------------------#
+sem_output_grouped <- sem(model = model_sem, data = sem_data, group = "community")
+summary(sem_output_grouped, standardized = TRUE)
+fitmeasures(sem_output_grouped, c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr",
+                                "AIC", "BIC")) #chisquared is bad -> room for improvement
+interpret(sem_output_grouped)#similar fit
+compRelSEM(sem_output_grouped) # okay reliability of the latent factors
+
+### -----------------------metric measurement invariance----------------------##
+sem_output_grouped_metric <- sem(model = model_sem, data = sem_data,
+                          group = "community",group.equal = c("loadings")
+                          )
+summary(sem_output_grouped_metric, standardized = TRUE)
+fitmeasures(sem_output_grouped_metric, c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr",
+                                "AIC", "BIC")) #chisquared is bad -> room for improvement
+interpret(sem_output_grouped_metric)#similar fit
+compRelSEM(sem_output_grouped_metric) # okay reliability of the latent factors
+
+
+### --------------------strong measurement invariance-------------------------##
+sem_output_grouped_strong <- sem(model = model_sem, data = sem_data,
+                          group = "community",group.equal = c("loadings", "intercepts")
+                          )
+summary(sem_output_grouped_strong, standardized = TRUE)
+fitmeasures(sem_output_grouped_strong, c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr",
+                                "AIC", "BIC")) #chisquared is bad -> room for improvement
+interpret(sem_output_grouped_strong)#similar fit
+compRelSEM(sem_output_grouped_strong)
+
+anov_atop_metric <- anova(sem_output_grouped, sem_output_grouped_metric) #metric model cannot be rejected
+anov_atop_strong <- anova(sem_output_grouped, sem_output_grouped_strong)
+
+```

@@ -832,6 +832,100 @@ p_nl + p_fr + plot_layout(guides = "collect") &
 \clearpage
 
 
+# Structural equation model details
+
+```{r sem-results}
+est <- parameterEstimates(sem_output) %>%
+  mutate(type = ifelse(op == "=~",
+                       "loading",
+                       ifelse(op == "~1",
+                              "intercept",
+                              ifelse(op == "~",
+                                     "regression",
+                                     ifelse(lhs == rhs,
+                                            "variance",
+                                            "covariance")))),
+         estimate = sprintf("%.3f %s", est, gtools::stars.pval(pvalue))) %>%
+  mutate(link = ifelse(type %in% c("loading", "covariance", "regression"),
+                       sprintf("%s %s %s", lhs, op, rhs),
+                       lhs)) %>%
+  dplyr::select(type, link, estimate, se) %>%
+  mutate(type = factor(as.factor(type),
+                       levels = c("loading", "covariance", "regression",
+                                  "variance"),
+                       ordered = TRUE)) %>%
+  arrange(type)
+est[, -1] %>%
+  kable(booktabs = TRUE,
+        caption = "Unstandardized coefficient estimates and standard errors for the SEM.",
+        col.names = c("", "Estimate", "SE"),
+        digits = 3,
+        longtable = TRUE) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::group_rows(start_row = which(est$type == "loading")[1],
+                         end_row = max(which(est$type == "loading")),
+                         "Loadings") %>%
+  kableExtra::group_rows(start_row = which(est$type == "variance")[1],
+                         end_row = max(which(est$type == "variance")),
+                         "Variance") %>%
+  kableExtra::group_rows(start_row = which(est$type == "covariance")[1],
+                         end_row = max(which(est$type == "covariance")),
+                         "Covariance") %>%
+  kableExtra::group_rows(start_row = which(est$type == "regression")[1],
+                         end_row = max(which(est$type == "regression")),
+                         "Regression") %>%
+  kable_styling(latex_options = c("repeat_header"), font_size = 9) %>%
+  kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
+#which(t$type == "covariance")
+#which(t$type == "variance")
+```
+
+```{r sem-results-std}
+est <- standardizedSolution(sem_output) %>%
+  mutate(type = ifelse(op == "=~",
+                       "loading",
+                       ifelse(op == "~1",
+                              "intercept",
+                              ifelse(op == "~",
+                                     "regression",
+                                     ifelse(lhs == rhs,
+                                            "variance",
+                                            "covariance")))),
+         estimate = sprintf("%.3f %s", `est.std`, gtools::stars.pval(pvalue))) %>%
+  mutate(link = ifelse(type %in% c("loading", "covariance", "regression"),
+                       sprintf("%s %s %s", lhs, op, rhs),
+                       lhs)) %>%
+  dplyr::select(type, link, estimate, se) %>%
+  mutate(type = factor(as.factor(type),
+                       levels = c("loading", "covariance", "regression",
+                                  "variance"),
+                       ordered = TRUE)) %>%
+  arrange(type)
+est[, -1] %>%
+  kable(booktabs = TRUE,
+        caption = "Standardized coefficient estimates and standard errors for the SEM.",
+        col.names = c("", "Estimate", "SE"),
+        digits = 3,
+        longtable = TRUE) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::group_rows(start_row = which(est$type == "loading")[1],
+                         end_row = max(which(est$type == "loading")),
+                         "Loadings") %>%
+  kableExtra::group_rows(start_row = which(est$type == "variance")[1],
+                         end_row = max(which(est$type == "variance")),
+                         "Variance") %>%
+  kableExtra::group_rows(start_row = which(est$type == "covariance")[1],
+                         end_row = max(which(est$type == "covariance")),
+                         "Covariance") %>%
+  kableExtra::group_rows(start_row = which(est$type == "regression")[1],
+                         end_row = max(which(est$type == "regression")),
+                         "Regression")  %>%
+  kable_styling(latex_options = c("repeat_header"), font_size = 9) %>%
+  kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
+#which(t$type == "covariance")
+#which(t$type == "variance")
+```
+
 
 
 \clearpage
