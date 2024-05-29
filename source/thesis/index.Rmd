@@ -34,6 +34,7 @@ library(rprojroot)
 library(tidyverse)
 library(lavaan)
 library(effectsize) #to easily interpret SEM fit
+library(semPlot)
 library(semTools)
 source(find_root_file("source", "R", "fa_table.R",
                        criterion = has_file("baseball_thesis.Rproj")))
@@ -63,13 +64,44 @@ children <- read_resource(package = baseball_package,
 
 # Preface {-}
 
-Preface: The preface should summarise the general aim of the work. People, offices and companies should be thanked for their support.  
+<!-- Preface: The preface should summarise the general aim of the work. People, offices and companies should be thanked for their support.  -->
+
+B@seball (Biodiversity at School Environments Benefits for ALL) is a [\text{\underline{BELSPO project}}](http://www.belspo.be/belspo//brain2-be/projects/BatSEBALL_N.pdf) project that aims to link the general physical and mental health of children to the amount of greenery at the school environment. The general aim of this thesis is to analyse the scale questions that were included in the survey data from the B@seball project. To do this, confirmatory factor analysis and a structural equation model are applied.
+
+Personally, I would like to thank;
+
+My promotor, Prof. Michel Meulders, for the guidance and reflections provided during the writing of this thesis.
+
+All B@seball project members, for allowing me to work with the data. A special thanks goes to the B@seball project members closest to me, Hans, Els, and Michael.
+
+My employer, INBO, and my dear colleagues who granted me the time to work on the thesis, even during working hours.
+
+My partner, Stefan, for proof-reading the thesis and for supporting me not only during the writing of the thesis but throughout the whole Master's program.
+
+My family and friends for endless trust, support, and the necessary break with entertainment.
+
 
 
 \newpage
 # Summary {-}
 
-Add popularising summary here. (max. 2 pages for each language): The summary should present the most important aims and conclusions of the dissertation in a brief text of maximum two pages, written both in Dutch and in English for a Dutch Master programme, and only in English for an English Master programme.
+<!-- Add popularising summary here. (max. 2 pages for each language): The summary should present the most important aims and conclusions of the dissertation in a brief text of maximum two pages, written both in Dutch and in English for a Dutch Master programme, and only in English for an English Master programme. -->
+
+
+The data used in this work originates from the [B@seball](https://www.uantwerpen.be/nl/projecten/baseball/) (Biodiversity at School Environments Benefits for ALL) project which is a BELSPO project (BRAIN-be 2.0 call). Project partners are the University of Antwerp, Sciensano, Goodplanet, UC Louvain, MOS, and INBO. The main aim of the project is to investigate whether and how biodiversity in school environments can influence the physical and mental health of children.
+For this purpose, over 500 children between 10 and 12 years old from 36 different schools in Belgium were recruited.
+
+Among many other health and mental development parameters, several standardized scale questions were introduced in surveys. These standardised scales are the main focus of this work.
+
+Children were first asked about their Attitude Towards Outdoor Play (ATOP) [@beyer2015development]. ATOP has two subscales, *ATOP_benefits* and *ATOP_fears*, that are measured on a likert scale by seven and four statements respectively. *ATOP_benefits* is high if the child values the benefits that outdoor play may have and *ATOP_fears* is high if the child is fearful of some elements of outdoor play. Second, the children's *Nature connectedness* (NC) is measured with six affective statements, based on @hunt2017monitor.
+
+Parents' tendency to (1) let children engage with risk and (2) prevent injuries is measures with two latent factors, *REPS_risk_engagement* and *REPS_injury_prevention*, based on six and eight statements respectively from the Risk Engagement and Protection Survey (REPS) [@olsen2018risk].
+
+The first contribution of this report is analyzing these three scales (ATOP, REPS, and NC), which were translated from English to Dutch and French, and checking whether they reliably measure the underlying constructs. 
+Using multi-group confirmatory factor analyses, we concluded that (1) NC can reliably measure a child's connection to nature, (2) ATOP can measure ATOP_benefits quite well but the ATOP_fears subscale still needs some improvement, (3) the two subscales in the translated REPS can currently not reliably measure the REPS_risk_engagement and REPS_injury_prevention concepts.
+
+A second important contribution of this report is 
+
 
 \newpage
 
@@ -82,13 +114,15 @@ data.frame(
                    "EFA",
                    "NC",
                    "REPS",
-                   "SEM"),
+                   "SEM",
+                   "SES"),
   explanation = c("Attitude towards outdoor play",
                   "Confirmatory factor analysis",
                   "Exploratory factor analysis",
                   "Nature connectedness",
                   "Risk engagement and protection survey",
-                  "Structural equation model"
+                  "Structural equation model",
+                  "Socio-economic status"
                   )
   ) %>%
   kable(booktabs = TRUE) %>%
