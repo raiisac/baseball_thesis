@@ -7,7 +7,7 @@ Project partners are the University of Antwerp,  Sciensano, Goodplanet, UC Louva
 
 For this purpose, over 500 children between 10 and 12 years old from 36 different schools in Belgium were recruited.
 The schools were selected with statistical matching such that each school with lots of greenery always had a statistically close match (socio-economics, size, geographical location) with a school that has little greenery.
-In the thesis, we will refer to green playground as playgrounds that have many trees, many shrubs, flowers, sand, dirt, maybe even a water feature or a vegetable patch.
+In the thesis, we will refer to green playgrounds as playgrounds that have many trees, many shrubs, flowers, sand, dirt, and maybe even a water feature or a vegetable patch.
 In contrast, grey playgrounds typically have a concrete or tiled floor with maybe a couple of trees or some grass (Figure \@ref(fig:playgrounds)).
 
 ```{r playgrounds, fig.cap = "a comparison of a green (top) and grey (bottom) playground.", out.width = "3in"}
@@ -19,13 +19,13 @@ The main data collection consisted of cheek swabs that were analysed to get each
 
 Additionally, children, their parents and school guardians were asked to fill in questionnaires. These questionnaires are the main focus of this research.
 
-Both the microbiota data and the data from the questionnaires were cleaned and analyzed to investigate the main research questions. From the beginning, the project team aspired to publish the cleaned data as an open, freely-accessible data set once the project ends. As such, the data can now be freely used by others to test their own hypotheses. The data is anonymized and organized according to the [\text{\underline{Frictionless Data Package standard}}](https://specs.frictionlessdata.io/data-package/), and is currently accessible through [\text{\underline{Zenodo}}](https://zenodo.org/records/10527033) [@van_calster_2024_10527033]. 
+Both the microbiota data and the data from the questionnaires were cleaned and analyzed to investigate the main research questions. From the beginning, the project team aspired to publish the cleaned data as an open, freely-accessible data set. As such, the data can now be freely used by others to test their own hypotheses. The data is anonymized and organized according to the [\text{\underline{Frictionless Data Package standard}}](https://specs.frictionlessdata.io/data-package/), and is currently accessible through [\text{\underline{Zenodo}}](https://zenodo.org/records/10527033) [@van_calster_2024_10527033]. 
 
 ## Research questions
 
 ### Children's questionnaire
 
-The children's questionnaire was filled in by approximately 500 children. It included questions on the children's **Attitude Towards Outdoor Play (ATOP)**  which is measured through eleven statements that are scored on a likert scale [@beyer2015development]. The original statements had a Chronbach alpha of 0.79 on both subscales (ATOP_benefits and ATOP_fears). ATOP_benefits is high if the child recognized that playing outdoors has many benefits. ATOP_fears is high if the child has a lot of fears related to playing outdoors. The original standardized scale questions were translated in Dutch and French to accommodate the children's language. One scale item on people using drugs was removed from the scale since it was deemed irrelevant for children between 10 and 12 years old.
+The children's questionnaire was filled in by approximately 500 children. It included questions on the children's **Attitude Towards Outdoor Play (ATOP)**  which is measured through eleven statements that are scored on a likert scale [@beyer2015development]. The original statements had a Chronbach alpha of 0.79 on both subscales (ATOP_benefits and ATOP_fears). ATOP_benefits is high if the child recognizes that playing outdoors has many benefits. ATOP_fears is high if the child has a lot of fears related to playing outdoors. The original standardized scale questions were translated in Dutch and French to accommodate the children's language. One scale item on people using drugs was removed from the scale since it was deemed irrelevant for children between 10 and 12 years old.
 This leads us to our first research question.
 
 :::: {.center data-latex=""}
@@ -36,27 +36,27 @@ RQ1: Do the two subscales in the translated ATOP reliably measure the correspond
 
 ::::
 
-A second set of scale questions was based on Nature England's monitor of engagement with the natural environment or *nature connectedness* (NC) survey [@hunt2017monitor]. Six affective statements on nature connectedness were translated in Dutch and French. The original statements had a Cronback Alpha of 0.918 and 0.899 in adults and children respectively.  This leads us to our second research question.
+A second set of scale questions was based on Nature England's monitor of engagement with the natural environment or *Nature Connectedness* (NC) survey [@hunt2017monitor]. Six affective statements on NC were translated in Dutch and French. The original statements had a Cronbach Alpha of 0.918 and 0.899 in adults and children respectively.  This leads us to our second research question.
 
 :::: {.center data-latex=""}
 
-::: {.minipage data-latex="{.5\linewidth}"}
-RQ2: Is the translated nature connectedness scale still a reliable measure of the corresponding concept?
+::: {.minipage data-latex="{.8\linewidth}"}
+RQ2: Is the translated NC scale still a reliable measure of the corresponding concept?
 :::
 
 ::::
 
 ### Parents' questionnaire
 
-Only around 300 parents of the approximately 500 children filled in a questionnaire. They firstly answered questions on their children's environment and health, their socio-economic status, and cultural background. 
+Only around 300 parents of the approximately 500 children filled in a questionnaire. They firstly answered questions on their children's environment and health, socio-economic status, and cultural background. 
 
-Based on @jelleyman2019cross, parents were also asked about their child's outdoor sports, outdoor activities, participation in "risky play categories" such as climbing trees and push-and-pull games, and the independent mobility of the child [@shaw2013children].
+Based on @jelleyman2019cross, parents were also asked about their child's outdoor sports, outdoor activities, participation in "risky play categories" such as climbing trees and push-and-pull games, and the independent mobility of their child [@shaw2013children].
 
-The **Risk Engagement and Protection Survey (REPS)** measures two underlying factors [@olsen2018risk; @shaw2013children; @jelleyman2019cross]. The first factor, "protection from injury" is scored high if parents want to protect their children from injury. The second factor, "engagement with risk", is scored high if the parents encourage their children to engage with risky behavior. All questions were translated in French and Dutch.
+The **Risk Engagement and Protection Survey (REPS)** measures two underlying factors [@olsen2018risk; @shaw2013children; @jelleyman2019cross]. The first factor, "protection from injury", is scored high if parents want to protect their children from injury. The second factor, "engagement with risk", is scored high if the parents encourage their children to engage with risky behavior. All questions were translated in French and Dutch.
 
 :::: {.center data-latex=""}
 
-::: {.minipage data-latex="{.5\linewidth}"}
+::: {.minipage data-latex="{.8\linewidth}"}
 RQ3: Can both dimensions in the translated REPS questionnaire be reliably measured?
 :::
 
@@ -90,7 +90,7 @@ If all concepts (ATOP benefits, ATOP fears, NC, REPS "protection from injury", a
 
 :::: {.center data-latex=""}
 
-::: {.minipage data-latex="{.5\linewidth}"}
+::: {.minipage data-latex="{.8\linewidth}"}
 RQ4: Are ATOP dimensions in children related to their parents' REPS dimensions?
 
 RQ5: Is the child's socio-economic status related to their NC, ATOP, or their parent's REPS dimensions?

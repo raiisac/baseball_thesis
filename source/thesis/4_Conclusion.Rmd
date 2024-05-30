@@ -1,6 +1,6 @@
 # Conclusion
 
-The main contribution of this report is the analysis of the translations in Dutch and French of three scales. To our knowledge, these are the first translations from English to Dutch and French. Our analysis may aid researchers in the future when investigating similar topics that involve outdoor play or nature connectedness in children or risk engagement and protection in parents. 
+The main contribution of this report is the analysis of the translations in Dutch and French of three scales. To our knowledge, these are the first translations from English to Dutch and French. Our analysis may aid researchers in the future when investigating similar topics that involve outdoor play or connection to nature in children or risk engagement and protection in parents. 
 
 Using structural equation modelling, we were able to show that the different scales may be related to each other and that they may also be highly impacted by socio-economic status, gender, and the naturalness of the child's environment.
 
@@ -9,12 +9,12 @@ In this section, we detail the main conclusions for this report and provide some
 ## Conclusion on the scale questions
 
 Research question 1 focused on whether the translated ATOP questionnaire is still reliable and valid. The answer is more nuanced than a simple yes or no.
-A model with metric measurement measurement invariance was chosen which showed good fit.
+A model with metric measurement invariance was chosen which showed good fit.
 However, the internal consistency ($\omega$ and $\alpha$) was barely acceptable.
 The internal consistency of ATOP_fears is consistently worse than the internal consistency of ATOP_benefits.
-While the original scale showed a negative correlation between ATOP_fears and ATOP_benefits [@beyer2015development], out CFA model showed a positive, non-significant correlation for but the Dutch and French translation.
+While the original scale showed a negative correlation between ATOP_fears and ATOP_benefits [@beyer2015development], the CFA model showed a positive, non-significant correlation for both the Dutch and French translation.
 The validity analysis (section \@ref(outdoor-play)) also showed that, while ATOP_benefits factor scores showed logical associations with outdoor play activities, ATOP_fears did not.
-The researchers removed one ATOP_fears statement from the original scale since they deemed it to be inappropriate for younger children in the study ("I don't like playing outside in nature because there are people with drugs.").
+One ATOP_fears statement was removed from the original scale since it was deemed  inappropriate for younger children in the study ("I don't like playing outside in nature because there are people with drugs.").
 Looking at the standardized loadings (which represent the correlation between a statement and the factor) and error variances (which indicate the variance that cannot be explained), we see that especially the statement on imagination ("I like to make up my own games when I am outdoors in nature.") does not fit well (Table \@ref(tab:atop-loadings2) in the appendix).
 To improve the translations, researchers should consider to reintroduce the statement on people with drugs back into the scale and review the translation of statements with low reliability (such as the statement on imagination).
 
@@ -23,48 +23,46 @@ Similar to ATOP, a model with metric measurement invariance is chosen which show
 Composite reliability ($\omega$) was slightly better for Dutch-speaking  than French-speaking children but it was $>0.8$ for both groups.
 While the translated survey does not match the Cronbach Alpha of the original scale, it does come close.
 Additionally, the validity analysis of section \@ref(outdoor-play) shows strong and intuitive relations with activities such as building huts, climbing trees, playing made-up games outdoors, and playing with loose natural elements such as sticks, wood, stones, and berries.
-All of this leads us to conclude that, indeed, the translations of the NC scale questions works well and it captures / measures the connection to nature well.
+All of this leads us to conclude that, indeed, the translations of the NC scale questions works well and it captures/measures the connection to nature well.
 Looking at the standardized loadings and error variances, only one out of the six statements has a lower than desired reliability ("I always treat nature with respect.", Table \@ref(tab:nc-loadings2) in the appendix). 
 
 Research question 3 focused on whether the translated REPS questionnaire is still reliable and valid.
 Since both the fit and the reliability is less than acceptable, we conclude that this is currently not the case.
 The bad fit may be due to the lower amount of data since the REPS scale was left out of a shortened questionnaire to improve the response rate. 
 However, the standardized loadings and error variances (Table \@ref(tab:reps-loadings3) and \@ref(tab:reps-loadings4) in the appendix) show that several statements have low reliability, especially the statement "I encourage my child to do physical activity (with the least risk of injury).".
-Statements with low reliability definitely need to be revised in possible future iterations of these translations.
-The validity analysis (section \@ref(validity-analysis)) does show some logical relations with related variables so there still might be some merit in the factor scores which is encouraging.
+Statements with low reliability need to be revised in future studies that use these translations.
+The validity analysis (section \@ref(validity-analysis)) does show some logical relations with related variables so there still might be some merit in the factor scores, which is encouraging.
 
 ## Conclusion from the structural equation model
 
-As the current Dutch and French version of the REPS scale was deemed too unreliable and the CFA fit was not acceptable, we excluded the REPS scale from the SEM. This unfortunately also means that research question 4 can currently not be investigated further with model.
+As the current Dutch and French version of the REPS scale was deemed too unreliable and the CFA fit was not acceptable, we excluded the REPS scale from the SEM. This unfortunately also means that research question 4 can currently not be investigated further with this model.
 
 Research question 5 aimed to unveil the link between SES and the scales.
-The SEM shows that SES is an important and significant predictor for ATOP_benefits, ATOP_fears and NC.
-Higher SES will lead to a larger recognition of the benefits of playing outdoors, a stronger connection to nature but also a larger fear of the dangers while playing outside.
+The SEM shows that SES is an important and significant predictor for ATOP_benefits, ATOP_fears, and NC.
+Higher SES will lead to a larger recognition of the benefits of playing outdoors, a stronger connection to nature, but also a larger fear of the dangers while playing outside.
 The latter may be slightly counter-intuitive but, as already discussed in the previous section, the validity and reliability of ATOP_fears is questionable.
 Next to SES, gender also plays an important role.
 Boys are expected to have a lower ATOP_benefits score and a higher ATOP_fears score.
 
 
-For Research question 6, we conclude that the direct school surroundings (the naturalness of the landscape outside the school) play an important role in ATOP_benefits and NC, but the greenness of the playground does not.
+For research question 6, we conclude that the direct school surroundings (the naturalness of the landscape outside the school) plays an important role in ATOP_benefits and NC, but the greenness of the playground does not.
 A more natural environment around the school is expected to lead to higher ATOP_benefits and NC.
-Many of the B@seball project research questions focus on the the link between the playground's greenness and the children's mental and physical health. While we did not include any health variables in the SEM for now, it does suggest that the greenness of the playground has a very minimal or no impact on ATOP_benefits, ATOP_fears and NC.
-The SEM shows that green playground may even lead to lower ATOP_benefits.
+Many of the B@seball project research questions focus on the the link between the playground's greenness and the children's mental and physical health. While we did not include any health variables in the SEM for now, it does suggest that the greenness of the playground has a minimal or no impact on ATOP_benefits, ATOP_fears, and NC.
+The SEM shows that a green playground may even lead to slightly lower ATOP_benefits.
 
 ## Future research
 
 While the survey questions that included the translated scales went through a couple of iterations and small tests before the final launch of the survey, the project budget did not allow for extensive tests of the translations on a larger group of people.
 While the current translations are a good start, future research may focus on improving the translation of especially the REPS and the ATOP_fears items.
-The composite reliability of ATOP_fears was disappointing and a validity analysis revealed that the current version may not be measure what it should be measuring.
+The composite reliability of ATOP_fears was disappointing and a validity analysis revealed that the current version may not measure what it should be measuring.
 The fit and composite reliability of the REPS scale is not good enough yet. Nevertheless, the validity analysis yielded promising results.
 
 In the B@seball project, around 60 school guardians also filled in a brief survey on how they mind the children while playing outside.
 This survey also included the REPS scale.
-Analyzing this data may improve the SEM as this may provide information on the type of playground (grey or green) but also how much freedom children are allowed while playing outside in school.
-However, seeing that the quality of the REPS scale was not good in parents, the same problems will likely surface in the school guardians' data, especially since this data set is even smaller.
+Analyzing this data may improve the SEM as this may provide information how much freedom children are allowed while playing outside in school, in addition to the type of playground (grey or green).
+However, seeing that the quality of the REPS scale was not good in parents, the same problems might surface in the school guardians' data, especially since this data set is even smaller.
 
 Another way to extend the SEM, is to supplement it with some health information on the children.
 Data on allergies, chronic illnesses, asthma, eczema, and the child's ability to focus is available in the B@seball data package [@van_calster_2024_10527033].
 It would be interesting to see whether, for instance, children with a stronger connection to nature appear to be healthier.
 
-*school guardians
-*linking them to health variables

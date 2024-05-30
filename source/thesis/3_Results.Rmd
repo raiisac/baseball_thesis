@@ -85,8 +85,8 @@ data_school %>%
             aes(x = min(data_school$n_students) - 20,
                 y = province_name,
                 label = n)) +
-  xlab("Number of students in the school") +
-  ylab("Province") +
+  xlab("number of students in the school") +
+  ylab("province") +
   theme_bw() +
   scale_color_discrete("Language",
                        breaks = c("French speaking", "Dutch speaking",
@@ -97,7 +97,7 @@ data_school %>%
 
 
 Figure \@ref(fig:schools-size) shows that there are `r unname(unlist(school_by_community[1,"n"]))` Dutch-speaking schools, `r unname(unlist(school_by_community[3,"n"]))` French-speaking schools, and `r unname(unlist(school_by_community[2,"n"]))` bilingual school.
-It is remarkable to see in Figure Figure \@ref(fig:schools-size) and \@ref(fig:paticip-age-sex) that there are no schools from Limburg and only one from Vlaams-Brabant.
+It is remarkable to see in Figure \@ref(fig:schools-size) and \@ref(fig:paticip-age-sex) that there are no schools from Limburg and only one from Vlaams-Brabant.
 Overall, the balance between boys and girls is good. Most children were the same age and born in 2011 (Figure \@ref(fig:paticip-age-sex)).
 
 ```{r paticip-age-sex, fig.cap = "Year of birth (if known) and sex of the participating child. The numbers on the left show the total number of children in each group.", fig.height = 6, warning = FALSE, message = FALSE}
@@ -152,8 +152,8 @@ p1 <- gen_data %>%
 p2 <- gen_data %>%
   ggplot() +
   geom_bar(aes(x = respondent_relation)) +
-  xlab("Relation to the child") +
-  ylab("Number of parents") +
+  xlab("relation to the child") +
+  ylab("number of parents") +
   theme_bw() +
   scale_x_discrete(labels = function(x) str_remove(str_wrap(x, width = 10),
                                                    "\\(fill in\\)"))
@@ -163,8 +163,8 @@ p1 + p2 +  plot_layout(widths = c(2, 1))
 The parents' survey had a lower response rate. For those parents that did fill in the survey, the mean age was `r round(mean(2022 - gen_data$respondent_birth_year, na.rm = TRUE), 0)` years old.
 Figure \@ref(fig:nb-years-in-school) shows that the mother usually filled in the parent's survey.
 The figure on the left in Figure \@ref(fig:nb-years-in-school) shows that most children have been in the same primary school for 5 years now.
-However, there is quite some variation where some children have switched schools, may have skipped a year or had to re-do some years.
-For the B@seball project's main research questions on the link between school environment and the children's microbiome, it is important to see that most children have spend quite some years at the same school already.
+However, there is quite some variation where some children have switched schools, may have skipped a year, or had to re-do some years.
+For the B@seball project's main research questions on the link between school environment and the children's microbiome, it is important to see that most children have spent quite some years in the same school already.
 
 
 
@@ -193,7 +193,7 @@ Secondly, since schools do not operate in a vacuum, it is also important to look
 - Within the playground (in case of several playgrounds, the areas are summed).
 - Within the school limit, but excluding the playground(s).
 - Within 100m surrounding the school limit, but excluding the area within the school limit.
-- Within 300m surrounding the school limit, but excluding the area of the 100 m buffer.
+- Within 300m surrounding the school limit, but excluding the area of the 100m buffer.
 
 Using k-means clustering, the schools are divided into two groups; those within a relatively green environment (high naturalness) and those within a rural or grey environment (low naturalness).
 
@@ -235,7 +235,7 @@ p1 + p2 +
 
 ### Socio-economic status
 
-The socio-economic status (SES) is available at the school and child level. It is calculated based on the education level, employment, and the (combined) income of the parents [@reynders2005ses]:
+The Socio-Economic Status (SES) is available at the school and child level. It is calculated based on the education level, employment, and the (combined) income of the parents [@reynders2005ses]:
 
 - Education level parents score:
   - Primary education: 0
@@ -243,10 +243,10 @@ The socio-economic status (SES) is available at the school and child level. It i
   - Higher education: 2/3
   - University: 1
 - Employment score (for respondent, as well as partner):
-  - unemployed: 0
-  - labourer: 1/3
-  - civil servant, servant and small entrepreneur: 2/3
-  - executive: 1
+  - Unemployed: 0
+  - Labourer: 1/3
+  - Civil servant, servant and small entrepreneur: 2/3
+  - Executive: 1
 - (Combined) income score:
   - $<$ €1000: 0
   - Between €1000 and €2000: 1/5
@@ -255,7 +255,7 @@ The socio-economic status (SES) is available at the school and child level. It i
   - Between €4000 and €5000: 4/5
   - $>$ €5000: 1
 
-These scores (all with values between 0 and 1) were first averaged per child to get the child-level SES. Then, it is averaged over children per school to arrive at a school-level SES. Questions on employment, education level, and income are all included in the parents' survey. Since there are far less parents who filled in the survey than there are children in the data, the school-level SES may serve as a proxy for the child's SES if their parents did not fill in the survey.
+These scores (all with values between 0 and 1) were first averaged per child to get the child-level SES. Then, they are averaged over children per school to arrive at a school-level SES. Questions on employment, education level, and income are all included in the parents' survey. Since there are far less parents who filled in the survey than there are children in the data, the school-level SES may serve as a proxy for the child's SES if their parents did not fill in the survey.
 
 Figure \@ref(fig:eda-ses) shows the schools, ordered by the school-level SES as shown by the red dots. The smaller dots represent the children and their color indicate the type of playground (greenness) and landscape (naturalness). The percentages on the right indicate the percentage of children in the school for which the SES could not be calculated.
 
@@ -299,7 +299,7 @@ child_derived %>%
 
 ## Scale questions
 
-### Attitude towards outdoor play (ATOP) in kids
+### Attitude towards outdoor play in children
 
 ```{r read_atop, message=FALSE, warning=FALSE, include=FALSE}
 # a description of how to view and read the data from the data package
@@ -407,22 +407,22 @@ cr_omega_atop <- compRelSEM(fit_sameloadings_atop, tau.eq = F, obs.var = T)
 cr_alpha_atop <- compRelSEM(fit_sameloadings_atop, tau.eq = T, obs.var = T)
 ```
 
-@beyer2015development prescribes that the ATOP scale for children has two sub-scales: ATOP-benefits and ATOP-fears (see Table \@ref(tab:atop-translation-kids) in the appendix). We apply multi-group confirmatory factor analysis (CFA) and we hypothesize that the `r length(unique(atop_data$question_code))` items can be explained by these two common factors. 
+@beyer2015development prescribes that the ATOP scale for children has two sub-scales: ATOP-benefits and ATOP-fears (see Table \@ref(tab:atop-translation-kids) in the appendix). We apply multi-group Confirmatory Factor Analysis (CFA) and we hypothesize that the `r length(unique(atop_data$question_code))` items can be explained by these two common factors. 
 As described in the methodology, we apply a grouping based on the language of the survey (French of Dutch).
 
 Correlated error terms for two pairs of items were added to the model of @beyer2015development to improve the fit: between the statements *calm_down* and *learn_new_things* and between *calm_down* and *feeling_free*.
-We hypothesize that calming down and feeling free are two similar emotions and, in contrast, learning new things typically requires you to be alert in stead of calm.
-Table \@ref(tab:atop-loadings) and \@ref(tab:atop-loadings2)  in the appendix show the raw and standardized model estimates.
+We hypothesize that calming down and feeling free are two similar emotions and, in contrast, learning new things typically requires you to be alert instead of calm.
+Tables \@ref(tab:atop-loadings) and \@ref(tab:atop-loadings2)  in the appendix show the raw and standardized model estimates.
 
 Table \@ref(tab:atop-cfa-fit) shows the fit for the configural model, a model that assumes metric measurement invariance (equal loadings across the groups), and a model that assumes strong measurement invariance (equal loadings and intercepts across groups).
 Measurement invariance analysis showed that a model that assumes metric measurement invariance cannot be rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_atop_metric[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_atop_metric[2,"Df diff"])`, $p=$ `r round(anov_atop_metric[2,"Pr(>Chisq)"], 3)`) while a model that assumes strong measurement invariance is rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_atop_strong[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_atop_strong[2,"Df diff"])`, $p=$ `r round(anov_atop_strong[2,"Pr(>Chisq)"], 3)`).
 We therefore select the model with metric measurement invariance as the preferred model and all fit measures, except the Chi-square test, indicate good fit (according to @byrne1994structural).
 
-The composite reliability ($\omega$) for this model is `r round(cr_omega_atop$ATOP_benefits[1], 3)` and `r round(cr_omega_atop$ATOP_benefits[2], 3)` for ATOP_benefits for the French and Dutch version respectively. 
-The composite reliability is `r round(cr_omega_atop$ATOP_fears[1], 3)` and `r round(cr_omega_atop$ATOP_fears[2], 3)` for ATOP_fears for the French and Dutch version respectively.
-The Cronbach Alpha for this model is `r round(cr_alpha_atop$ATOP_benefits[1], 3)` and `r round(cr_alpha_atop$ATOP_benefits[2], 3)` for ATOP_benefits for the French and Dutch version respectively
-Cronbach Alpha is `r round(cr_alpha_atop$ATOP_fears[1], 3)` and `r round(cr_alpha_atop$ATOP_fears[2], 3)` for ATOP_fears for the French and Dutch version respectively.
-We therefore need to conclude that the internal consistency is barely acceptable. It is better for ATOP_benefits than for ATOP_fears (perhaps due to the fact the one statement was left out of the original set of scale questions) and the French translation work slightly better than the Dutch translation according to McDonald's $\omega$. 
+The composite reliability ($\omega$) for this model is `r round(cr_omega_atop$ATOP_benefits[1], 3)` and `r round(cr_omega_atop$ATOP_benefits[2], 3)` for ATOP_benefits for the French and Dutch version, respectively. 
+The composite reliability is `r round(cr_omega_atop$ATOP_fears[1], 3)` and `r round(cr_omega_atop$ATOP_fears[2], 3)` for ATOP_fears for the French and Dutch version, respectively.
+The Cronbach Alpha for this model is `r round(cr_alpha_atop$ATOP_benefits[1], 3)` and `r round(cr_alpha_atop$ATOP_benefits[2], 3)` for ATOP_benefits for the French and Dutch version, respectively
+Cronbach Alpha is `r round(cr_alpha_atop$ATOP_fears[1], 3)` and `r round(cr_alpha_atop$ATOP_fears[2], 3)` for ATOP_fears for the French and Dutch version, respectively.
+We therefore need to conclude that the internal consistency is barely acceptable. The composite reliability is better for ATOP_benefits than for ATOP_fears (perhaps due to the fact the one statement was left out of the original set of scale questions) and the French translation work slightly better than the Dutch translation according to McDonald's $\omega$. 
 
 
 <!-- ???ASSESS Convergent Validity, internal consistency and Discriminant Validity??? -->
@@ -472,7 +472,7 @@ get_schema(package = baseball_package,
   kableExtra::kable_styling()
 ```
 
-Among the `r nrow(children)` children that were selected for the study, `r length(unique(nc_data$child_id))` children filled in the Nature connectedness (NC) questions. Table \@ref(tab:nc-descriptives) shows the descriptive statistics for NC scale items in all children. While the original article suggested to use a 7-point likert scale, a 5-point likert scale was used for brevity. 
+Among the `r nrow(children)` children that were selected for the study, `r length(unique(nc_data$child_id))` children filled in the NC questions. Table \@ref(tab:nc-descriptives) shows the descriptive statistics for NC scale items in all children. While the original article suggested to use a 7-point likert scale, a 5-point likert scale was used for brevity [@hunt2017monitor]. 
 
 In preliminary tests of the survey with a few children, some questions were not clear enough. They were then clarified with some more detail between brackets (see Table \@ref(tab:nc-translation) in the appendix)
 
@@ -494,7 +494,7 @@ tbl <- nc_data %>%
                 `Don't know`, `Moderately agree`, Agree, `No response`)
 tbl[order(match(tbl$question_text_english, nc_key$question_text_english)),] %>%
   kable(booktabs = TRUE,
-        caption = "Descriptive statistics for Nature Connectedness
+        caption = "Descriptive statistics for NC
         scale items in children.",
         col.names = c("Item", "Disagree", "Slightly disagree", "Don't know",
                      "Moderately agree", "Agree", "No response")) %>%
@@ -557,8 +557,8 @@ cr_omega_nc <- compRelSEM(fit_sameloadings_nc, tau.eq = F, obs.var = T)
 cr_alpha_nc <- compRelSEM(fit_sameloadings_nc, tau.eq = T, obs.var = T)
 ```
 
-In total, `r nrow(likert_data_nc)` out of the `r nrow(children)` children filled in all of the Nature Connectedness questions and can therefore be analyzed further.
-We apply multi-group confirmatory factor analysis (CFA) and we hypothesize that the `r length(unique(nc_data$question_code))` items can be explained by one common factor (Nature Connectedness (NC)).
+In total, `r nrow(likert_data_nc)` out of the `r nrow(children)` children filled in all of the NC questions and can therefore be analyzed further.
+We apply multi-group CFA and we hypothesize that the `r length(unique(nc_data$question_code))` items can be explained by one common factor (Nature Connectedness (NC)).
 Correlated error terms were included between one pair of statements to improve fit: "I always find nature very beautiful" and "I always treat nature with respect".
 These two statements, in contrast to the other four, do not pertain to how nature makes the child feel but to the opinion of the child on nature itself.
 The language of the survey was chosen as the grouping for the multi-group CFA.
@@ -569,7 +569,7 @@ Table \@ref(tab:nc-cfa-fit) shows the fit for the configural model, a model that
 Measurement invariance analysis showed that a model that assumes metric measurement invariance cannot be rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_nc_metric[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_nc_metric[2,"Df diff"])`, $p=$ `r round(anov_nc_metric[2,"Pr(>Chisq)"], 3)`) while a model that assumes strong measurement invariance is rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_nc_strong[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_nc_strong[2,"Df diff"])`, $p=$ `r round(anov_nc_strong[2,"Pr(>Chisq)"], 3)`).
 We therefore select the model with metric measurement invariance as the preferred model and all fit measures indicate good fit (according to @byrne1994structural, see Table \@ref(tab:nc-cfa-fit)).
 
-The composite reliability ($\omega$) for this model is `r round(cr_omega_nc[2, 2], 3)` and `r round(cr_omega_nc[1, 2], 3)` for the French and Dutch version respectively. For the original English scale, a Cronbach Alpha of 0.899 was reported in children [@hunt2017monitor]. For comparison, our model attains a Cronbach Alpha of `r round(cr_alpha_nc[2, 2], 3)` and `r round(cr_alpha_nc[1, 2], 3)` for the French and Dutch version respectively. This is slightly worse but still indicates sufficiently good reliability.
+The composite reliability ($\omega$) for this model is `r round(cr_omega_nc[2, 2], 3)` and `r round(cr_omega_nc[1, 2], 3)` for the French and Dutch version, respectively. For the original English scale, a Cronbach Alpha of 0.899 was reported in children [@hunt2017monitor]. For comparison, our model attains a Cronbach Alpha of `r round(cr_alpha_nc[2, 2], 3)` and `r round(cr_alpha_nc[1, 2], 3)` for the French and Dutch version, respectively. This is slightly worse but still indicates sufficiently good reliability.
 
 
 <!-- ???ASSESS Convergent Validity, internal consistency and Discriminant Validity??? -->
@@ -601,7 +601,7 @@ tab %>%
 
 \clearpage
 
-### Risk engagement and protection survey in parents and guardians
+### Risk engagement and protection survey in parents
 
 ```{r read_reps, message=FALSE, warning=FALSE, include=FALSE}
 # a description of how to view and read the data from the data package
@@ -635,16 +635,16 @@ reps_key <- cbind(reps_key, factor = c("protection_from_injury", "engagement_wit
 ```
 
 
-The Risk Engagement and Protection Survey was based on @olsen2018risk. This scale was also supplemented by two additional questions:
+The Risk Engagement and Protection Survey (REPS) was based on @olsen2018risk. This scale was also supplemented by two additional questions:
 
 * "How often do you allow your child to play outside when it is raining?", which was based on a question in @jelleyman2019cross.
 * "Should your child wash his/her hands after outdoor play?", which was added since washing hands often might influence the effect of outdoor play on the microbiome.
 
-Figure \@ref(fig:reps-descriptives2) in the appendix shows that Dutch and French-speaking parents seem to answer slightly different. Dutch-speaking parents answered more positive, on average, on the "risk engagement" statements (statement 1 to 6 in Figure \@ref(fig:reps-descriptives2)) and more negative on the "protection from injury" statements (statement 7 to 14 in Figure \@ref(fig:reps-descriptives2)). 
+Figure \@ref(fig:reps-descriptives2) in the appendix shows that Dutch and French-speaking parents seem to answer slightly differently. Dutch-speaking parents answered more positive, on average, on the "risk engagement" statements (statement 1 to 6 in Figure \@ref(fig:reps-descriptives2)) and more negative on the "protection from injury" statements (statement 7 to 14 in Figure \@ref(fig:reps-descriptives2)). 
 
 Since there are a lot of statements (14 from REPS and 2 additional ones), these questions were removed from the shortened questionnaire to improve overall response rate for the most important questions for the B@seball project's goals. Therefore, there are only `r nb_parents_reps` parents of `r nb_children_reps` children who filled in all REPS statements (for some children, more than one parent answered the survey).  All statements were answered on a 7-point likert scale. Some questions were coded from "Strongly disagree" to "Strongly agree" while others were coded from "Never" to "Always".
 
-For REPS, it is hypothesized that there are two underlying factors: "Protection from injury" and "Engagement with risk" [@olsen2018risk]. We will test in exploratory factor analysis whether the two additional statements about playing in the rain and washing hands can improve the REPS scale.
+For REPS, it is hypothesized that there are two underlying factors: "Protection from injury" and "Engagement with risk" [@olsen2018risk]. We will test in Exploratory Factor Analysis (EFA) whether the two additional statements about playing in the rain and washing hands can improve the REPS scale.
 
 
 ```{r reps-descriptives, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
@@ -731,10 +731,10 @@ tables_atop$ind_table
 ```
 
 Due to a mistake, the question on washing hands ("Should your child wash his/her hands after outdoor play?) was not included in the French survey (last column and row in Table \@ref(tab:reps-descriptives)).
-We therefore test in two separate exploratory factor analyses (EFA) whether the two additional statements about playing in the rain and washing hands can improve the REPS scale.
+We therefore test in two separate EFAs whether the two additional statements about playing in the rain and washing hands can improve the REPS scale.
 Firstly, we apply EFA using only the data of parents who filled in all REPS questions and the two additional statements on washing hands and playing in the rain (`r nrow(df)` parents).
-Secondly, we use the *mifa* package to execute an exploratory factor analysis with multiple imputation in which case we can use the data of `r nrow(mi$mids$data)` parents.
-Both of these analyses show that the statements on playing in the rain or washing hands do not fit well with the REPS factors and are therefore ignored in the CFA that follows (see section \@ref(repsefa) in the appendix). Additionally, the EFA with oblique rotation confirms that there are two factors in the data (one for protection from injury and one for risk engagement), as we expected.
+Secondly, we use the *mifa* package to execute an EFA with multiple imputation in which case we can use the data of `r nrow(mi$mids$data)` parents.
+Both of these analyses show that the statements on playing in the rain or washing hands do not fit well with the REPS factors and are therefore ignored in the CFA that follows (see appendix \@ref(repsefa)). Additionally, the EFA with oblique rotation confirms there are two factors in the data (one for protection from injury and one for risk engagement), as we expected.
 
 Multigroup CFA was performed  with a grouping based on the language of the survey. 
 
@@ -818,15 +818,15 @@ cr_alpha_reps <- compRelSEM(fit_sameloadings_reps, tau.eq = T, obs.var = T)
 ```
 
 
-Table \@ref(tab:reps-loadings) to \@ref(tab:reps-loadings4) in the appendix show the raw and standardized coefficient estimates.
+Tables \@ref(tab:reps-loadings) to \@ref(tab:reps-loadings4) in the appendix show the raw and standardized coefficient estimates.
 Table \@ref(tab:reps-cfa-fit) shows the fit for the configural model, a model that assumes metric measurement invariance (equal loadings across the groups), and a model that assumes strong measurement invariance (equal loadings and intercepts across groups).
 Measurement invariance analysis showed that a model that assumes metric measurement invariance can be rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_reps_metric[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_reps_metric[2,"Df diff"])`, $p=$ `r round(anov_reps_metric[2,"Pr(>Chisq)"], 3)`) a model that assumes strong measurement invariance is also rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_reps_strong[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_reps_strong[2,"Df diff"])`, $p=$ `r round(anov_reps_strong[2,"Pr(>Chisq)"], 3)`).
 We therefore select the model with configural measurement invariance as the preferred model. However, all fit measures indicate poor fit (according to @byrne1994structural).
 
-The composite reliability ($\omega$) for this model is `r round(cr_omega_reps$protection_from_injury[2], 3)` and `r round(cr_omega_reps$protection_from_injury[1], 3)` for "protection from injury" for the French and Dutch version respectively. 
-The composite reliability is `r round(cr_omega_reps$risk_engagement[2], 3)` and `r round(cr_omega_reps$risk_engagement[1], 3)` for "risk engagement" for the French and Dutch version respectively.
+The composite reliability ($\omega$) for this model is `r round(cr_omega_reps$protection_from_injury[2], 3)` and `r round(cr_omega_reps$protection_from_injury[1], 3)` for "protection from injury" for the French and Dutch version, respectively. 
+The composite reliability is `r round(cr_omega_reps$risk_engagement[2], 3)` and `r round(cr_omega_reps$risk_engagement[1], 3)` for "risk engagement" for the French and Dutch version, respectively.
 We therefore need to conclude that the internal consistency is not acceptable, especially for the French translation of the "protection from injury" factor.
-Cronbach $\alpha$ values indicate a reasonable fit for the Dutch translation (`r round(cr_alpha_reps$protection_from_injury[1], 3)` for protection from injury and `r round(cr_alpha_reps$risk_engagement[1], 3)` for risk engagement).
+Cronbach Alpha values indicate a reasonable fit for the Dutch translation (`r round(cr_alpha_reps$protection_from_injury[1], 3)` for protection from injury and `r round(cr_alpha_reps$risk_engagement[1], 3)` for risk engagement).
 But the French translation is still not up to par (`r round(cr_alpha_reps$protection_from_injury[2], 3)` for protection from injury and `r round(cr_alpha_reps$risk_engagement[2], 3)` for risk engagement).
 
 
@@ -862,9 +862,9 @@ tab %>%
 
 ### Validity analysis
 
-The validity of the ATOP, NC and REPS scales was examined through testing associations between the scales and related variables.
+The validity of the ATOP, NC, and REPS scales was examined through testing associations between the scales and related variables.
 In Section \@ref(outdoor-play), we look at related questions on outdoor and indoor activities in which the child participates.
-These questions are inspired by @beyer2015development
+These questions are inspired by @beyer2015development.
 In Section \@ref(independent-mobility), we look at related questions on the independent mobility of the child, based on @shaw2013children.
 
 
@@ -930,9 +930,9 @@ atop_key_p <- read_resource(package = baseball_package,
 ```
 
 The parents were asked about how often their children play and what type of activities (both indoor and outdoor) they typically engage in.
-Since the response rate was disappointing at first, some questions were left out in a shortened version of the questionnaire to hopefully motivate parents to fill it in (see also Table \@ref(tab:atop-translation) in the appendix).
+Since the response rate was disappointing at first, some questions were left out in a shortened version of the questionnaire to motivate parents to fill it in (see also Table \@ref(tab:atop-translation) in the appendix).
 
-Table \@ref(tab:atop-p-descriptives) shows the descriptives for each of the questions. Figures \@ref(fig:opp1) to \@ref(fig:opp3) in the appendix show the same data visually for both languages separately.
+Table \@ref(tab:atop-p-descriptives) shows the descriptive statistics for each of the questions. Figures \@ref(fig:opp1) to \@ref(fig:opp3) in the appendix show the same data visually for both languages separately.
 
 
 ```{r atop-p-descriptives, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
@@ -1110,10 +1110,10 @@ children %>%
 
 Table \@ref(tab:externalval) shows whether there is an association between the factor scores and the indoor and outdoor activities of the children.
 For questions with a binary answer (the first 14 questions), the mean factor score for those who said yes/no is shown, the stars indicate whether there is a statistically significant difference.
-For questions with a numeric answer (for instance how many days per week or hours per day an activity is done), the correlation is shown and the stars indicate whether it is significantly different from zero.
+For questions with a numeric answer (for instance, how many days per week or hours per day an activity is done), the correlation is shown and the stars indicate whether it is significantly different from zero.
 Most of the relations are intuitive, except for the ATOP_fears  associations.
-For instance, building huts is associated with higher ATOP_benefits, higher nature connectedness, higher REPS_risk_engagement, and lower REPS_protection_from_injury.
-However, we would also expect it to be associated with lower ATOP_fears (as in @beyer2015development) however, the opposite is true.
+For instance, building huts is associated with higher ATOP_benefits, higher NC, higher REPS_risk_engagement, and lower REPS_protection_from_injury.
+However, we would also expect it to be associated with lower ATOP_fears (as in @beyer2015development), however, the opposite is true.
 It is also interesting to see that higher ATOP_benefits is associated with a lower amount of screen time while higher REPS_protection_from_injury is associated with a higher amount of screen time.
 
 ```{r externalval, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
@@ -1235,9 +1235,9 @@ t %>%
 
 #### Independent mobility
 
-Lastly, the parents answered questions on the independent mobility of their child, inspired by @shaw2013children. They question parents on how much freedom they allow their children to travel around their own neighbourhood or city without adult supervision.
+Lastly, the parents answered questions on the independent mobility of their child, inspired by @shaw2013children. They assess how much freedom they allow their children to travel around their own neighbourhood or city without adult supervision.
 This survey on independent mobility was previously executed in England and Germany over the years, starting in 1971.
-Researchers concluded that there has been a large reduction in independent mobility for primary school children over the years.
+Researchers concluded that there has been a large reduction in independent mobility for primary school children over time.
 We hypothesize that the independent mobility of a child might be related to the two REPS factors.
 
 To improve response rate, these questions were left out in a shortened version of the survey. 
@@ -1335,20 +1335,20 @@ t %>%
 
 \clearpage
 
-## Structural equation model (SEM)
+## Structural equation model
 
-To answer our overarching research questions 4, 5, and 6, we will use a structural equation model (SEM) and link the scales to other exogenous variables.
+To answer our overarching research questions 4, 5, and 6, we will use a Structural Equation Model (SEM) and link the scales to other exogenous variables.
 
 As the translated REPS scale is currently deemed unreliable and the fit was not good,  we will not use it in the SEM. This means that we will not be able to answer research question 4 which aimed to analyse whether there is a connection between the parents' REPS and the children's ATOP. However, leaving REPS out of the model will allow us to work with much more data since the response rate for the REPS questions was very low (around 50%).
 
 We include the ATOP and NC scales with the following additional covariances between some of the statements as specified in section \@ref(scale-questions). Since we want to know how the three latent factors are relate to each other, we include covariances between the three factors. Lastly, we add a regression for each latent factor with the following exogenous variables as covariates:
 
-- the gender of the child.
-- the socio-economic status of the child (see section \@ref(socio-economic-status)). We include the child-level SES, if available. Otherwise, we use the school-level SES as a proxy to avoid too much missingness.
-- the school context / type of playground as a binary variable (low versus high greenness, see section \@ref(school-environment)).
-- the landscape type around the school as a binary variable (low versus high naturalness, see section \@ref(school-environment)).
+- The gender of the child.
+- The socio-economic status of the child (see section \@ref(socio-economic-status)). We include the child-level SES, if available. Otherwise, we use the school-level SES as a proxy to avoid too much missingness.
+- The school context / type of playground as a binary variable (low versus high greenness, see section \@ref(school-environment)).
+- The landscape type around the school as a binary variable (low versus high naturalness, see section \@ref(school-environment)).
 
-The B@seball project members also suggested to add air pollution (based on black carbon levels, nitrogen oxide (NOX) levels, and particulate matter) and an interaction between the school and landscape environment. Since the multi-group analysis did not fit well, the language (Dutch versus French) was also tested as a possible covariate. Adding any of these covariates to the regression analyses, however, made the fit worse and did not yield any important additional insights.
+The B@seball project members also suggested to add air pollution (based on black carbon levels, nitrogen oxide levels, and particulate matter) and an interaction between the school and landscape environment. Since the multi-group analysis did not fit well, the language (Dutch versus French) was also tested as a possible covariate. Adding any of these covariates to the regression analyses, however, made the fit worse and did not yield any important additional insights.
 
 
 ```{r fit-sem, warning = FALSE, message = FALSE, include = FALSE}
@@ -1425,7 +1425,7 @@ cr_alpha_sem <- compRelSEM(sem_output, tau.eq = T, obs.var = T)
 
 A multi-group SEM with a grouping by language (Dutch versus French) was also tested but yielded worse fit and reliability. We therefore will stick to a "simple" SEM for the whole data set. In total, `r sem_sum$data$nobs` observations with complete data were used in the SEM.
 
-Tables \@ref(tab:sem-results) and \@ref(tab:sem-results-std) in the appendix show the full model results, both standardized and unstandardized. Figure \@ref(fig:sem-viz) shows the model results visually, including the standardized parameter estimates. Table \@ref(tab:sem-fit) shows that the fit of the model is overall satisfactory though there is room for improvement since the p-value of the Chi-square test is significant and the Tucker-Lewis Index (TLI) could be better as well.
+Tables \@ref(tab:sem-results) and \@ref(tab:sem-results-std) in the appendix show the full model results, both standardized and unstandardized. Figure \@ref(fig:sem-viz) shows the model results visually, including the standardized parameter estimates. Table \@ref(tab:sem-fit) shows that the fit of the model is overall satisfactory though there is room for improvement since the p-value of the Chi-square test is significant and the TLI could be better as well.
 
 
 ```{r sem-fit}
@@ -1462,12 +1462,12 @@ semPaths(sem_output, "Standardized", "Standardized",
 ```
 
 
-The composite reliability ($\omega$) is `r round(unname(cr_omega_sem[1]), 3)` for ATOP_benefits, `r round(unname(cr_omega_sem[2]), 3)` for ATOP_fears and `r round(unname(cr_omega_sem[3]), 3)` for NC. So, in line with the earlier reliability results in the CFA, the reliability of ATOP_fears is not satisfactory. We already concluded in section  \@ref(conclusion-on-the-scale-questions) that this latent factor may not be valid or reliable and that the statements should be reviewed.
+The composite reliability ($\omega$) is `r round(unname(cr_omega_sem[1]), 3)` for ATOP_benefits, `r round(unname(cr_omega_sem[2]), 3)` for ATOP_fears, and `r round(unname(cr_omega_sem[3]), 3)` for NC. Cronbach Alpha is `r round(unname(cr_alpha_sem[1]), 3)` for ATOP_benefits, `r round(unname(cr_alpha_sem[2]), 3)` for ATOP_fears, and `r round(unname(cr_alpha_sem[3]), 3)` for NC. So, in line with the earlier reliability results in the CFA, the reliability of ATOP_fears is not satisfactory. We already concluded in section  \@ref(conclusion-on-the-scale-questions) that this latent factor may not be valid or reliable and that the statements should be reviewed.
 
 Looking at the SEM results, however, some interesting conclusions can be drawn. Firstly, the only statistically significant correlation between the three latent factors is a positive correlation between ATOP_benefits and NC (`r round(sem_sum_std %>% filter(lhs =="ATOP_benefits", rhs== "NC") %>% dplyr::pull(est), 2)`, p-value `r round(sem_sum_std %>% filter(lhs =="ATOP_benefits", rhs== "NC") %>% dplyr::pull(pvalue), 2)`).
-This indicates that children with a higher nature connectedness also tend to have a positive ATOP_benefits score.
+This indicates that children with a higher NC also tend to have a positive ATOP_benefits score.
 Secondly, we can assess each of the three regression models. The unstandardized  parameter estimates, standard deviations, and statistical significance are highlighted in Table \@ref(tab:sem-regression) (these can also be found in Table \@ref(tab:sem-results) in the appendix).
-It can be seen that boys tend to have lower NC and ATOP_benefits but higher ATOP-fears.
+It can be seen that boys tend to have lower NC and ATOP_benefits but higher ATOP_fears.
 A greener landscape around the school positively influences both NC and ATOP_benefits.
 The school context does not have much influence although a greener playground may impact ATOP_benefits slightly negatively.
 Finally, higher SES positively influences all of the latent factors.
