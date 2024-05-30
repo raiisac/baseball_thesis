@@ -1107,66 +1107,132 @@ children %>%
                         start_row = 16, end_row = 16)
 ```
 
+Since there are no less than 22 questions asked about the indoor and outdoor activities of the children, we first use EFA for dimension reduction (see appendix \@ref(efa1)). We uncover nine underlying factors. 
 
-Table \@ref(tab:externalval) shows whether there is an association between the factor scores and the indoor and outdoor activities of the children.
-For questions with a binary answer (the first 14 questions), the mean factor score for those who said yes/no is shown, the stars indicate whether there is a statistically significant difference.
-For questions with a numeric answer (for instance, how many days per week or hours per day an activity is done), the correlation is shown and the stars indicate whether it is significantly different from zero.
-Most of the relations are intuitive, except for the ATOP_fears  associations.
-For instance, building huts is associated with higher ATOP_benefits, higher NC, higher REPS_risk_engagement, and lower REPS_protection_from_injury.
-However, we would also expect it to be associated with lower ATOP_fears (as in @beyer2015development), however, the opposite is true.
-It is also interesting to see that higher ATOP_benefits is associated with a lower amount of screen time while higher REPS_protection_from_injury is associated with a higher amount of screen time.
+Table \@ref(tab:externalval) shows the Pearson correlation between the factor scores of the nine newly discovered factors and each of the ATOP, NC, and REPS subscale factor scores. This allows us to check whether there is an association between the factor scores of ATOP, NC, and REPS on the one hand, and the indoor and outdoor activities of the children on the other.
+The stars in Table \@ref(tab:externalval) indicate whether the correlation is significantly different from zero.
+Most of the relations seem very intuitive, except for ATOP_fears.
+For instance, natural play like building huts is associated with slightly higher ATOP_benefits, higher NC, higher REPS_risk_engagement, and lower REPS_protection_from_injury.
+However, we would also expect it to be associated with lower ATOP_fears (as in @beyer2015development), however, the opposite is true; it is also related to slightly higher ATOP_fears.
+It is interesting to see that higher REPS_protection_from_injury is associated with more screen time and more time spend on homework while ATOP_benefits is associated with a lower amount of screen time and NC is associated with less time for homework.
+REPS_risk_engagement also shows positive correlations with indoor activities, semi-natural play, made-up games, and playing hide and seek.
 
-```{r externalval, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
-tbl2 <- atop_data_p2 %>%
+```{r externalval-getfactorscores, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+#these all have numeric answers: how many days per week/ how often x5_1 -> w5_4
+atop_p_cntn <- atop_data_p1  %>%
+  group_by(child_id, question_short) %>%
+  summarize(response = first(response)) %>% # keep only one answer per child
+  ungroup() %>%
+  pivot_wider(id_cols = child_id, names_from = question_short,
+              values_from = response)
+atop_p_cntn <- atop_p_cntn %>%
+  dplyr::filter(complete.cases(atop_p_cntn[,-1]))
+
+# these are association or no association -> binary anwers x5_1 -> x5_19
+atop_p_binary <- atop_data_p2  %>%
   mutate(response = ifelse(response == "no association - association",
                            "association", response),
-         response = 1*(response == "association")) %>%
+         response = 1 * (response == "association")) %>%
   group_by(child_id, question_short) %>%
   summarize(response = first(response)) %>% # keep only one answer per child
   ungroup() %>%
   pivot_wider(id_cols = child_id, names_from = question_short,
               values_from = response) %>%
-  left_join(atop_data_p1 %>%
-              group_by(child_id, question_short) %>%
-              summarize(response = first(response)) %>% # keep only one answer per child
-              ungroup() %>%
-              pivot_wider(id_cols = child_id, names_from = question_short,
-                          values_from = response))  %>%
-  left_join(atop_data_p3 %>%
-              mutate(
-                response =
-                  ifelse(str_detect(response, "0"),
-                         0,
-                         ifelse(response == "< 1",
-                                0.5,
-                                ifelse(str_detect(response, "1-2"),
-                                       1.5,
-                                       ifelse(str_detect(response, "2-3"),
-                                              2.5,
-                                              ifelse(str_detect(response,
-                                                                "3-4"),
-                                                     3.5, 5)))))) %>%
-              group_by(child_id, question_short) %>%
-              summarize(response = first(response)) %>% # keep only one answer per child
-              ungroup() %>%
-              pivot_wider(id_cols = child_id, names_from = question_short,
-                          values_from = response)) %>% 
-  dplyr::select(-other_outdoor_play) %>%
+  dplyr::select(-other_outdoor_play) #too many NA
+atop_p_binary <- atop_p_binary %>%
+  dplyr::filter(complete.cases(atop_p_binary[,-1]))
+atop_p_binary2 <- atop_p_binary %>%
+  left_join(atop_p_cntn %>%
+              mutate(indoor_activities = 1*(indoor_activities!=0),
+                     other_activities = 1*(other_activities!=0),
+                     sports_artificial = 1*(sports_artificial!=0),
+                     sports_green = 1*(sports_green!=0)))
+atop_p_binary2 <- atop_p_binary2 %>%
+  dplyr::filter(complete.cases(atop_p_binary2[,-1]))
+# ordinal response but can be converted to continuous x5_20 -> x5_23
+atop_p_cntn2 <- atop_data_p3 %>%
+  mutate(
+    response =
+      ifelse(str_detect(response, "0"),
+             0,
+             ifelse(response == "< 1",
+                    0.5,
+                    ifelse(str_detect(response, "1-2"),
+                           1.5,
+                           ifelse(str_detect(response, "2-3"),
+                                  2.5,
+                                  ifelse(str_detect(response,
+                                                    "3-4"),
+                                         3.5, 5)))))) %>%
+  group_by(child_id, question_short) %>%
+  summarize(response = first(response)) %>% # keep only one answer per child
+  ungroup() %>%
+  pivot_wider(id_cols = child_id, names_from = question_short,
+              values_from = response)
+atop_p_cntn2 <- atop_p_cntn2 %>%
+  dplyr::filter(complete.cases(atop_p_cntn2[,-1]))
+
+#------------------------binary responses--------------------------------------#
+df_matrix <- atop_p_binary[,-1] %>%
+  as.matrix()
+atop_p_binary_cor <- tetrachoric(df_matrix)
+fa.parallel(atop_p_binary_cor$rho, n.obs = nrow(atop_p_binary))#decide on the number of factors
+vss(atop_p_binary_cor$rho, n.obs = nrow(atop_p_binary)) #-> check minimum average partial criterion
+efa_atop_p_binary <- fa(atop_p_binary_cor$rho,
+                   covar = FALSE,
+                   5, rotate = "oblimin",
+                   fm = "ml", n.obs = nrow(atop_p_binary),
+                   oblique.scores = TRUE)
+
+#----------------------------continuous response-------------------------------#
+t <- atop_p_cntn %>%
+  left_join(atop_p_cntn2)
+t <- t %>% dplyr::filter(complete.cases(t[,-1]))
+df_matrix <- t[-1] %>%
+  as.matrix()
+atop_p_mixed_cor <- cor(df_matrix)
+fa.parallel(atop_p_mixed_cor, n.obs = nrow(t))#decide on the number of factors
+vss(atop_p_mixed_cor, n.obs = nrow(t)) #-> check minimum average partial criterion
+efa_atop_p_mixed <- fa(atop_p_mixed_cor,
+                      covar = FALSE,
+                      4, rotate = "oblimin",
+                      fm = "ml", n.obs = nrow(t))
+
+#------------------------------get factor scores-------------------------------#
+scores_cntn <- factor.scores(x = t[,-1], efa_atop_p_mixed, method = "tenBerge")
+t <- t %>%
+  cbind(scores_cntn$scores %>%
+          as.data.frame() %>%
+          rename(f_screentime = ML1,
+                 f_indoor_activities = ML2,
+                 f_homework = ML3,
+                 f_organized_sports = ML4))
+
+scores_binary <- factor.scores(x = atop_p_binary[,-1], efa_atop_p_binary,
+                               method = "tenBerge")
+atop_p_binary <- atop_p_binary %>%
+  cbind(scores_binary$scores %>%
+          as.data.frame() %>%
+          rename(f_natural_play = ML4,
+                 f_semi_natural_play = ML5,
+                 f_made_up_games_lingering = ML1,
+                 f_hide_and_seek = ML2,
+                 f_unorganized_sports = ML3))
+
+```
+
+```{r externalval, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
+tbl2 <- t %>%
+  dplyr::select(child_id, starts_with("f_")) %>%
+  left_join(atop_p_binary %>%
+  dplyr::select(child_id, starts_with("f_"))) %>%
   left_join(full_atop_scores %>%
               dplyr::select(child_id, starts_with("ATOP"))) %>%
   left_join(full_nc_scores %>%
               dplyr::select(child_id, starts_with("NC"))) %>%
   left_join(full_reps_scores %>%
               dplyr::select(child_id, starts_with("REPS")))
-test_diff <- function(x, y){
-         test <- t.test(eval(parse(text = y)) ~
-                          as.factor(eval(parse(text = colnames(tbl2)[x]))),
-                        data = tbl2)
-         result <- sprintf("No: %.3f, Yes: %.3f %s",
-                           unname(test$estimate[1]),
-                           unname(test$estimate[2]),
-                           gtools::stars.pval(test$p.value))
-         return(result)}
+# a function to get the correlations
 test_diff_cont <- function(x, y){
          correlation <- cor(tbl2[, y],
                      tbl2[, x],
@@ -1175,58 +1241,28 @@ test_diff_cont <- function(x, y){
          pvalue <- cor.test(unlist(tbl2[, y]),
                      unlist(tbl2[, x]),
                      method = "pearson")
-         result <- sprintf("correlation: %.3f %s",
+         result <- sprintf("%.3f %s",
                            unname(correlation),
                            gtools::stars.pval(pvalue$p.value))
          return(result)}
-t <- data.frame(
-  question_short = colnames(tbl2)[2:15],
-  ATOP_benefits = mapply(test_diff, 2:15, "ATOP_benefits"),
-  ATOP_fears = mapply(test_diff, 2:15, "ATOP_fears"),
-  NC = mapply(test_diff, 2:15, "NC"),
-  REPS_risk_engagement = mapply(test_diff, 2:15, "REPS_risk_engagement"),
-  REPS_protection_from_injury = mapply(test_diff, 2:15,
-                                       "REPS_protection_from_injury")
-) %>%
-  rbind(
-    data.frame(
-      question_short = colnames(tbl2)[16:23],
-      ATOP_benefits = mapply(test_diff_cont, 16:23, "ATOP_benefits"),
-      ATOP_fears = mapply(test_diff_cont, 16:23, "ATOP_fears"),
-      NC = mapply(test_diff_cont, 16:23, "NC"),
-      REPS_risk_engagement = mapply(test_diff_cont, 16:23, "REPS_risk_engagement"),
-      REPS_protection_from_injury = mapply(test_diff_cont, 16:23,
-                                       "REPS_protection_from_injury"))) %>%
-  left_join(atop_key_p %>%
-              dplyr::select(question_short, question_text_english)) %>%
-  mutate(question_text_english =
-           ifelse(startsWith(question_text_english, "How often"),
-                             str_split_i(question_text_english,
-                                         pattern = "/", i = 2),
-                  question_text_english)) %>%
-  dplyr::select(-question_short) %>%
-  relocate(question_text_english)
-t %>%
+
+data.frame(
+      question_short = colnames(tbl2)[2:10],
+      ATOP_benefits = mapply(test_diff_cont, 2:10, "ATOP_benefits"),
+      ATOP_fears = mapply(test_diff_cont, 2:10, "ATOP_fears"),
+      NC = mapply(test_diff_cont, 2:10, "NC"),
+      REPS_risk_engagement = mapply(test_diff_cont, 2:10, "REPS_risk_engagement"),
+      REPS_protection_from_injury = mapply(test_diff_cont, 2:10,
+                                       "REPS_protection_from_injury")) %>%
+  mutate(question_short = str_remove(question_short, "f_")) %>%
   kable(booktabs = TRUE, longtable = TRUE,
-        caption = "Associations of factor scores with related indoor and outdoor activities.",
+        caption = "Associations of ATOP, NC, and REPS factor scores with related indoor and outdoor activity latent factors (. p < 0.1, * p <.05, ** p <.01, *** p <.001).",
         col.names = c("", "ATOP benefits", "ATOP fears", "NC",
                       "REPS risk engagement", "REPS protection from injury")) %>%
   kableExtra::kable_styling(latex_options = c("repeat_header"),
                             font_size = 9) %>%
-  kableExtra::column_spec(1, width = "2in") %>%
-  kableExtra::column_spec(2, width = "0.7in",
-                          bold = str_detect(t[,2], "\\*")) %>%
-  kableExtra::column_spec(3, width = "0.7in",
-                          bold = str_detect(t[,2], "\\*")) %>%
-  kableExtra::column_spec(4, width = "0.7in",
-                          bold = str_detect(t[,2], "\\*")) %>%
-  kableExtra::column_spec(5, width = "0.7in",
-                          bold = str_detect(t[,2], "\\*")) %>%
-  kableExtra::column_spec(6, width = "0.7in",
-                          bold = str_detect(t[,2], "\\*")) %>%
-  kableExtra::add_footnote(
-    label = ". p < 0.1, * p <.05, ** p <.01, *** p <.001")
-
+  kableExtra::column_spec(1, width = "1.4in") %>%
+  kableExtra::column_spec(2:6, width = "0.7in")
 ```
 
 
@@ -1241,13 +1277,18 @@ Researchers concluded that there has been a large reduction in independent mobil
 We hypothesize that the independent mobility of a child might be related to the two REPS factors.
 
 To improve response rate, these questions were left out in a shortened version of the survey. 
-Therefore, the number of responses is greatly reduced and we cannot be sure that the people who filled in the full survey represent an unbiased sample (Table \@ref(tab:atop-p-response-difference)).
-Table \@ref(tab:im-descriptives) shows the descriptives.
+Therefore, the number of responses is greatly reduced and we cannot be sure that the people who filled in the full survey represent an unbiased sample (Table \@ref(tab:atop-p-response-difference)). We therefore need to be careful when interpreting the results.
 
-Table \@ref(tab:externalval-im) shows whether there is an association between the factor scores and the independent mobility of the children. The mean factor score for those who said yes/no is shown, the stars indicate whether there is a statistically significant difference.
+Table \@ref(tab:im-descriptives) shows the descriptive statistics for the eight questions on independent mobility and Figure \@ref(fig:im-nlvsfr) in the appendix shows the descriptive statistics for the Dutch-speaking and French-speaking parents separately.
+Appendix \@ref(efa2) details the EFA for the independent mobility questions. We uncovered 4 latent factors in the EFA.
+
+
+Table \@ref(tab:externalval-im) shows the Pearson correlation between the factor scores of the four newly discovered independent mobility factor scores and each of the ATOP, NC, and REPS subscale factor scores. This allows us to check whether there is an association between the factor scores of ATOP, NC, and REPS on the one hand, and the independent mobility of the children on the other.
+The stars in Table \@ref(tab:externalval) indicate whether the correlation is significantly different from zero. 
 The table shows that indeed, while the ATOP and NC do not show any strong links to independent mobility, the REPS factors do.
-Parents with high REPS_risk_engagement tend to allow their child to go out alone after dark, cross main roads on their own, roam their neighborhood alone or with friends, and go to places within walking distance.
-Parents with high REPS_protection_from_injury tend to *not* allow their child to cross main road on their own, let their child roam the neighborhood alone or with friends, or go to places within walking distance.  
+Parents with high REPS_risk_engagement are more likely to allow their child to go out alone after dark, engage with traffic on their own, or explore their neighborhood alone or with friends.
+Parents with high REPS_protection_from_injury tend to *not* allow their child to go out alone after dark or engage with traffic.
+Neither of the REPS subscales had a statistically significant correlation with allowing a child to use public transport on their own.
 
 
 ```{r read_im, message=FALSE, warning=FALSE, include=FALSE}
@@ -1281,14 +1322,48 @@ tbl[order(match(tbl$question_text_english, im_key$question_text_english)),] %>%
   kableExtra::column_spec(2:4, width = "0.6in")
 ```
 
-```{r externalval-im, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
-tbl2 <- im_data %>%
-  mutate(response = ifelse(str_detect(response, "Yes"), 1, 0)) %>%
+```{r externalval-im-getscores, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE, eval = TRUE}
+im_data2 <- im_data  %>%
+  mutate(response = as.character(response),
+         response = ifelse(response == "Yes - No",
+                           "Yes", response),
+         response = 1 * (response == "Yes")) %>%
   group_by(child_id, question_short) %>%
   summarize(response = first(response)) %>% # keep only one answer per child
   ungroup() %>%
   pivot_wider(id_cols = child_id, names_from = question_short,
-              values_from = response) %>%
+              values_from = response)
+im_data2 <- im_data2 %>%
+  dplyr::filter(complete.cases(im_data2[,-1]))
+library(psych)
+df_matrix <- im_data2[,-1] %>%
+  as.matrix()
+im_data2_cor <- tetrachoric(df_matrix)
+fa.parallel(im_data2_cor$rho, n.obs = nrow(im_data2))#decide on the number of factors
+vss(im_data2_cor$rho, n.obs = nrow(im_data2)) #-> check minimum average partial criterion
+efa_im_data2 <- fa(im_data2_cor$rho,
+                        covar = FALSE,
+                        4, rotate = "oblimin",
+                        fm = "ml", n.obs = nrow(im_data2),
+                        oblique.scores = TRUE)
+
+scores_im <- factor.scores(x = im_data2[,-1], efa_im_data2,
+                               method = "tenBerge")
+im_data2 <- im_data2 %>%
+  cbind(scores_im$scores %>%
+          as.data.frame() %>%
+          rename(f_explore = ML2,
+                 f_engage_with_traffic = ML4,
+                 f_after_dark = ML1,
+                 f_public_transport = ML3))
+```
+
+
+
+
+```{r externalval-im, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, eval = TRUE}
+tbl2 <- im_data2 %>%
+  dplyr::select(child_id, starts_with("f_")) %>%
   left_join(full_atop_scores %>%
               dplyr::select(child_id, starts_with("ATOP"))) %>%
   left_join(full_nc_scores %>%
@@ -1296,42 +1371,24 @@ tbl2 <- im_data %>%
   left_join(full_reps_scores %>%
               dplyr::select(child_id, starts_with("REPS")))
 
-t <- data.frame(
-  question_short = colnames(tbl2)[2:9],
-  ATOP_benefits = mapply(test_diff, 2:9, "ATOP_benefits"),
-  ATOP_fears = mapply(test_diff, 2:9, "ATOP_fears"),
-  NC = mapply(test_diff, 2:9, "NC"),
-  REPS_risk_engagement = mapply(test_diff, 2:9, "REPS_risk_engagement"),
-  REPS_protection_from_injury = mapply(test_diff, 2:9,
-                                       "REPS_protection_from_injury")
-  ) %>%
-  left_join(im_key %>%
-              dplyr::select(question_short, question_text_english)) %>%
-  dplyr::select(-question_short) %>%
-  relocate(question_text_english)
-t %>%
+data.frame(
+      question_short = colnames(tbl2)[2:5],
+      ATOP_benefits = mapply(test_diff_cont, 2:5, "ATOP_benefits"),
+      ATOP_fears = mapply(test_diff_cont, 2:5, "ATOP_fears"),
+      NC = mapply(test_diff_cont, 2:5, "NC"),
+      REPS_risk_engagement = mapply(test_diff_cont, 2:5, "REPS_risk_engagement"),
+      REPS_protection_from_injury = mapply(test_diff_cont, 2:5,
+                                       "REPS_protection_from_injury")) %>%
+  mutate(question_short = str_remove(question_short, "f_")) %>%
   kable(booktabs = TRUE, longtable = TRUE,
-        caption = "Associations of factor scores with independent mobility.",
+        caption = "Associations of ATOP, NC, and REPS factor scores with independent mobility latent factors (. p < 0.1, * p <.05, ** p <.01, *** p <.001).",
         col.names = c("", "ATOP benefits", "ATOP fears", "NC",
-                      "REPS risk engagement", "REPS protection from injury")) %>%
+                      "REPS risk engagement", "REPS protection from injury"))  %>%
   kableExtra::kable_styling(latex_options = c("repeat_header"),
                             font_size = 9) %>%
-  kableExtra::column_spec(1, width = "2in") %>%
-  kableExtra::column_spec(2, width = "0.7in",
-                          bold = str_detect(t[,2], "\\*")) %>%
-  kableExtra::column_spec(3, width = "0.7in",
-                          bold = str_detect(t[,2], "\\*")) %>%
-  kableExtra::column_spec(4, width = "0.7in",
-                          bold = str_detect(t[,2], "\\*")) %>%
-  kableExtra::column_spec(5, width = "0.7in",
-                          bold = str_detect(t[,2], "\\*")) %>%
-  kableExtra::column_spec(6, width = "0.7in",
-                          bold = str_detect(t[,2], "\\*")) %>%
-  kableExtra::add_footnote(
-    label = ". p < 0.1, * p <.05, ** p <.01, *** p <.001")
-
+  kableExtra::column_spec(1, width = "1.4in") %>%
+  kableExtra::column_spec(2:6, width = "0.7in")
 ```
-
 
 \clearpage
 

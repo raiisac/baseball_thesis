@@ -90,7 +90,7 @@ fa_table <- function(x, varlabels = NULL,
 
   ind_table <- ind_table %>%
     kable(booktabs = TRUE,
-          caption = title) %>%
+          caption = title, digits = 4) %>%
     kableExtra::column_spec(1, "2in") %>%
     kable_styling(font_size = 9)
 

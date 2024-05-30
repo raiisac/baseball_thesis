@@ -38,6 +38,7 @@ library(semPlot)
 library(semTools)
 source(find_root_file("source", "R", "fa_table.R",
                        criterion = has_file("baseball_thesis.Rproj")))
+#source("https://raw.githubusercontent.com/franciscowilhelm/r-collection/master/fa_table.R")
 knitr::opts_chunk$set(echo = FALSE)
 
 baseball_package <- read_package(

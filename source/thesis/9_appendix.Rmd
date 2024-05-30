@@ -44,6 +44,23 @@ tbl <- nc_key %>%
 tbl
 ```
 
+```{r reps-translation, message=FALSE, warning=FALSE, include=TRUE,  echo = FALSE}
+tbl <- reps_key %>%
+  mutate(question_text_english = ifelse(
+    ommit_if_short_survey,
+    paste0(question_text_english, "*"),
+    question_text_english
+  )) %>%
+  dplyr::select(question_text_english, question_text_french,
+                question_text_dutch) %>%
+  kable("latex", longtable = TRUE, booktabs = TRUE,
+        caption = "The REPS scale questions for parents and guardians. Questions with a * are omitted in the shortened survey.",
+        col.names = c("Original", "French", "Dutch")) %>%
+  kable_styling(latex_options = c("repeat_header"), font_size = 9) %>%
+  column_spec(1:3, width = "3in") %>%
+  landscape()
+tbl
+```
 
 ```{r atop-translation, message=FALSE, warning=FALSE, include=TRUE,  echo = FALSE}
 tbl <- atop_key_p %>%
@@ -63,23 +80,7 @@ tbl <- atop_key_p %>%
 tbl
 ```
 
-```{r reps-translation, message=FALSE, warning=FALSE, include=TRUE,  echo = FALSE}
-tbl <- reps_key %>%
-  mutate(question_text_english = ifelse(
-    ommit_if_short_survey,
-    paste0(question_text_english, "*"),
-    question_text_english
-  )) %>%
-  dplyr::select(question_text_english, question_text_french,
-                question_text_dutch) %>%
-  kable("latex", longtable = TRUE, booktabs = TRUE,
-        caption = "The REPS scale questions for parents and guardians. Questions with a * are omitted in the shortened survey.",
-        col.names = c("Original", "French", "Dutch")) %>%
-  kable_styling(latex_options = c("repeat_header"), font_size = 9) %>%
-  column_spec(1:3, width = "3in") %>%
-  landscape()
-tbl
-```
+
 
 \clearpage
 
@@ -614,7 +615,8 @@ Two additional statements were added to the REPS questions:
 - How often do you allow your child to play outside when it is raining?
 - Should your child wash his/her hands after outdoor play?
 
-We use EFA to check whether these might fit any of the original REPS factors. The following two tables show that the two additional statements do not fit well with the original REPS scales, based on EFA with only the complete observations or on the whole data set, using multiple imputation.
+We use EFA to check whether these might fit any of the original REPS factors. The following two tables show that the two additional statements do not fit well with the original REPS scales, based on EFA with only the complete observations or on the whole data set, using multiple imputation. Highlighted in red we see that play in rain and washing hand indicators are not represented well in the EFA.
+
 
 ```{r message=FALSE, warning=FALSE, include=FALSE, echo = FALSE, eval = TRUE}
 #-------------1. Analysing only complete data (no missing answers)-------------#
@@ -630,7 +632,7 @@ efa_complete <- fa(cormat,
 tables_efa_complete <- fa_table(efa_complete,
                          title = "Results for the EFA and oblique rotation
                          and two factors, based on complete observations only.",
-                         varlabels = str_wrap(reps_key$question_text_english,
+                         varlabels = str_wrap(reps_key$question_short,
                                               15))
 tables_efa_complete$ind_table
 #the two additional statements do not fit in either of the factors.
@@ -638,13 +640,14 @@ tables_efa_complete$ind_table
 
 #--------------------------------2. EFA with MI--------------------------------#
 library(mifa)
+set.seed(4)
 mi <- mifa(data = data_cfa_reps[,-c(1, 2)])
 fit <- fa(mi$cov_combined, n.obs = nrow(data_cfa_reps), nfactors = 2)
-fa.diagram(fit)
+#fa.diagram(fit)
 tables_atop <- fa_table(fit,
                          title = "Results for the EFA with multiple imputation and oblique rotation
                          and two factors.",
-                         varlabels = str_wrap(reps_key$question_text_english,
+                         varlabels = str_wrap(reps_key$question_short,
                                               15))
 tables_atop$ind_table
 #Again, the washing hands and playing in the rain statements don't fit with
@@ -658,7 +661,9 @@ tables_efa_complete$ind_table
 
 
 ```{r reps-efa2}
-tables_atop$ind_table
+tables_atop$ind_table %>%
+  row_spec(15, background = "#D93B3B") %>%
+  row_spec(16, background = "#D93B3B")
 ```
 
 \clearpage
@@ -667,7 +672,7 @@ tables_atop$ind_table
 
 The parents' questionnaire included questions on how often their child actually plays outside or how much they spend indoors, doing homework, or behind a (tv/tablet/computer) screen.
 
-```{r opp1, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the questions on how many days per week their child participate in...", fig.width = 6.5, fig.height = 4}
+```{r opp1, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the questions on how many days per week their child participate in...", fig.width = 6.5, fig.height = 4}
 likert_data_atop <- atop_data_p1 %>%
   as.data.frame() %>%
   left_join(children) %>%
@@ -712,7 +717,7 @@ p_nl + p_fr + plot_layout(guides = "collect") &
         text = element_text(size = 9))
 ```
 
-```{r opp2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the questions 'Do you associate the following activity as typical outdoor playing behavior of you child?'", fig.width = 6.5, fig.height = 6.5}
+```{r opp2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the questions 'Do you associate the following activity as typical outdoor playing behavior of you child?'", fig.width = 6.5, fig.height = 6.5}
 likert_data_atop <- atop_data_p2 %>%
   as.data.frame() %>%
   left_join(children) %>%
@@ -765,7 +770,7 @@ p_nl + p_fr + plot_layout(guides = "collect") &
         text = element_text(size = 9))
 ```
 
-```{r opp3, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the questions 'How many hours does your child spend on ... on an average weekday/weekend day?'", fig.width = 6.5, fig.height = 4}
+```{r opp3, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the questions 'How many hours does your child spend on ... on an average weekday/weekend day?'", fig.width = 6.5, fig.height = 4}
 likert_data_atop <- atop_data_p3 %>%
   as.data.frame() %>%
   left_join(children) %>%
@@ -827,6 +832,122 @@ p_fr <- gglikert(likert_data_atop2, sort = "none", y_label_wrap = 25,
 p_nl + p_fr + plot_layout(guides = "collect") &
   theme(legend.position = "bottom",
         text = element_text(size = 9))
+```
+
+\clearpage
+
+### EFA for dimension reduction {#efa1}
+
+We employ EFA for dimension reduction. We will analyse statement that require a continuous or discrete answer separately. Oblique rotation will be used in both factor analyses.
+
+Firstly the questions of Figure \@ref(fig:opp1) and \@ref(fig:opp3) (8 statements) will be converted to continuous variables (signifying the number of days per week or the number of hours per day). 
+Using visual aids such as a scree plot and parallel analysis [@horn1965rationale], a model with 4 factors was chosen. Table \@ref(efa-opp1) shows the factor loadings, communality, uniqueness and complexity. As can be seen in red, one statement does not fit well with any of the factors ("how many days per week does your child participate in other organized or structured outdoor activities (e.g. scouts, circus, ...)?"). This is not entirely surprising since there is very little variance in the answers; almost everyone answered 0 or 1 days per week. Each of the four underlying factors is assigned an appropriate name:
+
+- "screentime" is high if the child spends a lot of time in from of a computer/tv/tablet screen.
+- "indoor_activities" is high if the child spends a lot of time on organized, indoor sports.
+- "homework" is high if the child spends a lot of time on homework.
+- "organized_sports" is high if the child spends a lot of time on organized, outdoor sports (either on natural or artificial surface).
+
+```{r efa-opp1}
+tables_atop_p_mixed <-
+  fa_table(efa_atop_p_mixed,
+           fnames = c("screentime", "indoor activities", "homework",
+                      "organized sports"),
+           title = "Results for the EFA on the statements with continuous answers, using oblique rotation and four factors."
+  )
+tables_atop_p_mixed$ind_table %>%
+  row_spec(4, background = "#D93B3B") %>%
+  kableExtra::column_spec(1, width = "01in") %>%
+  kableExtra::column_spec(2:8, width = "0.55in")
+```
+
+Secondly, the questions of Figure \@ref(fig:opp2) (14 statements) are converted to binary variables. As there are very few parents who answered "maybe", we consider this to be a "yes" answer and all responses are recoded to one for "yes" and zero for "no". As such, a tetrachoric correlation matrix is used for the EFA. Using visual aids such as a scree plot and parallel analysis [@horn1965rationale], a model with 5 factors was chosen. Table \@ref(efa-opp2) shows the factor loadings, communality, uniqueness and complexity. Highlighted in red, we see that climbing_trees, building_camps, and stream_pond indicators are not represented well in the EFA because they load diffusely over multiple factors. Each of the five underlying factors is assigned an appropriate name:
+
+- "natural_play" is high if the child typically play in nature using branches to build camps, climbing trees, etc.
+- "semi_natural_play" is high if the child typically plays in water but also for less nature-oriented outdoor activities such as biking and or playing at a playground.
+- "made_up_games_lingering" is high if the child typically likes to chill or linger outside or play made-up games.
+- "hide_and_seek" is high if the child likes to play hide and seek.
+- "unorganized sports" is high is the child typically plays sports such as football or basketball with neighborhood kids in stead of with a sports organization.
+
+```{r efa-opp2}
+tables_atop_p_binary <-
+  fa_table(efa_atop_p_binary,
+           fnames = c("natural play", "water games",
+                      "made up games lingering",
+                      "hide and seek", "unorganized sports"),
+           title = "Results for the EFA on the statements with binary answers, using oblique rotation and five factors.")
+tables_atop_p_binary$ind_table %>%
+  row_spec(3, background = "#D93B3B") %>%
+  row_spec(4, background = "#D93B3B") %>%
+  row_spec(7, background = "#D93B3B") %>%
+  kableExtra::column_spec(1, width = "0.8in") %>%
+  kableExtra::column_spec(2:9, width = "0.5in")
+```
+
+## Independent mobility {#ap-im}
+
+The parents' questionnaire included questions on how much freedom and independence they grant their child to roam their neighborhood, based on @jelleyman2019cross.
+
+Figure \@ref(fig:im-nlvsfr) visualizes the answers for the Dutch and French survey separately.
+French-speaking parents tend to let their children explore their neighborhood more but do not let them go to school or other places as often as Dutch-speaking parents.
+
+
+```{r im-nlvsfr, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the questions on independent mobility.", fig.width = 6.5, fig.height = 5}
+likert_data_im <- im_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(!str_detect(community, "French")) %>%
+  group_by(child_id, question_short) %>%
+  summarize(response = first(response)) %>% # keep only one answer per child
+  ungroup() %>%
+  dplyr::select(question_short, response, child_id) %>%
+  pivot_wider(names_from = question_short, values_from = response,
+              id_cols = child_id)
+p_nl <- gglikert(likert_data_im[, -1], sort = "none", y_label_wrap = 25,
+                 labels_size = 2)
+ 
+
+likert_data_im <- im_data %>%
+  as.data.frame() %>%
+  left_join(children) %>%
+  dplyr::filter(!str_detect(community, "Dutch")) %>%
+  group_by(child_id, question_short) %>%
+  summarize(response = first(response)) %>% # keep only one answer per child
+  ungroup() %>%
+  dplyr::select(question_short, response, child_id) %>%
+  pivot_wider(names_from = question_short, values_from = response,
+              id_cols = child_id)
+
+p_fr <- gglikert(likert_data_im[, -1], sort = "none", y_label_wrap = 25,
+                 labels_size = 2)
+p_nl + p_fr + plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(size = 9))
+```
+
+### EFA for dimension reduction {#efa2}
+
+As with the questions on indoor and outdoor activities (appendix \@ref(efa2)), we use EFA with oblique rotation for dimension reduction on the independent mobility data. 
+
+As there are very few parents who answered "maybe", we consider this to be a "yes" answer and all responses are recoded to one for "yes" and zero for "no". such that the data can be analysed as binary data. As such, a tetrachoric correlation matrix is used for the EFA. Using visual aids such as a scree plot and parallel analysis [@horn1965rationale], a model with 5 factors was chosen. Table \@ref(efa-im) shows the factor loadings, communality, uniqueness and complexity. Highlighted in red, we see that the cycle_main_roads indicator is not represented well in the EFA because it loads diffusely over multiple factors. Each of the fout underlying factors is assigned an appropriate name:
+
+- "explore" is high if the parents allow the child to explore their neighborhood alone or with friends.
+- "engage with traffic" is high if the parents allow the child to cross or cycle on main roads, and if their can walk or bike to school or other places alone.
+- "after dark", is high if the parents allow the child to go out after dark alone.
+- "public transport" if high if the parents allow the child to use public transport alone.
+
+```{r efa-im}
+tables_im_data2 <-
+  fa_table(efa_im_data2,
+           fnames = c("explore", "engage with traffic",
+                      "after dark",
+                      "public transport"),
+           title = "Results for the EFA and oblique rotation and four factorsfor the independent mobility questions."
+  )
+tables_im_data2$ind_table %>%
+  row_spec(6, background = "#D93B3B") %>%
+  kableExtra::column_spec(1, width = "1.25in") %>%
+  kableExtra::column_spec(2:8, width = "0.5in")
 ```
 
 \clearpage
