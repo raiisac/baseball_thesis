@@ -10,7 +10,7 @@ The schools were selected with statistical matching such that each school with l
 In the thesis, we will refer to green playgrounds as playgrounds that have many trees, many shrubs, flowers, sand, dirt, and maybe even a water feature or a vegetable patch.
 In contrast, grey playgrounds typically have a concrete or tiled floor with maybe a couple of trees or some grass (Figure \@ref(fig:playgrounds)).
 
-```{r playgrounds, fig.cap = "a comparison of a green (top) and grey (bottom) playground.", out.width = "3in"}
+```{r playgrounds, fig.cap = "a comparison of a green (top) and grey (bottom) playground.", out.width = "3in", purl = FALSE}
 knitr::include_graphics(find_root_file("figures", "green_playground.jpg",
                    criterion = has_file("baseball_thesis.Rproj")))
 ```
@@ -61,29 +61,6 @@ RQ3: Can both dimensions in the translated REPS questionnaire be reliably measur
 :::
 
 ::::
-
-<!-- Finally, there were some questions on independent mobility of the child, based on @shaw2013children. These questions have not been confirmed to measure an underlying factor as the previous ATOP, REPS, and NC scale questions. They do question parents on how much freedom they allow their children to travel around their own neighbourhood or city without adult supervision. This survey on independent mobility was previously executed in England and Germany over the years, starting in 1971. Researchers concluded that there has been a large reduction in independent mobility for primary school children over the years. It would be interesting to compare the results obtained in Germany and England with Belgium. -->
-
-<!-- :::: {.center data-latex=""} -->
-
-<!-- ::: {.minipage data-latex="{.5\linewidth}"} -->
-<!-- RQ: How does the independent mobility of primary school children in Belgium differ from children in England and Germany [@shaw2013children]? -->
-<!-- ::: -->
-
-<!-- :::: -->
-
-<!-- ### School guardians' questionnaire -->
-
-<!-- Around 60 school guardians filled in a small questionnaire. Next to some general demographic questions, they answered the same REPS questions as the parents. -->
-
-<!-- :::: {.center data-latex=""} -->
-
-<!-- ::: {.minipage data-latex="{.5\linewidth}"} -->
-<!-- RQ4: Is the translated REPS questionnaire still reliable and valid for school guardians? -->
-<!-- ::: -->
-
-<!-- :::: -->
-
 ### Overarching research questions
 
 If all concepts (ATOP benefits, ATOP fears, NC, REPS "protection from injury", and REPS "risk engagement") can be reliably measured using the translated questionnaires, we can investigate the following research questions.
@@ -99,10 +76,3 @@ RQ6: Is the type of school environment related to the children's ATOP and/or NC?
 :::
 
 ::::
-
-
-<!-- One might possibly also include the microbiota data and investigate: -->
-
-<!-- - whether the parent's REPS is related to the child's microbiota. -->
-<!-- - whether the child's socio-economic status is related to the child's microbiota. -->
-<!-- - whether the child's ATOP is related to the child's microbiota. -->

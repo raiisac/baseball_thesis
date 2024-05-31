@@ -33,12 +33,12 @@ library(psych)
 library(rprojroot)
 library(tidyverse)
 library(lavaan)
-library(effectsize) #to easily interpret SEM fit
+library(effectsize) 
 library(semPlot)
 library(semTools)
 source(find_root_file("source", "R", "fa_table.R",
                        criterion = has_file("baseball_thesis.Rproj")))
-#source("https://raw.githubusercontent.com/franciscowilhelm/r-collection/master/fa_table.R")
+
 knitr::opts_chunk$set(echo = FALSE)
 
 baseball_package <- read_package(
@@ -108,7 +108,7 @@ A second important contribution of this report is a Structural Equation Model (S
 
 # List of abbreviations {-}
 
-```{r abbreviations}
+```{r abbreviations, purl = FALSE}
 data.frame(
   Abbreviation = c("ATOP",
                    "CFA",

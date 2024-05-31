@@ -5,6 +5,7 @@
 # Original statements and used translation {#translate}
 
 ```{r atop-translation-kids, message=FALSE, warning=FALSE, include=TRUE,  echo = FALSE}
+#####----------------APPENDIX: visualized the translations-----------------#####
 atop_key_groups <- atop_key %>%
   arrange(question_group) %>%
   mutate(row_number = row_number()) %>%
@@ -97,6 +98,7 @@ For the REPS scale, an additional subsection investigates whether two additional
 ## Attitude towards outdoor play (ATOP)
 
 ```{r atopkids-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap= "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the ATOP scale items. Non-responses are not shown but taken into account when calculating the percentages.", fig.width = 6.5, fig.height = 6.5}
+#####----------------------------APPENDIX:ATOP-----------------------------#####
 likert_data_atop <- atop_data %>%
   as.data.frame() %>%
   left_join(children) %>%
@@ -256,6 +258,7 @@ t[, -1] %>%
 ## Nature connectedness (NC)
 
 ```{r nc-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) children for the NC scale items. Non-responses are not shown but taken into account when calculating the percentages.", fig.width = 6.5, fig.height = 5}
+#####--------------------APPENDIX: NATURE CONNECTEDNESS--------------------#####
 likert_data_nc <- nc_data %>%
   as.data.frame() %>%
   left_join(children) %>%
@@ -407,6 +410,7 @@ t[, -1] %>%
 ## Risk engagement and protection survey (REPS)
 
 ```{r reps-descriptives2, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the REPS scale items.", fig.width = 6.5, fig.height = 9, eval = TRUE}
+#####----------------------------APPENDIX: REPS----------------------------#####
 likert_data_reps <- reps_data %>%
   as.data.frame() %>%
   rbind(c("10-5X-03", "1", "Single response", "wash_hands", "x6_14", NA)) %>% #this line is missing from the data
@@ -673,6 +677,7 @@ tables_atop$ind_table %>%
 The parents' questionnaire included questions on how often their child actually plays outside or how much they spend indoors, doing homework, or behind a (tv/tablet/computer) screen.
 
 ```{r opp1, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the questions on how many days per week their child participate in...", fig.width = 6.5, fig.height = 4}
+#####-------------------APPENDIX: OUTDOOR PLAY FREQUENCY-------------------#####
 likert_data_atop <- atop_data_p1 %>%
   as.data.frame() %>%
   left_join(children) %>%
@@ -893,6 +898,7 @@ French-speaking parents tend to let their children explore their neighborhood mo
 
 
 ```{r im-nlvsfr, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the questions on independent mobility.", fig.width = 6.5, fig.height = 5}
+#####-------------------APPENDIX: INDEPENDENT MOBILITY---------------------#####
 likert_data_im <- im_data %>%
   as.data.frame() %>%
   left_join(children) %>%
@@ -956,6 +962,7 @@ tables_im_data2$ind_table %>%
 # Structural equation model details
 
 ```{r sem-results, warning = FALSE, message = FALSE}
+#####------------------APPENDIX: STRUCTURAL EQUATION MODEL-----------------#####
 est <- parameterEstimates(sem_output) %>%
   mutate(type = ifelse(op == "=~",
                        "loading",
