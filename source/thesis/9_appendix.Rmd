@@ -55,7 +55,7 @@ tbl <- reps_key %>%
   dplyr::select(question_text_english, question_text_french,
                 question_text_dutch) %>%
   kable("latex", longtable = TRUE, booktabs = TRUE,
-        caption = "The REPS scale questions for parents and guardians. Questions with a * are omitted in the shortened survey.",
+        caption = "The REPS scale questions for parents. Questions with a * are omitted in the shortened survey.",
         col.names = c("Original", "French", "Dutch")) %>%
   kable_styling(latex_options = c("repeat_header"), font_size = 9) %>%
   column_spec(1:3, width = "3in") %>%
@@ -73,7 +73,7 @@ tbl <- atop_key_p %>%
   dplyr::select(question_text_english, question_text_french,
                 question_text_dutch) %>%
   kable("latex", longtable = TRUE, booktabs = TRUE,
-        caption = "The outdoor play questions for the parents and guardians. Questions with a * are omitted in the shortened survey.",
+        caption = "The outdoor play questions for the parents. Questions with a * are omitted in the shortened survey.",
         col.names = c("Original", "French", "Dutch")) %>%
   kable_styling(latex_options = c("repeat_header"), font_size = 9) %>%
   column_spec(1:3, width = "3in") %>%
@@ -87,11 +87,31 @@ tbl
 
 # Additional information for the confirmatory factor analyses
 
-The figures in this sections graphically show the descriptive statistics for Dutch-speaking and French-speaking children or parents separately. Children/parents from the bilingual school are included in both since it was not recorded in which language they answered.
+In this section, we first elaborate on the calculation of the composite reliability measures; McDonald's $\omega$ and Chronbach Alpha.
+
+The figures in this sections graphically show the descriptive statistics for Dutch-speaking and French-speaking children or parents separately. Children / parents from the bilingual school are included in both since it was not recorded in which language they answered.
 
 In this section, we also show the standardized and unstandardized coefficient estimates and standard errors for each of the final CFA models.
 
 For the REPS scale, an additional subsection investigates whether two additional statement on washing hands and playing in the rain could supplement the REPS scale.
+
+## Calculating composite reliability {#comprel}
+
+<!-- For reference: https://www.rdocumentation.org/packages/semTools/versions/0.4-9/topics/reliability -> we use omega_3 and alpha-->
+
+We use the compRelSEM function from the semTools R package to calculate McDonald's $\omega$ and Chronbach Alpha.
+
+The general formula implemented in the function to calculate McDonald's $\omega$ (sometimes referred to as hierarchical omega) is:
+
+$$\omega = \frac{(\sum^k_{i=1}\lambda_i)^2 Var(\psi)}{\mathbf{1}^\intercal \hat{\Sigma} \mathbf{1}}$$ 
+
+where $k$ is the number of items in a factor, $\lambda_i$ is the factor loading of item $i$, $\psi$ is the factor variance, and $\hat{\Sigma}$ is the observed covariance matrix. A $k$-dimensional vector of ones, $\mathbf{1}$, is used to sum elements in the matrix $\hat{\Sigma}$. 
+
+Cronbach Alpha is calculated as:
+
+$$\alpha = \frac{k}{k-1} \biggr[1-\frac{\sum^k_{i=1} \sigma_{ii}}{\sum^k_{i=1} \sigma_{ii} + 2\sum_{i<j}\sigma_{ij}}\biggr]$$
+
+where $\sigma_{ii}$ is the observed variance of item $i$, $\sigma_{ij}$ is the observed covariance between items i and j. Cronbach Alpha depends on the assumption that each item contributes equally to the factor, i.e., all (unstandardized) loadings must be the same (called tau-equivalence). If this assumption is violated, true reliability will be underestimated.
 
 \clearpage
 
@@ -182,7 +202,7 @@ est <- parameterEstimates(fit_sameloadings_atop) %>%
 t <- cbind(est[1:(nrow(est)/2),], est[(nrow(est)/2+1):nrow(est),-c(1,2)])
 t[, -1] %>%
   kable(booktabs = TRUE,
-        caption = "Unstandardized coefficient estimates and standard errors for the metric measurement invariance model for ATOP to compare Dutch-speaking versus French-speaking respondents",
+        caption = "Unstandardized coefficient estimates and standard errors for the metric measurement invariance model for ATOP, comparing Dutch-speaking versus French-speaking respondents",
         col.names = c("", "Estimate", "SE", "Estimate", "SE"),
         digits = 3) %>%
   kableExtra::kable_styling(font_size = 9) %>%
@@ -226,7 +246,7 @@ est <- standardizedSolution(fit_sameloadings_atop) %>%
 t <- cbind(est[1:(nrow(est)/2),], est[(nrow(est)/2+1):nrow(est),-c(1,2)])
 t[, -1] %>%
   kable(booktabs = TRUE,
-        caption = "Standardized coefficient estimates and standard errors for the metric measurement invariance model for ATOP to compare Dutch-speaking versus French-speaking respondents",
+        caption = "Standardized coefficient estimates and standard errors for the metric measurement invariance model for ATOP, comparing Dutch-speaking versus French-speaking respondents",
         col.names = c("", "Estimate", "SE", "Estimate", "SE"),
         digits = 3) %>%
   kableExtra::kable_styling(font_size = 9) %>%
@@ -342,7 +362,7 @@ est <- parameterEstimates(fit_sameloadings_nc) %>%
 t <- cbind(est[1:(nrow(est)/2),], est[(nrow(est)/2+1):nrow(est),-c(1,2)])
 t[, -1] %>%
   kable(booktabs = TRUE,
-        caption = "Unstandardized coefficient estimates and standard errors for the metric measurement invariance model for NC to compare Dutch-speaking versus French-speaking respondents",
+        caption = "Unstandardized coefficient estimates and standard errors for the metric measurement invariance model for NC, comparing Dutch-speaking versus French-speaking respondents",
         col.names = c("", "Estimate", "SE", "Estimate", "SE"),
         digits = 3) %>%
   kableExtra::kable_styling(font_size = 9) %>%
@@ -382,7 +402,7 @@ est <- standardizedSolution(fit_sameloadings_nc) %>%
 t <- cbind(est[1:(nrow(est)/2),], est[(nrow(est)/2+1):nrow(est),-c(1,2)])
 t[, -1] %>%
   kable(booktabs = TRUE,
-        caption = "Standardized coefficient estimates and standard errors for the metric measurement invariance model for NC to compare Dutch-speaking versus French-speaking respondents",
+        caption = "Standardized coefficient estimates and standard errors for the metric measurement invariance model for NC, comparing Dutch-speaking versus French-speaking respondents",
         col.names = c("", "Estimate", "SE", "Estimate", "SE"),
         digits = 3) %>%
   kableExtra::kable_styling(font_size = 9) %>%
@@ -506,12 +526,17 @@ est <- parameterEstimates(fit_free_reps) %>%
          estimate = sprintf("%.3f %s", est, gtools::stars.pval(pvalue))) %>%
   mutate(link = ifelse(type %in% c("loading", "covariance"),
                        sprintf("%s %s %s", lhs, op, rhs),
-                       lhs)) %>%
+                       lhs),
+         type = factor(as.factor(type),
+                       levels = c("loading", "covariance", "intercept",
+                                  "variance"),
+                       ordered = TRUE)) %>%
   dplyr::select(type, link, estimate, se)
-t <- cbind(est[1:(nrow(est)/2),], est[(nrow(est)/2+1):nrow(est),-c(1,2)])
-t[1:34, -1] %>%
+t <- cbind(est[1:(nrow(est)/2), ], est[(nrow(est) / 2 + 1):nrow(est), -c(1, 2)])
+
+t[1:31, -1] %>%
   kable(booktabs = TRUE,
-        caption = "Unstandardized coefficient estimates and standard errors for the metric measurement invariance model for REPS to compare Dutch-speaking versus French-speaking respondents.",
+        caption = "Unstandardized coefficient estimates and standard errors for configural model for REPS, comparing Dutch-speaking versus French-speaking respondents.",
         col.names = c("", "Estimate", "SE", "Estimate", "SE"),
         digits = 3) %>%
   kableExtra::kable_styling(font_size = 9) %>%
@@ -520,11 +545,11 @@ t[1:34, -1] %>%
   kableExtra::group_rows(start_row = which(t$type == "loading")[1],
                          end_row = max(which(t$type == "loading")),
                          "Loadings") %>%
-  kableExtra::group_rows(start_row = 19,
-                         end_row = 34,
+  kableExtra::group_rows(start_row = which(t$type == "variance")[1],
+                         end_row = max(which(t$type == "variance")),
                          "Variance") %>%
-  kableExtra::group_rows(start_row = 15,
-                         end_row = 18,
+  kableExtra::group_rows(start_row = which(t$type == "covariance")[1],
+                         end_row = max(which(t$type == "covariance")),
                          "Covariance") %>%
   kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
 #which(t$type == "covariance")
@@ -532,21 +557,18 @@ t[1:34, -1] %>%
 ```
 
 ```{r reps-loadings2}
-t[35:51, -1] %>%
+t[32:47, -1] %>%
   kable(booktabs = TRUE,
-        caption = "Unstandardized coefficient estimates and standard errors for the metric measurement invariance model for REPS to compare Dutch-speaking versus French-speaking respondents (continued).",
+        caption = "Unstandardized coefficient estimates and standard errors for the configural model for REPS, comparing Dutch-speaking versus French-speaking respondents (continued).",
         col.names = c("", "Estimate", "SE", "Estimate", "SE"),
         digits = 3,
         row.names = FALSE) %>%
   kableExtra::kable_styling(font_size = 9) %>%
   kableExtra::add_header_above(c("", "Dutch speaking" = 2,
                                  "French speaking" = 2)) %>%
-  kableExtra::group_rows(start_row = 2,
-                         end_row = 17,
-                         "Intercept") %>%
   kableExtra::group_rows(start_row = 1,
-                         end_row = 1,
-                         "Covariance") %>%
+                         end_row = 16,
+                         "Intercept") %>%
   kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
 #which(t$type == "covariance")
 #which(t$type == "variance")
@@ -564,12 +586,16 @@ est <- standardizedSolution(fit_free_reps) %>%
          estimate = sprintf("%.3f %s", `est.std`, gtools::stars.pval(pvalue))) %>%
   mutate(link = ifelse(type %in% c("loading", "covariance"),
                        sprintf("%s %s %s", lhs, op, rhs),
-                       lhs)) %>%
+                       lhs),
+         type = factor(as.factor(type),
+                       levels = c("loading", "covariance", "intercept",
+                                  "variance"),
+                       ordered = TRUE)) %>%
   dplyr::select(type, link, estimate, se)
 t <- cbind(est[1:(nrow(est)/2),], est[(nrow(est)/2+1):nrow(est),-c(1,2)])
-t[1:34, -1] %>%
+t[1:31, -1] %>%
   kable(booktabs = TRUE,
-        caption = "Standardized coefficient estimates and standard errors for the metric measurement invariance model for REPS to compare Dutch-speaking versus French-speaking respondents.",
+        caption = "Standardized coefficient estimates and standard errors for the configural model for REPS, comparing Dutch-speaking versus French-speaking respondents.",
         col.names = c("", "Estimate", "SE", "Estimate", "SE"),
         digits = 3) %>%
   kableExtra::kable_styling(font_size = 9) %>%
@@ -578,11 +604,11 @@ t[1:34, -1] %>%
   kableExtra::group_rows(start_row = which(t$type == "loading")[1],
                          end_row = max(which(t$type == "loading")),
                          "Loadings") %>%
-  kableExtra::group_rows(start_row = 19,
-                         end_row = 34,
+  kableExtra::group_rows(start_row = which(t$type == "variance")[1],
+                         end_row = max(which(t$type == "variance")),
                          "Variance") %>%
-  kableExtra::group_rows(start_row = 15,
-                         end_row = 18,
+  kableExtra::group_rows(start_row = which(t$type == "covariance")[1],
+                         end_row = max(which(t$type == "covariance")),
                          "Covariance") %>%
   kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
 #which(t$type == "covariance")
@@ -590,21 +616,18 @@ t[1:34, -1] %>%
 ```
 
 ```{r reps-loadings4}
-t[35:51, -1] %>%
+t[32:47, -1] %>%
   kable(booktabs = TRUE,
-        caption = "Standardized coefficient estimates and standard errors for the metric measurement invariance model for REPS to compare Dutch-speaking versus French-speaking respondents (continued).",
+        caption = "Standardized coefficient estimates and standard errors for the configural model for REPS, comparing Dutch-speaking versus French-speaking respondents (continued).",
         col.names = c("", "Estimate", "SE", "Estimate", "SE"),
         digits = 3,
         row.names = FALSE) %>%
   kableExtra::kable_styling(font_size = 9) %>%
   kableExtra::add_header_above(c("", "Dutch speaking" = 2,
                                  "French speaking" = 2)) %>%
-  kableExtra::group_rows(start_row = 2,
-                         end_row = 17,
-                         "Intercept") %>%
   kableExtra::group_rows(start_row = 1,
-                         end_row = 1,
-                         "Covariance") %>%
+                         end_row = 16,
+                         "Intercept") %>%
   kableExtra::add_footnote(label = "* p <.05, ** p <.01, *** p <.001")
 #which(t$type == "covariance")
 #which(t$type == "variance")
@@ -612,14 +635,17 @@ t[35:51, -1] %>%
 
 \clearpage
 
-### Exploratory factor analysis {#repsefa}
+### Exploratory factor analysis for additional statements {#repsefa}
 
 Two additional statements were added to the REPS questions:
 
 - How often do you allow your child to play outside when it is raining?
-- Should your child wash his/her hands after outdoor play?
+- Should your child wash his / her hands after outdoor play?
 
-We use EFA to check whether these might fit any of the original REPS factors. The following two tables show that the two additional statements do not fit well with the original REPS scales, based on EFA with only the complete observations or on the whole data set, using multiple imputation. Highlighted in red we see that play in rain and washing hand indicators are not represented well in the EFA.
+We test whether these two additional items can complement the 14 original REPS items. We first test  whether they fit, using only the complete observations (123 parent who filled in all 16 items).
+Since there are many missing values for the "washing hands" item (it was forgotten in the French translation), we also use multiple imputation to impute all missing values. This will allow us to use the data for all 238 parents in a second EFA. The method of imputation is based on Fully Conditional Specification, where each incomplete variable (item) is imputed by a separate model. As the items are scored on a continuous scale, predictive mean matching is applied, meaning real values are sampled from the data to fill in the blanks. Five imputed dataset are thus created and the covariance matrices of the imputed data sets (needed for the EFA) are combined using Rubin's rules [@rubin2018multiple; @JSSv045i03].
+
+We use EFA to check whether these two additional items might fit any of the original REPS factors. The following Table 26 and 27 show that the two additional statements do not fit well with the original REPS scales, based on EFA with only the complete observations or on the whole data set, using multiple imputation. We see that neither play in rain nor washing hand indicators are represented well in the EFA.
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE, echo = FALSE, eval = TRUE}
@@ -665,18 +691,176 @@ tables_efa_complete$ind_table
 
 
 ```{r reps-efa2}
-tables_atop$ind_table %>%
-  row_spec(15, background = "#D93B3B") %>%
-  row_spec(16, background = "#D93B3B")
+tables_atop$ind_table# %>%
+  # row_spec(15, background = "#D93B3B") %>%
+  # row_spec(16, background = "#D93B3B")
+```
+
+### Exploratory factor analysis with three or four factors {#reps-improve-fit}
+
+In an attempt to improve the fit of the factor model, models with three or four factors were tested.
+
+EFA with three factors suggests to split up REPS_protection_from_injury into two factors. REPS_risk_engagement is still measured by the same 6 statements. One statement “encourage_safe_activities” does not fit with any of the latent factors (see Table \@ref(tab:reps-efa-3)).
+
+EFA with four factors suggests to split up REPS_protection_from_injury into two factors. The item “promote physical challenges” is removed from  REPS_risk_engagement and becomes its own latent factor. One statement, “encourage_safe_activities”, again does not fit with any of the latent factors (see Table \@ref(tab:reps-efa-4)).
+
+Looking at the fit and composite reliability of the model with 3 and 4 factors (Table \@ref(tab:reps-34-fit) and \@ref(tab:reps-34-cr) respectively), we conclude that both fit and reliability did not consistently improve compared to the original model with two factors.
+ 
+```{r include = FALSE, warning = FALSE, message = FALSE}
+#---------------------------------REPS with 3 or 4 factors---------------------#
+df <- data_cfa_reps %>%
+  dplyr::select(-play_in_rain, -wash_hands)
+df <- df[complete.cases(df[, -c(1, 2)]), -c(1, 2)]
+pca <- prcomp(df)
+screeplot(pca, type = "lines")#2-4 factors is best
+covmat <- cov(df)
+cormat <- cor(df)
+fa.parallel(cormat, n.obs = nrow(df))#2 factors is best
+vss(cormat, n.obs = nrow(df)) #-> 2 or 4 is best
+
+#-------------------------------3 factor model---------------------------------#
+efa_3 <- fa(cormat,
+                   covar = FALSE,
+                   3, rotate = "oblimin",
+                   fm = "ml", n.obs = nrow(df))
+model_reps <- "protection_from_injury1 =~ 1*prevention_importance + importance_supervision + limit_dangerous_activities + chance_of_injury
+protection_from_injury2 =~ 1*concerned_injury + concerned_hazards + avoid_risk
+          risk_engagement =~ 1*promote_physical_challenges + physical_limits + explore_new_environments + benefits_outweigh_risk + importance_managing_risk + risk_self_confidence"
+likert_data_reps <- reps_data %>%
+  as.data.frame() %>%
+  mutate(interpretation = response) %>%
+  rbind(c("10-5X-03", "1", "Single response", "wash_hands", "x6_14", NA,
+          NA)) %>% #this line is missing from the data
+  dplyr::select(question_short, interpretation, child_id) %>%
+  mutate(interpretation = as.numeric(interpretation)) %>%#for some reason, this is changed to character
+  dplyr::group_by(child_id, question_short) %>% #There are children whose parents filled it in more than once
+  dplyr::summarise(interpretation = mean(interpretation, na.rm = TRUE),
+                   .groups = "drop") %>%
+  pivot_wider(names_from = question_short, values_from = interpretation,
+              id_cols = child_id) %>%
+  left_join(children) %>%
+  left_join(schools)
+fit_free_reps3 <- cfa(model_reps,
+                     data = likert_data_reps %>%
+                       filter(community != "Dutch speaking.French speaking"),
+                     group = "community")
+fit_sameloadings_reps3 <- cfa(model_reps,
+                             data = likert_data_reps %>%
+                               filter(community !=
+                                        "Dutch speaking.French speaking"),
+                             group = "community",
+                             group.equal = c("loadings"))
+fit_sameloadingsinterc_reps3 <- cfa(model_reps,
+                                   data = likert_data_reps %>%
+                                     filter(community !=
+                                              "Dutch speaking.French speaking"),
+                                   group = "community",
+                                   group.equal = c("loadings", "intercepts"))
+
+anov_reps_metric <- anova(fit_free_reps3, fit_sameloadings_reps3) #metric model cannot be rejected
+anov_reps_strong <- anova(fit_free_reps3, fit_sameloadingsinterc_reps3)
+#interpret the fit:
+interpret(fit_sameloadings_reps3) #they almost all show poor fit
+fitmeasures(fit_sameloadings_reps3, c("chisq", "df", "pvalue", "cfi",
+                                     "tli", "rmsea", "srmr", "AIC",
+                                     "BIC"))
+cr_omega_reps3 <- compRelSEM(fit_sameloadings_reps3, tau.eq = F, obs.var = T)
+cr_alpha_reps3 <- compRelSEM(fit_sameloadings_reps3, tau.eq = T, obs.var = T)
+#-------------------------------4 factor model---------------------------------#
+efa_4 <- fa(cormat,
+                   covar = FALSE,
+                   4, rotate = "oblimin",
+                   fm = "ml", n.obs = nrow(df))
+model_reps <- "protection_from_injury1 =~ 1*prevention_importance + importance_supervision + limit_dangerous_activities + chance_of_injury
+protection_from_injury2 =~ 1*concerned_injury + concerned_hazards + avoid_risk
+          risk_engagement =~ 1*physical_limits + explore_new_environments + benefits_outweigh_risk + importance_managing_risk + risk_self_confidence
+risk_engagement2 =~ 1*promote_physical_challenges"
+fit_free_reps4 <- cfa(model_reps,
+                     data = likert_data_reps %>%
+                       filter(community != "Dutch speaking.French speaking"),
+                     group = "community")
+fit_sameloadings_reps4 <- cfa(model_reps,
+                             data = likert_data_reps %>%
+                               filter(community !=
+                                        "Dutch speaking.French speaking"),
+                             group = "community",
+                             group.equal = c("loadings"))
+fit_sameloadingsinterc_reps4 <- cfa(model_reps,
+                                   data = likert_data_reps %>%
+                                     filter(community !=
+                                              "Dutch speaking.French speaking"),
+                                   group = "community",
+                                   group.equal = c("loadings", "intercepts"))
+
+anov_reps_metric <- anova(fit_free_reps4, fit_sameloadings_reps4) #metric model cannot be rejected
+anov_reps_strong <- anova(fit_free_reps4, fit_sameloadingsinterc_reps4)
+#interpret the fit:
+interpret(fit_sameloadings_reps4) #they all show poor fit
+fitmeasures(fit_sameloadings_reps4, c("chisq", "df", "pvalue", "cfi",
+                                     "tli", "rmsea", "srmr", "AIC",
+                                     "BIC"))
+cr_omega_reps4 <- compRelSEM(fit_sameloadings_reps4, tau.eq = F, obs.var = T)
+cr_alpha_reps4 <- compRelSEM(fit_sameloadings_reps4, tau.eq = T, obs.var = T)
+```
+
+```{r reps-efa-3}
+tables_reps_3 <-
+  fa_table(efa_3,
+           fnames = c("risk engagement", "protection from injury1", "protection from injury2"),
+           title = "Results for the EFA of the REPS scale, using oblique rotation and three factors."
+  )
+tables_reps_3$ind_table %>%
+  row_spec(13, background = "#D93B3B") %>%
+  kableExtra::column_spec(1, width = "1.2in") %>%
+  kableExtra::column_spec(2:7, width = "0.6in")
+```
+
+```{r reps-efa-4}
+tables_reps_4 <-
+  fa_table(efa_4,
+           fnames = c("risk engagement1", "protection from injury1", "protection from injury2", "risk engagement2"),
+           title = "Results for the EFA of the REPS scale, using oblique rotation and four factors."
+  )
+tables_reps_4$ind_table %>%
+  row_spec(5, background = "#D93B3B") %>%
+  kableExtra::column_spec(1, width = "1.2in") %>%
+  kableExtra::column_spec(2:7, width = "0.6in")
+```
+
+```{r reps-34-fit}
+data.frame(
+  factor3 = fitmeasures(fit_sameloadings_reps3,
+                        c("chisq", "df", "pvalue", "cfi", "tli", "rmsea",
+                          "srmr", "AIC", "BIC")),
+  factor4 = fitmeasures(fit_sameloadings_reps4,
+                        c("chisq", "df", "pvalue", "cfi", "tli", "rmsea",
+                          "srmr", "AIC", "BIC"))
+) %>%
+  dplyr::mutate_if(is.numeric, avoid_scientif_notation) %>%
+  kable(booktabs = TRUE,
+        col.names = c("3-factor model", "4-factor model"),
+        caption = "Fit measures for the REPS models with three or four factors.") %>%
+  kableExtra::kable_styling()
+```
+
+```{r reps-34-cr}
+cr_omega_reps3 %>%
+  rbind(cr_omega_reps4) %>%
+  kable(booktabs = TRUE,
+        col.names = c("", "protection_from_injury1", "protection_from_injury2", "risk_engagement1"),
+        caption = "Composite reliability (omega) for the REPS models with three or four factors.") %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::group_rows("3-factor model", start_row = 1, end_row = 2) %>%
+  kableExtra::group_rows("4-factor model", start_row = 3, end_row = 4)
 ```
 
 \clearpage
 
 ## Outdoor play frequency
 
-The parents' questionnaire included questions on how often their child actually plays outside or how much they spend indoors, doing homework, or behind a (tv/tablet/computer) screen.
+The parents' questionnaire included questions on how often their child actually plays outside or how much they spend indoors, doing homework, or behind a (tv / tablet / computer) screen.
 
-```{r opp1, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the questions on how many days per week their child participate in...", fig.width = 6.5, fig.height = 4}
+```{r opp1, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the questions on how many days per week their child participates in...", fig.width = 6.5, fig.height = 4}
 #####-------------------APPENDIX: OUTDOOR PLAY FREQUENCY-------------------#####
 likert_data_atop <- atop_data_p1 %>%
   as.data.frame() %>%
@@ -775,7 +959,7 @@ p_nl + p_fr + plot_layout(guides = "collect") &
         text = element_text(size = 9))
 ```
 
-```{r opp3, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the questions 'How many hours does your child spend on ... on an average weekday/weekend day?'", fig.width = 6.5, fig.height = 4}
+```{r opp3, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE, fig.cap = "Descriptive statistics for Dutch-speaking (left) and French-speaking (right) parents for the questions 'How many hours does your child spend on ... on an average weekday / weekend day?'", fig.width = 6.5, fig.height = 4}
 likert_data_atop <- atop_data_p3 %>%
   as.data.frame() %>%
   left_join(children) %>%
@@ -843,12 +1027,12 @@ p_nl + p_fr + plot_layout(guides = "collect") &
 
 ### EFA for dimension reduction {#efa1}
 
-We employ EFA for dimension reduction. We will analyse statement that require a continuous or discrete answer separately. Oblique rotation will be used in both factor analyses.
+We employ EFA for dimension reduction. We analyse statements with a continuous or discrete answer separately. Oblique rotation will be used in both factor analyses.
 
-Firstly the questions of Figure \@ref(fig:opp1) and \@ref(fig:opp3) (8 statements) will be converted to continuous variables (signifying the number of days per week or the number of hours per day). 
-Using visual aids such as a scree plot and parallel analysis [@horn1965rationale], a model with 4 factors was chosen. Table \@ref(efa-opp1) shows the factor loadings, communality, uniqueness and complexity. As can be seen in red, one statement does not fit well with any of the factors ("how many days per week does your child participate in other organized or structured outdoor activities (e.g. scouts, circus, ...)?"). This is not entirely surprising since there is very little variance in the answers; almost everyone answered 0 or 1 days per week. Each of the four underlying factors is assigned an appropriate name:
+Firstly the questions of Figure \@ref(fig:opp1) and \@ref(fig:opp3) (8 statements) are converted to continuous variables (signifying the number of days per week or the number of hours per day). 
+Using visual aids such as a scree plot and parallel analysis [@horn1965rationale], a model with 4 factors was chosen. Table 32 shows the factor loadings, communality, uniqueness and complexity. As can be seen in red, one statement does not fit well with any of the factors ("how many days per week does your child participate in other organized or structured outdoor activities (e.g. scouts, circus, ...)?"). This is not entirely surprising since there is very little variance in the answers; almost everyone answered 0 or 1 days per week. Each of the four underlying factors is assigned an appropriate name:
 
-- "screentime" is high if the child spends a lot of time in from of a computer/tv/tablet screen.
+- "screentime" is high if the child spends a lot of time in from of a computer / tv / tablet screen.
 - "indoor_activities" is high if the child spends a lot of time on organized, indoor sports.
 - "homework" is high if the child spends a lot of time on homework.
 - "organized_sports" is high if the child spends a lot of time on organized, outdoor sports (either on natural or artificial surface).
@@ -866,10 +1050,10 @@ tables_atop_p_mixed$ind_table %>%
   kableExtra::column_spec(2:8, width = "0.55in")
 ```
 
-Secondly, the questions of Figure \@ref(fig:opp2) (14 statements) are converted to binary variables. As there are very few parents who answered "maybe", we consider this to be a "yes" answer and all responses are recoded to one for "yes" and zero for "no". As such, a tetrachoric correlation matrix is used for the EFA. Using visual aids such as a scree plot and parallel analysis [@horn1965rationale], a model with 5 factors was chosen. Table \@ref(efa-opp2) shows the factor loadings, communality, uniqueness and complexity. Highlighted in red, we see that climbing_trees, building_camps, and stream_pond indicators are not represented well in the EFA because they load diffusely over multiple factors. Each of the five underlying factors is assigned an appropriate name:
+Secondly, the questions of Figure \@ref(fig:opp2) (14 statements) are converted to binary variables. As there are very few parents who answered "maybe", we consider this to be a "yes" answer and all responses are recoded to one for "yes" and zero for "no". As such, a tetrachoric correlation matrix is used for the EFA. Using visual aids such as a scree plot and parallel analysis [@horn1965rationale], a model with 5 factors was chosen. Table 33 shows the factor loadings, communality, uniqueness and complexity. Highlighted in red, we see that climbing_trees, building_camps, and stream_pond indicators are not represented well in the EFA because they load diffusely over multiple factors. However, this problem persists, even if the number of factors is increased or reduced. Each of the five underlying factors is assigned an appropriate name:
 
 - "natural_play" is high if the child typically play in nature using branches to build camps, climbing trees, etc.
-- "semi_natural_play" is high if the child typically plays in water but also for less nature-oriented outdoor activities such as biking and or playing at a playground.
+- "semi_natural_play" is high if the child typically plays in water but also for less nature-oriented outdoor activities such as biking or playing at a playground.
 - "made_up_games_lingering" is high if the child typically likes to chill or linger outside or play made-up games.
 - "hide_and_seek" is high if the child likes to play hide and seek.
 - "unorganized sports" is high is the child typically plays sports such as football or basketball with neighborhood kids in stead of with a sports organization.
@@ -933,14 +1117,14 @@ p_nl + p_fr + plot_layout(guides = "collect") &
 
 ### EFA for dimension reduction {#efa2}
 
-As with the questions on indoor and outdoor activities (appendix \@ref(efa2)), we use EFA with oblique rotation for dimension reduction on the independent mobility data. 
+As with the questions on indoor and outdoor activities (appendix \@ref(efa1)), we use EFA with oblique rotation for dimension reduction on the independent mobility data. 
 
-As there are very few parents who answered "maybe", we consider this to be a "yes" answer and all responses are recoded to one for "yes" and zero for "no". such that the data can be analysed as binary data. As such, a tetrachoric correlation matrix is used for the EFA. Using visual aids such as a scree plot and parallel analysis [@horn1965rationale], a model with 5 factors was chosen. Table \@ref(efa-im) shows the factor loadings, communality, uniqueness and complexity. Highlighted in red, we see that the cycle_main_roads indicator is not represented well in the EFA because it loads diffusely over multiple factors. Each of the fout underlying factors is assigned an appropriate name:
+As there are very few parents who answered "maybe", we consider this to be a "yes" answer and all responses are recoded to one for "yes" and zero for "no". As such, the data can be analysed as binary data and a tetrachoric correlation matrix is used for the EFA. Using visual aids such as a scree plot and parallel analysis [@horn1965rationale], a model with 5 factors was chosen. Table 34 shows the factor loadings, communality, uniqueness and complexity. Highlighted in red, we see that the cycle_main_roads indicator is not represented well in the EFA because it loads diffusely over multiple factors. Each of the four underlying factors is assigned an appropriate name:
 
 - "explore" is high if the parents allow the child to explore their neighborhood alone or with friends.
-- "engage with traffic" is high if the parents allow the child to cross or cycle on main roads, and if their can walk or bike to school or other places alone.
+- "engage with traffic" is high if the parents allow the child to cross main roads or cycle on main roads, and if they can walk or bike to school or other places alone.
 - "after dark", is high if the parents allow the child to go out after dark alone.
-- "public transport" if high if the parents allow the child to use public transport alone.
+- "public transport" is high if the parents allow the child to use public transport alone.
 
 ```{r efa-im}
 tables_im_data2 <-
@@ -948,7 +1132,7 @@ tables_im_data2 <-
            fnames = c("explore", "engage with traffic",
                       "after dark",
                       "public transport"),
-           title = "Results for the EFA and oblique rotation and four factorsfor the independent mobility questions."
+           title = "Results for the EFA and oblique rotation and four factors for the independent mobility questions."
   )
 tables_im_data2$ind_table %>%
   row_spec(6, background = "#D93B3B") %>%

@@ -200,7 +200,7 @@ Using k-means clustering, the schools are divided into two groups; those within 
 
 Figure \@ref(fig:eda-school-greenery) shows the number of schools and children in each quadrant. Overall, each quadrant is quite well represented. 
 
-```{r eda-school-greenery, fig.cap="Number of schools (left) and number of children with a high or low naturalness and greenness.", message=FALSE, warning=FALSE, fig.height = 4}
+```{r eda-school-greenery, fig.cap="Number of schools (left) and number of children (right) with a high or low naturalness and greenness around and within the school.", message=FALSE, warning=FALSE, fig.height = 4}
 p1 <- schools %>%
   group_by(landscape_type, school_context) %>%
   summarize(n = n()) %>%
@@ -410,15 +410,16 @@ cr_omega_atop <- compRelSEM(fit_sameloadings_atop, tau.eq = F, obs.var = T)
 cr_alpha_atop <- compRelSEM(fit_sameloadings_atop, tau.eq = T, obs.var = T)
 ```
 
-@beyer2015development prescribes that the ATOP scale for children has two sub-scales: ATOP-benefits and ATOP-fears (see Table \@ref(tab:atop-translation-kids) in the appendix). We apply multi-group Confirmatory Factor Analysis (CFA) and we hypothesize that the `r length(unique(atop_data$question_code))` items can be explained by these two common factors. 
-As described in the methodology, we apply a grouping based on the language of the survey (French of Dutch).
+@beyer2015development prescribes that the ATOP scale for children has two sub-scales: ATOP_benefits and ATOP_fears (see Table \@ref(tab:atop-translation-kids) in the appendix). We apply multi-group Confirmatory Factor Analysis (CFA) and we hypothesize that the `r length(unique(atop_data$question_code))` items can be explained by these two common factors. 
+As described in the methodology, we apply a grouping based on the language of the survey (French or Dutch).
 
-Correlated error terms for two pairs of items were added to the model of @beyer2015development to improve the fit: between the statements *calm_down* and *learn_new_things* and between *calm_down* and *feeling_free*.
+Correlated error terms for two pairs of items were added to the model of @beyer2015development to improve the fit: (1) between the statements *calm_down* and *learn_new_things* and (2) between *calm_down* and *feeling_free*.
 We hypothesize that calming down and feeling free are two similar emotions and, in contrast, learning new things typically requires you to be alert instead of calm.
 Tables \@ref(tab:atop-loadings) and \@ref(tab:atop-loadings2)  in the appendix show the raw and standardized model estimates.
+It can be seen that there is indeed a statistically significant positive correlation between *calm_down* and *feeling_free* for the French-speaking group. There is a significant negative correlation between *calm_down* and *learn_new_things* for the Dutch-speaking group.
 
 Table \@ref(tab:atop-cfa-fit) shows the fit for the configural model, a model that assumes metric measurement invariance (equal loadings across the groups), and a model that assumes strong measurement invariance (equal loadings and intercepts across groups).
-Measurement invariance analysis showed that a model that assumes metric measurement invariance cannot be rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_atop_metric[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_atop_metric[2,"Df diff"])`, $p=$ `r round(anov_atop_metric[2,"Pr(>Chisq)"], 3)`) while a model that assumes strong measurement invariance is rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_atop_strong[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_atop_strong[2,"Df diff"])`, $p=$ `r round(anov_atop_strong[2,"Pr(>Chisq)"], 3)`).
+Measurement invariance analysis shows that a model that assumes metric measurement invariance cannot be rejected using a Chi-Squared difference test ($\chi^2$ = `r round(anov_atop_metric[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_atop_metric[2,"Df diff"])`, $p=$ `r round(anov_atop_metric[2,"Pr(>Chisq)"], 3)`) while a model that assumes strong measurement invariance is rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_atop_strong[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_atop_strong[2,"Df diff"])`, $p=$ `r round(anov_atop_strong[2,"Pr(>Chisq)"], 3)`).
 We therefore select the model with metric measurement invariance as the preferred model and all fit measures, except the Chi-square test, indicate good fit (according to @byrne1994structural).
 
 The composite reliability ($\omega$) for this model is `r round(cr_omega_atop$ATOP_benefits[1], 3)` and `r round(cr_omega_atop$ATOP_benefits[2], 3)` for ATOP_benefits for the French and Dutch version, respectively. 
@@ -472,7 +473,7 @@ get_schema(package = baseball_package,
 
 Among the `r nrow(children)` children that were selected for the study, `r length(unique(nc_data$child_id))` children filled in the NC questions. Table \@ref(tab:nc-descriptives) shows the descriptive statistics for NC scale items in all children. While the original article suggested to use a 7-point likert scale, a 5-point likert scale was used for brevity [@hunt2017monitor]. 
 
-In preliminary tests of the survey with a few children, some questions were not clear enough. They were then clarified with some more detail between brackets (see Table \@ref(tab:nc-translation) in the appendix)
+In preliminary tests of the survey with a few children, some questions were not clear enough. They were then clarified with some more details between brackets (see Table \@ref(tab:nc-translation) in the appendix)
 
 Figure \@ref(fig:nc-descriptives2) in the appendix shows the descriptive statistics for Dutch-speaking and French-speaking children separately (children in bilingual schools are included in both). The results are quite similar, though Dutch-speaking children were more outspoken (they tend to choose the "I don't know" option less). Dutch-speaking children also agree more with the statement that nature is very beautiful and less with the statement on feeling part of nature.
 
@@ -555,17 +556,16 @@ cr_omega_nc <- compRelSEM(fit_sameloadings_nc, tau.eq = F, obs.var = T)
 cr_alpha_nc <- compRelSEM(fit_sameloadings_nc, tau.eq = T, obs.var = T)
 ```
 
-In total, `r nrow(likert_data_nc)` out of the `r nrow(children)` children filled in all of the NC questions and can therefore be analyzed further.
 We apply multi-group CFA and we hypothesize that the `r length(unique(nc_data$question_code))` items can be explained by one common factor (Nature Connectedness (NC)).
 Correlated error terms were included between one pair of statements to improve fit: "I always find nature very beautiful" and "I always treat nature with respect".
 These two statements, in contrast to the other four, do not pertain to how nature makes the child feel but to the opinion of the child on nature itself.
 The language of the survey was chosen as the grouping for the multi-group CFA.
-Table \@ref(tab:nc-loadings) and \@ref(tab:nc-loadings2) in the appendix show the raw and standardized model estimates.
+Table \@ref(tab:nc-loadings) and \@ref(tab:nc-loadings2) in the appendix show the raw and standardized model estimates. It can be seen that "I always find nature very beautiful" and "I always treat nature with respect" indeed are positively correlated in the French-speaking group.
 
 
 Table \@ref(tab:nc-cfa-fit) shows the fit for the configural model, a model that assumes metric measurement invariance (equal loadings across the groups), and a model that assumes strong measurement invariance (equal loadings and intercepts across groups).
-Measurement invariance analysis showed that a model that assumes metric measurement invariance cannot be rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_nc_metric[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_nc_metric[2,"Df diff"])`, $p=$ `r round(anov_nc_metric[2,"Pr(>Chisq)"], 3)`) while a model that assumes strong measurement invariance is rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_nc_strong[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_nc_strong[2,"Df diff"])`, $p=$ `r round(anov_nc_strong[2,"Pr(>Chisq)"], 3)`).
-We therefore select the model with metric measurement invariance as the preferred model and all fit measures indicate good fit (according to @byrne1994structural, see Table \@ref(tab:nc-cfa-fit)).
+Measurement invariance analysis shows that a model that assumes metric measurement invariance cannot be rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_nc_metric[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_nc_metric[2,"Df diff"])`, $p=$ `r round(anov_nc_metric[2,"Pr(>Chisq)"], 3)`) while a model that assumes strong measurement invariance is rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_nc_strong[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_nc_strong[2,"Df diff"])`, $p=$ `r round(anov_nc_strong[2,"Pr(>Chisq)"], 3)`).
+We therefore select the model with metric measurement invariance as the preferred model and all fit measures indicate very good fit (according to @byrne1994structural, see Table \@ref(tab:nc-cfa-fit)).
 
 The composite reliability ($\omega$) for this model is `r round(cr_omega_nc[2, 2], 3)` and `r round(cr_omega_nc[1, 2], 3)` for the French and Dutch version, respectively. For the original English scale, a Cronbach Alpha of 0.899 was reported in children [@hunt2017monitor]. For comparison, our model attains a Cronbach Alpha of `r round(cr_alpha_nc[2, 2], 3)` and `r round(cr_alpha_nc[1, 2], 3)` for the French and Dutch version, respectively. This is slightly worse but still indicates sufficiently good reliability.
 
@@ -644,7 +644,7 @@ reps_key <-
 The Risk Engagement and Protection Survey (REPS) was based on @olsen2018risk. This scale was also supplemented by two additional questions:
 
 * "How often do you allow your child to play outside when it is raining?", which was based on a question in @jelleyman2019cross.
-* "Should your child wash his/her hands after outdoor play?", which was added since washing hands often might influence the effect of outdoor play on the microbiome.
+* "Should your child wash his / her hands after outdoor play?", which was added since washing hands often might influence the effect of outdoor play on the microbiome.
 
 Figure \@ref(fig:reps-descriptives2) in the appendix shows that Dutch and French-speaking parents seem to answer slightly differently. Dutch-speaking parents answered more positive, on average, on the "risk engagement" statements (statement 1 to 6 in Figure \@ref(fig:reps-descriptives2)) and more negative on the "protection from injury" statements (statement 7 to 14 in Figure \@ref(fig:reps-descriptives2)). 
 
@@ -656,9 +656,9 @@ For REPS, it is hypothesized that there are two underlying factors: "Protection 
 ```{r reps-descriptives, message=FALSE, warning=FALSE, include=TRUE, echo = FALSE}
 nb <- length(unique(reps_data$child_id))
 reps_data %>%
-  full_join(expand_grid(
-    child_id = unique(reps_data$child_id),
-    question_short = unique(reps_data$question_short))) %>%
+  # full_join(expand_grid(
+  #   child_id = unique(reps_data$child_id),
+  #   question_short = unique(reps_data$question_short))) %>%
   group_by(question_short, response) %>%
   summarize(n = n()) %>%
   ungroup() %>%
@@ -686,10 +686,12 @@ answer_more_than_once <- reps_data %>%
   dplyr::filter(n > 1L)
 #reshape the data into the proper format
 data_cfa_reps <- reps_data %>%
-  full_join(expand_grid(#add a row for the missing "wash hands" data
-    child_id = unique(reps_data$child_id),
-    question_short = unique(reps_data$question_short))) %>%
-    dplyr::select(child_id, replicate_id, question_short, response) %>%
+  # full_join(expand_grid(#add a row for the missing "wash hands" data
+  #   child_id = unique(reps_data$child_id),
+  #   question_short = unique(reps_data$question_short))) %>%
+  #   dplyr::select(child_id, replicate_id, question_short, response) %>%
+  group_by(child_id, replicate_id, question_short, response) %>%
+  summarize(response = first(response)) %>%
   pivot_wider(id_cols = c(child_id, replicate_id), names_from = question_short,
                values_from = response) %>%
    dplyr::select(child_id, replicate_id, reps_key$question_short)
@@ -736,11 +738,11 @@ tables_atop$ind_table
 # risk of injury)." also does not fit well with either.
 ```
 
-Due to a mistake, the question on washing hands ("Should your child wash his/her hands after outdoor play?) was not included in the French survey (last column and row in Table \@ref(tab:reps-descriptives)).
+Due to a mistake, the question on washing hands ("Should your child wash his / her hands after outdoor play?) was not included in the French survey (last column and row in Table \@ref(tab:reps-descriptives)).
 We therefore test in two separate EFAs whether the two additional statements about playing in the rain and washing hands can improve the REPS scale.
 Firstly, we apply EFA using only the data of parents who filled in all REPS questions and the two additional statements on washing hands and playing in the rain (`r nrow(df)` parents).
-Secondly, we use the *mifa* package to execute an EFA with multiple imputation in which case we can use the data of `r nrow(mi$mids$data)` parents.
-Both of these analyses show that the statements on playing in the rain or washing hands do not fit well with the REPS factors and are therefore ignored in the CFA that follows (see appendix \@ref(repsefa)). Additionally, the EFA with oblique rotation confirms there are two factors in the data (one for protection from injury and one for risk engagement), as we expected.
+Secondly, we use the mifa package to execute an EFA with multiple imputation in which case we can use the data of all parents (details in appendix \@ref(repsefa)).
+Both of these analyses show that the statements on playing in the rain or washing hands do not fit well with the REPS subscales and are therefore ignored in the CFA that follows (see appendix \@ref(repsefa)). Additionally, the EFA's confirm that there are two factors in the data (one for protection from injury and one for risk engagement), as we expected.
 
 Multigroup CFA was performed  with a grouping based on the language of the survey. 
 
@@ -835,7 +837,7 @@ cr_alpha_reps <- compRelSEM(fit_sameloadings_reps, tau.eq = T, obs.var = T)
 
 Tables \@ref(tab:reps-loadings) to \@ref(tab:reps-loadings4) in the appendix show the raw and standardized coefficient estimates.
 Table \@ref(tab:reps-cfa-fit) shows the fit for the configural model, a model that assumes metric measurement invariance (equal loadings across the groups), and a model that assumes strong measurement invariance (equal loadings and intercepts across groups).
-Measurement invariance analysis showed that a model that assumes metric measurement invariance can be rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_reps_metric[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_reps_metric[2,"Df diff"])`, $p=$ `r round(anov_reps_metric[2,"Pr(>Chisq)"], 3)`) a model that assumes strong measurement invariance is also rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_reps_strong[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_reps_strong[2,"Df diff"])`, $p=$ `r round(anov_reps_strong[2,"Pr(>Chisq)"], 3)`).
+Measurement invariance analysis shows that a model that assumes metric measurement invariance can be rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_reps_metric[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_reps_metric[2,"Df diff"])`, $p=$ `r round(anov_reps_metric[2,"Pr(>Chisq)"], 3)`) a model that assumes strong measurement invariance is also rejected using a Chi-Squared Difference Test ($\chi^2$ = `r round(anov_reps_strong[2,"Chisq diff"], 3)`, $\mathrm{df} =$ `r round(anov_reps_strong[2,"Df diff"])`, $p=$ `r round(anov_reps_strong[2,"Pr(>Chisq)"], 3)`).
 We therefore select the model with configural measurement invariance as the preferred model. However, all fit measures indicate poor fit (according to @byrne1994structural).
 
 The composite reliability ($\omega$) for this model is `r round(cr_omega_reps$protection_from_injury[2], 3)` and `r round(cr_omega_reps$protection_from_injury[1], 3)` for "protection from injury" for the French and Dutch version, respectively. 
@@ -844,7 +846,7 @@ We therefore need to conclude that the internal consistency is not acceptable, e
 Cronbach Alpha values indicate a reasonable fit for the Dutch translation (`r round(cr_alpha_reps$protection_from_injury[1], 3)` for protection from injury and `r round(cr_alpha_reps$risk_engagement[1], 3)` for risk engagement).
 But the French translation is still not up to par (`r round(cr_alpha_reps$protection_from_injury[2], 3)` for protection from injury and `r round(cr_alpha_reps$risk_engagement[2], 3)` for risk engagement).
 
-
+In an attempt to improve the fit of the model, EFA was tested with three or four factors (see appendix \@ref(reps-improve-fit)). Neither fit nor composite reliability improved when allowing for more than two factors.
 ```{r reps-cfa-fit}
 tab <- fitmeasures(fit_free_reps, c("chisq", "df", "pvalue", "cfi", "tli",
                                     "rmsea", "srmr", "AIC", "BIC")) %>%
@@ -1294,6 +1296,7 @@ To improve response rate, these questions were left out in a shortened version o
 Therefore, the number of responses is greatly reduced and we cannot be sure that the people who filled in the full survey represent an unbiased sample (Table \@ref(tab:atop-p-response-difference)). We therefore need to be careful when interpreting the results.
 
 Table \@ref(tab:im-descriptives) shows the descriptive statistics for the eight questions on independent mobility and Figure \@ref(fig:im-nlvsfr) in the appendix shows the descriptive statistics for the Dutch-speaking and French-speaking parents separately.
+As in the previous section, we first perform dimension reduction, using EFA.
 Appendix \@ref(efa2) details the EFA for the independent mobility questions. We uncovered 4 latent factors in the EFA.
 
 
@@ -1416,14 +1419,14 @@ To answer our overarching research questions 4, 5, and 6, we will use a Structur
 
 As the translated REPS scale is currently deemed unreliable and the fit was not good,  we will not use it in the SEM. This means that we will not be able to answer research question 4 which aimed to analyse whether there is a connection between the parents' REPS and the children's ATOP. However, leaving REPS out of the model will allow us to work with much more data since the response rate for the REPS questions was very low (around 50%).
 
-We include the ATOP and NC scales with the following additional covariances between some of the statements as specified in section \@ref(scale-questions). Since we want to know how the three latent factors are relate to each other, we include covariances between the three factors. Lastly, we add a regression for each latent factor with the following exogenous variables as covariates:
+We include the ATOP and NC scales with the following additional covariances between some of the statements as specified in section \@ref(scale-questions). Since we want to know how the three latent factors are related to each other, we include covariances between the three factors. Lastly, we add a regression for each latent factor with the following exogenous variables as covariates:
 
-- The gender of the child.
-- The socio-economic status of the child (see section \@ref(socio-economic-status)). We include the child-level SES, if available. Otherwise, we use the school-level SES as a proxy to avoid too much missingness.
-- The school context / type of playground as a binary variable (low versus high greenness, see section \@ref(school-environment)).
-- The landscape type around the school as a binary variable (low versus high naturalness, see section \@ref(school-environment)).
+- The gender of the child (1 for male, 0 for female).
+- The socio-economic status of the child as a continuous variable (see section \@ref(socio-economic-status)). We include the child-level SES, if available. Otherwise, we use the school-level SES as a proxy to avoid too much missingness.
+- The school context / type of playground as a binary variable (low (coded as 0) versus high greenness (coded as 1), see section \@ref(school-environment)).
+- The landscape type around the school as a binary variable (low (coded as 0) versus high naturalness (coded as 1), see section \@ref(school-environment)).
 
-The B@seball project members also suggested to add air pollution (based on black carbon levels, nitrogen oxide levels, and particulate matter) and an interaction between the school and landscape environment. Since the multi-group analysis did not fit well, the language (Dutch versus French) was also tested as a possible covariate. Adding any of these covariates to the regression analyses, however, made the fit worse and did not yield any important additional insights.
+The B@seball project members also suggested to add air pollution (based on black carbon levels, nitrogen oxide levels, and particulate matter) and an interaction between the school and landscape environment. A multi-group SEM with a grouping by language (Dutch versus French) was also tested but yielded worse fit and reliability. We therefore will stick to a "simple" SEM for the whole data set. Since the multi-group analysis did not fit well, the language (Dutch versus French) was also tested as a possible covariate. Adding any of these covariates to the regression analyses, however, made the fit worse and did not yield any important additional insights.
 
 
 ```{r fit-sem, warning = FALSE, message = FALSE, include = FALSE}
@@ -1499,7 +1502,7 @@ cr_omega_sem <- compRelSEM(sem_output, tau.eq = F, obs.var = T)
 cr_alpha_sem <- compRelSEM(sem_output, tau.eq = T, obs.var = T)
 ```
 
-A multi-group SEM with a grouping by language (Dutch versus French) was also tested but yielded worse fit and reliability. We therefore will stick to a "simple" SEM for the whole data set. In total, `r sem_sum$data$nobs` observations with complete data were used in the SEM.
+In total, `r sem_sum$data$nobs` observations with complete data were used in the SEM.
 
 Tables \@ref(tab:sem-results) and \@ref(tab:sem-results-std) in the appendix show the full model results, both standardized and unstandardized. Figure \@ref(fig:sem-viz) shows the model results visually, including the standardized parameter estimates. Table \@ref(tab:sem-fit) shows that the fit of the model is overall satisfactory though there is room for improvement since the p-value of the Chi-square test is significant and the TLI could be better as well.
 
@@ -1539,15 +1542,16 @@ semPaths(sem_output, "Standardized", "Standardized",
 ```
 
 
-The composite reliability ($\omega$) is `r round(unname(cr_omega_sem[1]), 3)` for ATOP_benefits, `r round(unname(cr_omega_sem[2]), 3)` for ATOP_fears, and `r round(unname(cr_omega_sem[3]), 3)` for NC. Cronbach Alpha is `r round(unname(cr_alpha_sem[1]), 3)` for ATOP_benefits, `r round(unname(cr_alpha_sem[2]), 3)` for ATOP_fears, and `r round(unname(cr_alpha_sem[3]), 3)` for NC. So, in line with the earlier reliability results in the CFA, the reliability of ATOP_fears is not satisfactory. We already concluded in section  \@ref(conclusion-on-the-scale-questions) that this latent factor may not be valid or reliable and that the statements should be reviewed.
+<!-- The composite reliability ($\omega$) is `r round(unname(cr_omega_sem[1]), 3)` for ATOP_benefits, `r round(unname(cr_omega_sem[2]), 3)` for ATOP_fears, and `r round(unname(cr_omega_sem[3]), 3)` for NC. Cronbach Alpha is `r round(unname(cr_alpha_sem[1]), 3)` for ATOP_benefits, `r round(unname(cr_alpha_sem[2]), 3)` for ATOP_fears, and `r round(unname(cr_alpha_sem[3]), 3)` for NC. So, in line with the earlier reliability results in the CFA, the reliability of ATOP_fears is not satisfactory. We already concluded in section  \@ref(conclusion-on-the-scale-questions) that this latent factor may not be valid or reliable and that the statements should be reviewed. -->
 
-Looking at the SEM results, however, some interesting conclusions can be drawn. Firstly, the only statistically significant correlation between the three latent factors is a positive correlation between ATOP_benefits and NC (`r round(sem_sum_std %>% filter(lhs =="ATOP_benefits", rhs== "NC") %>% dplyr::pull(est), 2)`, p-value `r round(sem_sum_std %>% filter(lhs =="ATOP_benefits", rhs== "NC") %>% dplyr::pull(pvalue), 2)`).
+Looking at the SEM results, some interesting conclusions can be drawn. Firstly, the only statistically significant correlation between the three latent factors is a positive correlation between ATOP_benefits and NC (`r round(sem_sum_std %>% filter(lhs =="ATOP_benefits", rhs== "NC") %>% dplyr::pull(est), 2)`, p-value `r round(sem_sum_std %>% filter(lhs =="ATOP_benefits", rhs== "NC") %>% dplyr::pull(pvalue), 2)`).
 This indicates that children with a higher NC also tend to have a positive ATOP_benefits score.
 Secondly, we can assess each of the three regression models. The unstandardized  parameter estimates, standard deviations, and statistical significance are highlighted in Table \@ref(tab:sem-regression) (these can also be found in Table \@ref(tab:sem-results) in the appendix).
-It can be seen that boys tend to have lower NC and ATOP_benefits but higher ATOP_fears.
+It can be seen that boys tend to have lower ATOP_benefits but higher ATOP_fears.
 A greener landscape around the school positively influences both NC and ATOP_benefits.
 The school context does not have much influence although a greener playground may impact ATOP_benefits slightly negatively.
-Finally, higher SES positively influences all of the latent factors.
+This is not in line with the B@seball project's hypotheses.
+Finally, higher SES positively influences all of the latent factors. This is largely in line with a recent study that also found a positive link between SES and environmental attitude in children in Germany [@bucht2024environmental].
 
 
 ```{r sem-regression, warning = FALSE, message = FALSE}

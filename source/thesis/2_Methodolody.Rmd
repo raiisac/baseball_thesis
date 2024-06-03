@@ -18,8 +18,6 @@ Socio-Economic Status (SES), cultural background, and their living environment w
 Next, the parents were questioned on possible allergies or chronic illnesses that the child might have.
 The REPS questions are included in the parents' survey.
 
-The guardians' questionnaire contained only the REPS questions and some additional questions on their age, gender, and how often they supervise while the children are on a play break. 
-
 Table \@ref(tab:atop-translation-kids), \@ref(tab:atop-translation), and \@ref(tab:reps-translation) in appendix \@ref(translate) show the original English scale questions and the translation in both Dutch and French. 
 
 ## Survey distribution and response
@@ -34,9 +32,9 @@ In an attempt to increase the response rate in parents, the parent's survey was 
 
 ## Data Cleaning en reproducibility
 
-All data cleaning wass performed in R, mainly using the [\text{\underline{tidyverse package}}](https://www.tidyverse.org/packages/) [@wickham2019welcome]. 
+All data cleaning was performed in R, mainly using the [\text{\underline{tidyverse package}}](https://www.tidyverse.org/packages/) [@wickham2019welcome]. 
 
-The B@seball researchers published cleaned data packages that can be easily read by researchers, including the meta-data, using R's [\text{\underline{frictionless package}}](https://cran.r-project.org/web/packages/frictionless/vignettes/frictionless.html). For now, this data is confidential but this should be openly and freely available for all researchers in the future.
+The B@seball researchers published cleaned data packages that can be easily read by researchers, including the meta-data, using R's [\text{\underline{frictionless package}}](https://cran.r-project.org/web/packages/frictionless/vignettes/frictionless.html). This data was confidential but is now openly and freely available for all researchers [@van_calster_2024_10527033].
 
 This report was written as an R bookdown document such that code and text is interwoven in RMarkDown files. Github is used for version control and all code is accessible through the github repository [@carmen2024].
 
@@ -49,26 +47,27 @@ All data was analysed with R. The following sections describe which methods and 
 As described in the introduction, the survey included items of three measurement items (ATOP, NC, and REPS). The original measurement items were translated from English to Dutch and French (see Tables \@ref(tab:atop-translation-kids), \@ref(tab:atop-translation), and \@ref(tab:reps-translation) in appendix \@ref(translate)).
 Each of these can be analyzed separately to determine the reliability and to check whether the translation in Dutch and French works well, as specified in research question 1, 2, and 3. 
 
-We apply multi-group Confirmatory Factor Analysis (CFA), using the lavaan package [@rosseel2012lavaan]. As in the original English version, we start from a model where each item is assumed to have a loading on only one latent variable which they intend to measure. ATOP and REPS include two latent factors and they can be correlated. For each factor in each group, one loading is fixed to 1 to identify the model.
-Several different groupings were tested for each of the scale questions.
+We apply multi-group Confirmatory Factor Analysis (CFA), using the lavaan package [@rosseel2012lavaan]. As in the original English version, we start from a model where each item is assumed to have a loading on only one latent variable which they intend to measure. ATOP and REPS scales are each modeled using two correlated latent factors. For each factor in each group, one loading is fixed to 1 to identify the model.
+Several different groupings were tested for each of the measurement items.
 
 - A group for each school.
 - A grouping per language (Dutch versus French). 
 - A grouping per school environment (urban or rural).
 - A grouping per type of playground (green or grey).
 
-The grouping per school did not work well in any of the scales since there were very little students in some of the schools which made it hard to fit the model.
+The grouping per school did not work well in any of the measurement items since there were very little students in some of the schools which made it hard to fit the model.
 A grouping based on the language made a lot of sense since the translation may alter the interpretation of the statements slightly even though this was not our intention.
 A grouping per school environment or type of playground fits well with the main research questions of the B@seball project but yielded inferior fit and reliability than a language grouping for both the ATOP and NC scales.
-For consistency, we therefore decided to stick to a grouping based on the language for all three scales (ATOP, NC, and REPS).
+For consistency, we therefore decided to stick to a grouping based on the language for all three measurement items (ATOP, NC, and REPS).
 
 In the multi-group CFA, one can check whether the measurement model holds across groups i.e., whether there is measurement equivalence. In the most general model (also called the **configural model**), the proposed factor model is fit to each group without any constraints. **Metric measurement invariance** requires one additional constraint; that the loadings are equal across groups. **Strong measurement invariance** implies that both loadings and intercepts are equal across groups. One may also allow **some** loadings and intercepts to vary across groups and force others to be equal across groups to improve the fit. However, this may over-complicate the model and lead to overfitting.
 
 The fit of each of the CFA models is assessed using the typical fit measures: Comparative Fit Index (CFI), Tucker-Lewis Index (TLI), Root Mean Square Error of Approximation (RMSEA), and Standardized Root Mean Square Residual (SRMR).
 For a good fit, we require CFI and TLI to be $>0.95$,  RMSEA $<.06$, and SRMR $<0.08$ [@byrne1994structural; @hu1999cutoff]. 
 
-Composite reliability is checked using McDonald's $\omega$ and Cronbach $\alpha$ [@bentler1968alpha; @cho2021neither; @mcdonald2013test]. These are calculated using the compRelSEM function from the semTools R packages [@jorgensen2016package]. This function's implementation accounts for multidimensionality (possibly with cross-loadings) and correlated errors.
-Additionally, we assess the validity of the latent factors by checking their association with relevant related variables.
+Composite reliability is checked using McDonald's $\omega$ and Cronbach Alpha [@bentler1968alpha; @cho2021neither; @mcdonald2013test]. These are calculated using the compRelSEM function from the semTools R packages [@jorgensen2016package]. This function's implementation accounts for multidimensionality (possibly with cross-loadings) and correlated errors (see also appendix \@ref(comprel)). Internal consistency is usually considered acceptable if the estimate is 0.7 or higher.
+
+Lastly, we assess the validity of the latent factors by checking their association with relevant related variables.
 Examples of relevant related variables are how often the child actually plays outside in nature and how much freedom parents allow their children to travel around their own neighbourhood or city without adult supervision.
 
 
@@ -76,18 +75,25 @@ Examples of relevant related variables are how often the child actually plays ou
 
 To answer research questions 4, 5, and 6, we build a Structural Equation Model (SEM), using the lavaan package [@rosseel2012lavaan]. In this model, we investigate whether there are important links between the latent factors and / or if the latent factors are related to other exogenous variables.
 
-In the SEM, the chosen models from the CFA for each of the scales are repeated, including possibly correlated error terms between items. For each factor in each group, one loading is fixed to 1 to identify the model.
-The link between latent factors is tested by implementing a covariance between the latent factors.
+In the SEM, the chosen models from the CFA for each of the measurement items are repeated, including possibly correlated error terms between items. For each factor in each group, one loading is fixed to 1 to identify the model.
+The link between latent factors is tested by estimating the covariance between the latent factors.
 The link between latent factors and other exogenous variables is analysed by adding regressions to the SEM.
-One regression is added per latent factor where the dependent variable is the latent factor and the independent variables are the exogenous variables of interest. 
-The project members were consulted to decide on sensible exogenous variables. Finally, gender, socio-economic status, air pollution, naturalness of the school surroundings, greenness of the school playground, and an interaction between naturalness and greenness were suggested as possibly important variables.
-The intuition for the interaction between naturalness and greenness follows from the hypothesis that a green school playground in an environment with low naturalness may have a bigger impact than a green school playground in an environment with high naturalness.
+The project members were consulted to decide on sensible exogenous variables.
+As a result, gender, Socio-Economic Status (SES), air pollution, naturalness of the school surroundings, greenness of the school playground, and an interaction between naturalness and greenness were suggested as possibly important variables.
+The intuition for the interaction between naturalness and greenness follows from the hypothesis that a green school playground in an environment with low naturalness may have a bigger impact than a green school playground in an environment with high naturalness. If all scales (ATOP, NC, and REPS) can reliably fit their corresponding concepts, we start with the following regressions in the SEM:
+
+- A regression where ATOP_benefits is the endogenous variable and the exogenous variables are gender, Socio-Economic Status (SES), air pollution, naturalness of the school surroundings, greenness of the school playground, and an interaction between naturalness and greenness.
+- A regression where ATOP_fears is the endogenous variable and the exogenous variables are gender, SES, air pollution, naturalness of the school surroundings, greenness of the school playground, and an interaction between naturalness and greenness.
+- A regression where NC is the endogenous variable and the exogenous variables are gender, SES, air pollution, naturalness of the school surroundings, greenness of the school playground, and an interaction between naturalness and greenness.
+- A regression where REPS_protection_from_injury is the endogenous variable and the exogenous variables are gender, SES, air pollution, naturalness of the school surroundings, greenness of the school playground, and an interaction between naturalness and greenness.
+- A regression where REPS_risk_engagement is the endogenous variable and the exogenous variables are gender, SES, air pollution, naturalness of the school surroundings, greenness of the school playground, and an interaction between naturalness and greenness.
+
+Non-significant exogenous variables that do not fit well and are not significant will be removed from the regressions one-by-one (backward selection procedure).
 
 Just like in the CFA, a multi-group SEM with a grouping based on the language of the survey will be tested. If the fit is good, we will compare a model with configural, metric, and strong measurement invariance.
 
 The fit of the SEM is assessed using the same fit measures as for the CFA: CFI, TLI, RMSEA, and SRMR.
-For good fit, we employ the same cutoff values as for the CFA [@byrne1994structural; @hu1999cutoff]. 
-Composite reliability is checked for the latent factors using McDonald's $\omega$ and  Cronbach $\alpha$.
+For good fit, we employ the same cutoff values as for the CFA [@byrne1994structural; @hu1999cutoff].
 
 \newpage
 

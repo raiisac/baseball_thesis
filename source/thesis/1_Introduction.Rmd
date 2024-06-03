@@ -1,3 +1,5 @@
+\pagenumbering{arabic}
+
 # Introduction
 
 ## The B@seball project
@@ -25,23 +27,23 @@ Both the microbiota data and the data from the questionnaires were cleaned and a
 
 ### Children's questionnaire
 
-The children's questionnaire was filled in by approximately 500 children. It included questions on the children's **Attitude Towards Outdoor Play (ATOP)**  which is measured through eleven statements that are scored on a likert scale [@beyer2015development]. The original statements had a Chronbach alpha of 0.79 on both subscales (ATOP_benefits and ATOP_fears). ATOP_benefits is high if the child recognizes that playing outdoors has many benefits. ATOP_fears is high if the child has a lot of fears related to playing outdoors. The original standardized scale questions were translated in Dutch and French to accommodate the children's language. One scale item on people using drugs was removed from the scale since it was deemed irrelevant for children between 10 and 12 years old.
+The children's questionnaire was filled in by approximately 500 children. It included questions on the children's **Attitude Towards Outdoor Play (ATOP)**  which is measured through eleven statements that are scored on a likert scale [@beyer2015development]. The original statements had a Chronbach Alpha of 0.79 on both subscales (ATOP_benefits and ATOP_fears). ATOP_benefits is high if the child recognizes that playing outdoors has many benefits. ATOP_fears is high if the child has a lot of fears related to playing outdoors. The original standardized scale questions were translated in Dutch and French to accommodate the children's language. One scale item on people using drugs was removed from the scale since it was deemed irrelevant for children between 10 and 12 years old.
 This leads us to our first research question.
 
 :::: {.center data-latex=""}
 
 ::: {.minipage data-latex="{.80\linewidth}"}
-RQ1: Do the two subscales in the translated ATOP reliably measure the corresponding concepts?
+RQ1: Do the two subscales in the translated ATOP reliably measure the corresponding concepts and is there measurement equivalence with respect to language?
 :::
 
 ::::
 
-A second set of scale questions was based on Nature England's monitor of engagement with the natural environment or *Nature Connectedness* (NC) survey [@hunt2017monitor]. Six affective statements on NC were translated in Dutch and French. The original statements had a Cronbach Alpha of 0.918 and 0.899 in adults and children respectively.  This leads us to our second research question.
+A second set of scale questions was based on Nature England's monitor of engagement with the natural environment or *Nature Connectedness* (NC) survey [@hunt2017monitor]. Six affective statements on NC were translated in Dutch and French. The original statements had a Cronbach Alpha of 0.918 and 0.899 in adults and children respectively. This leads us to our second research question.
 
 :::: {.center data-latex=""}
 
 ::: {.minipage data-latex="{.8\linewidth}"}
-RQ2: Is the translated NC scale still a reliable measure of the corresponding concept?
+RQ2: Is the translated NC scale still a reliable measure of the corresponding concept  and is there measurement equivalence with respect to language?
 :::
 
 ::::
@@ -50,14 +52,14 @@ RQ2: Is the translated NC scale still a reliable measure of the corresponding co
 
 Only around 300 parents of the approximately 500 children filled in a questionnaire. They firstly answered questions on their children's environment and health, socio-economic status, and cultural background. 
 
-Based on @jelleyman2019cross, parents were also asked about their child's outdoor sports, outdoor activities, participation in "risky play categories" such as climbing trees and push-and-pull games, and the independent mobility of their child [@shaw2013children].
+Based on @jelleyman2019cross, parents were asked about their child's outdoor sports, outdoor activities, participation in "risky play categories" such as climbing trees and push-and-pull games, and the independent mobility of their child [@shaw2013children].
 
-The **Risk Engagement and Protection Survey (REPS)** measures two underlying factors [@olsen2018risk; @shaw2013children; @jelleyman2019cross]. The first factor, "protection from injury", is scored high if parents want to protect their children from injury. The second factor, "engagement with risk", is scored high if the parents encourage their children to engage with risky behavior. All questions were translated in French and Dutch.
+The **Risk Engagement and Protection Survey (REPS)** measures two underlying factors [@olsen2018risk; @shaw2013children; @jelleyman2019cross]. The first factor, "protection from injury", is scored high if parents want to protect their children from injury. The second factor, "engagement with risk", is scored high if the parents encourage their children to engage with risky behavior. All questions were translated in French and Dutch, leading us to the third research question:
 
 :::: {.center data-latex=""}
 
 ::: {.minipage data-latex="{.8\linewidth}"}
-RQ3: Can both dimensions in the translated REPS questionnaire be reliably measured?
+RQ3: Can both dimensions in the translated REPS questionnaire be reliably measured and is there measurement equivalence with respect to language?
 :::
 
 ::::
@@ -72,7 +74,7 @@ RQ4: Are ATOP dimensions in children related to their parents' REPS dimensions?
 
 RQ5: Is the child's socio-economic status related to their NC, ATOP, or their parent's REPS dimensions?
 
-RQ6: Is the type of school environment related to the children's ATOP and/or NC?
+RQ6: Is the type of school environment related to the children's ATOP and / or NC dimensions?
 :::
 
 ::::
